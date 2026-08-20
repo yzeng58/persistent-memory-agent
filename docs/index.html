@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="An interactive, synthetic demonstration of persistent personal agent memory."
+    >
+    <title>Persistent Memory Agent</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#">Persistent Memory Agent</a>
+      <a
+        class="github-link"
+        href="https://github.com/yzeng58/persistent-memory-agent"
+      >View source</a>
+    </header>
+
+    <main>
+      <section class="hero">
+        <p class="eyebrow">Inspectable memory for long-running agents</p>
+        <h1>Remember the user without freezing them in the past.</h1>
+        <p class="hero-copy">
+          A privacy-safe reference implementation of durable personal memory:
+          append-only events, versioned facts, provenance, supersession, and
+          query-aware context packing.
+        </p>
+        <div class="architecture" aria-label="Memory architecture">
+          <span>Conversation</span>
+          <b>-></b>
+          <span>Memory writes</span>
+          <b>-></b>
+          <span>Versioned store</span>
+          <b>-></b>
+          <span>Bounded context</span>
+        </div>
+      </section>
+
+      <section class="demo-section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Synthetic walkthrough</p>
+            <h2>Watch memory change across sessions</h2>
+          </div>
+          <div class="controls">
+            <button id="reset-button" class="secondary-button">Reset</button>
+            <button id="next-button" class="primary-button">Process next turn</button>
+          </div>
+        </div>
+
+        <div class="demo-grid">
+          <article class="panel">
+            <div class="panel-header">
+              <h3>Conversation event log</h3>
+              <span id="turn-counter">0 / 4 turns</span>
+            </div>
+            <div id="conversation" class="conversation empty-state">
+              Process a turn to begin the synthetic conversation.
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <h3>Versioned memory ledger</h3>
+              <span>provenance preserved</span>
+            </div>
+            <div id="memory-ledger" class="memory-ledger empty-state">
+              Durable memory writes will appear here.
+            </div>
+          </article>
+        </div>
+
+        <article class="panel retrieval-panel">
+          <div class="panel-header">
+            <h3>Query-aware retrieval</h3>
+            <span>active memories only</span>
+          </div>
+          <div class="query-row">
+            <input
+              id="query-input"
+              type="text"
+              value="Prepare and schedule a meeting about persistent-agent opportunities"
+              aria-label="Retrieval query"
+            >
+            <button id="retrieve-button" class="primary-button">Retrieve</button>
+          </div>
+          <div id="retrieval-results" class="retrieval-results empty-state">
+            Process conversation turns, then retrieve a bounded memory context.
+          </div>
+        </article>
+      </section>
+
+      <section class="principles">
+        <article>
+          <p class="principle-number">01</p>
+          <h3>Events are immutable</h3>
+          <p>The original observation remains available for audit and reprocessing.</p>
+        </article>
+        <article>
+          <p class="principle-number">02</p>
+          <h3>Facts are versioned</h3>
+          <p>A changed preference supersedes the old value instead of erasing history.</p>
+        </article>
+        <article>
+          <p class="principle-number">03</p>
+          <h3>Retrieval is bounded</h3>
+          <p>Only relevant, active memories enter the model context, with provenance.</p>
+        </article>
+        <article>
+          <p class="principle-number">04</p>
+          <h3>Private by design</h3>
+          <p>This public demo contains synthetic data and no connection to a real account.</p>
+        </article>
+      </section>
+    </main>
+
+    <footer>
+      Built by <a href="https://yzeng58.github.io/">Yuchen Zeng</a>.
+      Reference implementation available under the MIT License.
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>

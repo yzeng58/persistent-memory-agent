@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "persistent-memory-agent"
+version = "0.1.0"
+description = "A privacy-safe reference implementation of persistent personal agent memory"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+  { name = "Yuchen Zeng" }
+]
+dependencies = []
+
+[project.optional-dependencies]
+openai = ["openai>=1.0"]
+
+[project.scripts]
+persistent-memory-agent = "persistent_memory_agent.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
