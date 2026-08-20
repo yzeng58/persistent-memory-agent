@@ -1,321 +1,331 @@
-const turns = [
-  {
-    text: "I live in Seattle and prefer meetings after 10am.",
-    writes: [
+const scenes = {
+  morning: {
+    summary: "7 workflows coordinated",
+    activity: [
       {
-        subject: "user",
-        predicate: "home_city",
-        value: "Seattle",
-        kind: "profile",
-        importance: 0.8,
+        skill: "calendar-ops",
+        text: "Checked four calendars and resolved today's timeline.",
       },
       {
-        subject: "user",
-        predicate: "meeting_time",
-        value: "after 10:00 local time",
-        kind: "preference",
-        importance: 0.9,
+        skill: "email-ops",
+        text: "Triaged Gmail and Outlook; drafted two replies.",
       },
-    ],
-  },
-  {
-    text: "I am exploring research roles focused on memory and persistent agents.",
-    writes: [
       {
-        subject: "user",
-        predicate: "career_focus",
-        value: "memory and persistent-agent research roles",
-        kind: "project",
-        importance: 1.0,
+        skill: "reporting-ops",
+        text: "Created a follow-up reminder from an unanswered email.",
       },
-    ],
-  },
-  {
-    text: "I moved to San Francisco last month.",
-    writes: [
       {
-        subject: "user",
-        predicate: "home_city",
-        value: "San Francisco",
-        kind: "profile",
-        importance: 0.8,
+        skill: "investment-ops",
+        text: "Reviewed portfolio changes and current market context.",
+      },
+      {
+        skill: "social-scout",
+        text: "Filtered AI news down to three relevant developments.",
+      },
+      {
+        skill: "spending-ops",
+        text: "Matched today's plans with card offers and spending targets.",
+      },
+      {
+        skill: "beauty-search",
+        text: "Kept personal style and care recommendations in context.",
       },
     ],
-  },
-  {
-    text: "When discussing opportunities, lead with my context-management work.",
-    writes: [
-      {
-        subject: "user",
-        predicate: "opportunity_positioning",
-        value: "lead with context-management work",
-        kind: "procedure",
-        importance: 0.95,
-      },
-    ],
-  },
-];
+    workspace: `
+      <div class="workspace-heading reveal" style="--delay: 0ms">
+        <div>
+          <p class="workspace-kicker">Thursday / August 20</p>
+          <h3>Good morning, Yuchen.</h3>
+          <p>Your day is organized. Three items need your attention.</p>
+        </div>
+        <div class="ready-badge">
+          <span></span>
+          Ready before your first prompt
+        </div>
+      </div>
 
-let processedTurns = 0;
-let nextMemoryId = 1;
-let memories = [];
-const maxContextChars = 520;
-const tokenAliases = {
-  agents: "agent",
-  calls: "meeting",
-  conversation: "meeting",
-  conversations: "meeting",
-  opportunities: "career",
-  opportunity: "career",
-  researcher: "research",
-  researchers: "research",
-  roles: "career",
-  role: "career",
-  schedule: "meeting",
-  scheduling: "meeting",
+      <div class="morning-grid">
+        <article class="dashboard-card schedule-card reveal" style="--delay: 90ms">
+          <div class="card-heading">
+            <span class="card-icon calendar-icon">CAL</span>
+            <div>
+              <p>Today's schedule</p>
+              <small>4 calendars combined</small>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <time>11:30</time>
+            <div>
+              <strong>BenchPress sync</strong>
+              <span>Next version prepared</span>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <time>13:30</time>
+            <div>
+              <strong>Research review</strong>
+              <span>Reading list attached</span>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <time>16:00</time>
+            <div>
+              <strong>Focus block</strong>
+              <span>Protected from new meetings</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="dashboard-card reveal" style="--delay: 160ms">
+          <div class="card-heading">
+            <span class="card-icon mail-icon">MAIL</span>
+            <div>
+              <p>Inbox and commitments</p>
+              <small>Gmail + Outlook</small>
+            </div>
+          </div>
+          <div class="metric-row">
+            <strong>14</strong>
+            <span>new messages triaged</span>
+          </div>
+          <ul class="clean-list">
+            <li><b>2</b> replies drafted</li>
+            <li><b>1</b> reminder created automatically</li>
+            <li><b>0</b> urgent deadlines missed</li>
+          </ul>
+        </article>
+
+        <article class="dashboard-card reveal" style="--delay: 230ms">
+          <div class="card-heading">
+            <span class="card-icon market-icon">AI</span>
+            <div>
+              <p>Markets and AI</p>
+              <small>Only relevant changes</small>
+            </div>
+          </div>
+          <div class="signal-item">
+            <span>Portfolio</span>
+            <strong>No urgent action</strong>
+          </div>
+          <div class="signal-item">
+            <span>AI news</span>
+            <strong>3 stories worth reading</strong>
+          </div>
+          <div class="signal-item">
+            <span>Research</span>
+            <strong>1 paper added to queue</strong>
+          </div>
+        </article>
+
+        <article class="dashboard-card reveal" style="--delay: 300ms">
+          <div class="card-heading">
+            <span class="card-icon spend-icon">USD</span>
+            <div>
+              <p>Spend and eat</p>
+              <small>Offers + budget + preferences</small>
+            </div>
+          </div>
+          <div class="offer-banner">
+            <span>Card offer found</span>
+            <strong>10% back on dining</strong>
+          </div>
+          <div class="food-row">
+            <div class="food-avatar">F</div>
+            <div>
+              <span>Lunch suggestion</span>
+              <strong>Salmon bowl nearby</strong>
+              <small>High protein / within today's target</small>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="prepared-actions reveal" style="--delay: 380ms">
+        <p>Prepared for you</p>
+        <div>
+          <span>Review 2 email drafts</span>
+          <span>Ask to move BenchPress sync to 10am</span>
+          <span>Save dining offer</span>
+        </div>
+      </div>
+    `,
+  },
+  manager: {
+    summary: "6 decisions made before drafting",
+    activity: [
+      {
+        skill: "people-ops",
+        text: "Looked up Dimitris: manager and BenchPress collaborator.",
+      },
+      {
+        skill: "workplace-communication",
+        text: "Selected a concise, warm, proactive tone.",
+      },
+      {
+        skill: "calendar-ops",
+        text: "Confirmed 10:00am is open; the change still needs agreement.",
+      },
+      {
+        skill: "teams-ops",
+        text: "Selected Microsoft Teams as the established channel.",
+      },
+      {
+        skill: "browser",
+        text: "Routed through authenticated Chrome DevTools for Teams.",
+      },
+      {
+        skill: "confirmation-gate",
+        text: "Stopped before Send and prepared the exact draft for review.",
+      },
+    ],
+    workspace: `
+      <div class="workspace-heading reveal" style="--delay: 0ms">
+        <div>
+          <p class="workspace-kicker">Cross-app execution</p>
+          <h3>One request. The agent resolves the workflow.</h3>
+          <p>Identity, relationship, tone, schedule, channel, and tool all matter.</p>
+        </div>
+        <div class="ready-badge route-badge">
+          <span></span>
+          No generic advice
+        </div>
+      </div>
+
+      <div class="user-request reveal" style="--delay: 80ms">
+        <div class="request-avatar">YZ</div>
+        <p>
+          Message Dimitris that I have the next BenchPress version ready, and
+          ask whether we can move our meeting to 10am.
+        </p>
+      </div>
+
+      <div class="route-grid">
+        <article class="route-card reveal" style="--delay: 150ms">
+          <span class="route-number">01</span>
+          <p>Who is this?</p>
+          <strong>Dimitris</strong>
+          <small>Manager + BenchPress collaborator</small>
+          <code>people-ops</code>
+        </article>
+        <article class="route-card reveal" style="--delay: 220ms">
+          <span class="route-number">02</span>
+          <p>How should it sound?</p>
+          <strong>Concise and proactive</strong>
+          <small>Warm, direct, no over-explaining</small>
+          <code>workplace-communication</code>
+        </article>
+        <article class="route-card reveal" style="--delay: 290ms">
+          <span class="route-number">03</span>
+          <p>Is 10am possible?</p>
+          <strong>10am is available</strong>
+          <small>Shared change requires confirmation</small>
+          <code>calendar-ops</code>
+        </article>
+        <article class="route-card reveal" style="--delay: 360ms">
+          <span class="route-number">04</span>
+          <p>Where should it go?</p>
+          <strong>Microsoft Teams</strong>
+          <small>Authenticated Chrome profile required</small>
+          <code>teams-ops -> Chrome DevTools</code>
+        </article>
+      </div>
+
+      <article class="draft-card reveal" style="--delay: 440ms">
+        <div class="draft-topline">
+          <div>
+            <span>Draft ready in Microsoft Teams</span>
+            <strong>To: Dimitris</strong>
+          </div>
+          <span class="draft-status">Waiting for approval</span>
+        </div>
+        <div class="draft-message">
+          Hi Dimitris - could we move our BenchPress sync to 10am? I
+          have the next version ready, so we can review it and use the rest of
+          the time for anything else you would like to discuss.
+        </div>
+        <div class="draft-actions">
+          <button class="approve-button" type="button">Approve and send</button>
+          <button class="edit-button" type="button">Edit draft</button>
+        </div>
+      </article>
+    `,
+  },
 };
-const stopwords = new Set([
-  "a",
-  "about",
-  "an",
-  "and",
-  "for",
-  "i",
-  "in",
-  "my",
-  "of",
-  "the",
-  "to",
-  "with",
-]);
 
-const conversation = document.querySelector("#conversation");
-const memoryLedger = document.querySelector("#memory-ledger");
-const retrievalResults = document.querySelector("#retrieval-results");
-const turnCounter = document.querySelector("#turn-counter");
-const nextButton = document.querySelector("#next-button");
-const resetButton = document.querySelector("#reset-button");
-const retrieveButton = document.querySelector("#retrieve-button");
-const queryInput = document.querySelector("#query-input");
+const workspace = document.querySelector("#workspace");
+const activityFeed = document.querySelector("#activity-feed");
+const activitySummary = document.querySelector("#activity-summary");
+const sceneButtons = document.querySelectorAll(".scene-button");
+let activityTimers = [];
 
-function escapeHtml(value) {
-  return value.replace(
-    /[&<>"']/g,
-    (character) =>
-      ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;",
-      })[character],
-  );
+function clearActivityTimers() {
+  for (const timer of activityTimers) {
+    window.clearTimeout(timer);
+  }
+  activityTimers = [];
 }
 
-function processNextTurn() {
-  if (processedTurns >= turns.length) {
-    return;
-  }
+function animateActivity(items, summary) {
+  clearActivityTimers();
+  activityFeed.innerHTML = "";
+  activitySummary.textContent = "Routing workflows...";
 
-  const turn = turns[processedTurns];
-  const eventId = processedTurns + 1;
-  for (const write of turn.writes) {
-    const active = memories.find(
-      (memory) =>
-        memory.subject === write.subject &&
-        memory.predicate === write.predicate &&
-        memory.kind === write.kind &&
-        memory.status === "active",
-    );
-    if (active && active.value !== write.value) {
-      active.status = "superseded";
-      active.validTo = eventId;
-    }
-    if (!active || active.value !== write.value) {
-      memories.push({
-        ...write,
-        id: nextMemoryId,
-        sourceEventId: eventId,
-        supersedesId: active ? active.id : null,
-        status: "active",
-        confidence: 1.0,
-      });
-      nextMemoryId += 1;
-    }
-  }
-
-  processedTurns += 1;
-  render();
-  retrieve();
-}
-
-function resetDemo() {
-  processedTurns = 0;
-  nextMemoryId = 1;
-  memories = [];
-  render();
-}
-
-function render() {
-  turnCounter.textContent = `${processedTurns} / ${turns.length} turns`;
-  nextButton.disabled = processedTurns >= turns.length;
-
-  if (processedTurns === 0) {
-    conversation.className = "conversation empty-state";
-    conversation.textContent =
-      "Process a turn to begin the synthetic conversation.";
-    memoryLedger.className = "memory-ledger empty-state";
-    memoryLedger.textContent = "Durable memory writes will appear here.";
-    retrievalResults.className = "retrieval-results empty-state";
-    retrievalResults.textContent =
-      "Process conversation turns, then retrieve a bounded memory context.";
-    return;
-  }
-
-  conversation.className = "conversation";
-  conversation.innerHTML = turns
-    .slice(0, processedTurns)
-    .map(
-      (turn, index) => `
-        <div class="message">
-          <div class="message-label">Event ${index + 1} / user</div>
-          <p>${escapeHtml(turn.text)}</p>
+  items.forEach((item, index) => {
+    const timer = window.setTimeout(() => {
+      const row = document.createElement("div");
+      row.className = "activity-item";
+      row.innerHTML = `
+        <div class="activity-status"><span></span></div>
+        <div>
+          <strong>${item.skill}</strong>
+          <p>${item.text}</p>
         </div>
-      `,
-    )
-    .join("");
+      `;
+      activityFeed.appendChild(row);
+      window.requestAnimationFrame(() => row.classList.add("visible"));
 
-  memoryLedger.className = "memory-ledger";
-  const latestIdByKey = new Map();
-  for (const memory of memories) {
-    const key = `${memory.subject}.${memory.predicate}.${memory.kind}`;
-    latestIdByKey.set(key, Math.max(latestIdByKey.get(key) || 0, memory.id));
-  }
-  memoryLedger.innerHTML = [...memories]
-    .sort((left, right) => {
-      const leftKey = `${left.subject}.${left.predicate}.${left.kind}`;
-      const rightKey = `${right.subject}.${right.predicate}.${right.kind}`;
-      return (
-        latestIdByKey.get(rightKey) - latestIdByKey.get(leftKey) ||
-        right.id - left.id
-      );
-    })
-    .map(
-      (memory) => `
-        <div class="memory-card ${memory.status}">
-          <div class="memory-topline">
-            <span class="memory-key">${escapeHtml(
-              `${memory.subject}.${memory.predicate}`,
-            )}</span>
-            <span class="status ${memory.status}">${memory.status}</span>
-          </div>
-          <p class="memory-value">${escapeHtml(memory.value)}</p>
-          <div class="memory-meta">
-            ${escapeHtml(memory.kind)} / source event ${memory.sourceEventId}
-            ${
-              memory.supersedesId
-                ? `/ supersedes memory ${memory.supersedesId}`
-                : ""
-            }
-          </div>
-        </div>
-      `,
-    )
-    .join("");
+      const completeTimer = window.setTimeout(() => {
+        row.classList.add("complete");
+      }, 260);
+      activityTimers.push(completeTimer);
+
+      if (index === items.length - 1) {
+        const summaryTimer = window.setTimeout(() => {
+          activitySummary.textContent = summary;
+        }, 360);
+        activityTimers.push(summaryTimer);
+      }
+    }, index * 430);
+    activityTimers.push(timer);
+  });
 }
 
-function tokenize(text) {
-  const rawTokens =
-    text.toLowerCase().replaceAll("_", " ").match(/[a-z0-9_]+/g) || [];
-  return new Set(
-    rawTokens
-      .filter((token) => !stopwords.has(token))
-      .map((token) => tokenAliases[token] || token),
-  );
+function renderScene(sceneName) {
+  const scene = scenes[sceneName];
+  workspace.innerHTML = scene.workspace;
+  sceneButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.scene === sceneName);
+  });
+  animateActivity(scene.activity, scene.summary);
 }
 
-function retrieve() {
-  if (processedTurns === 0) {
-    return;
+sceneButtons.forEach((button) => {
+  button.addEventListener("click", () => renderScene(button.dataset.scene));
+});
+
+workspace.addEventListener("click", (event) => {
+  if (event.target.matches(".approve-button")) {
+    const status = workspace.querySelector(".draft-status");
+    status.textContent = "Demo only - nothing sent";
+    event.target.textContent = "Approval captured";
+    event.target.disabled = true;
   }
-
-  const query = queryInput.value.trim();
-  const queryTokens = tokenize(query);
-  const activeMemories = memories.filter((memory) => memory.status === "active");
-  const ranked = activeMemories
-    .map((memory) => {
-      const memoryTokens = tokenize(
-        `${memory.subject} ${memory.predicate} ${memory.value} ${memory.kind}`,
-      );
-      const overlap = [...queryTokens].filter((token) =>
-        memoryTokens.has(token),
-      ).length;
-      const lexicalScore = queryTokens.size ? overlap / queryTokens.size : 0;
-      const age = Math.max(processedTurns - memory.sourceEventId, 0);
-      const recencyScore = Math.exp(-age / 30);
-      const score =
-        0.55 * lexicalScore +
-        0.2 * memory.importance +
-        0.15 * memory.confidence +
-        0.1 * recencyScore;
-      return { memory, score, lexicalScore };
-    })
-    .filter(({ lexicalScore }) => lexicalScore > 0)
-    .sort((left, right) => right.score - left.score)
-    .slice(0, 8);
-
-  const contextLines = [];
-  let contextLength = 0;
-  for (const { memory } of ranked) {
-    const line =
-      `[${memory.kind}] ${memory.subject}.${memory.predicate} = ` +
-      `${memory.value} (source event ${memory.sourceEventId}, ` +
-      `confidence ${memory.confidence.toFixed(2)})`;
-    const addedLength = line.length + (contextLines.length ? 1 : 0);
-    if (contextLength + addedLength > maxContextChars) {
-      break;
-    }
-    contextLines.push(line);
-    contextLength += addedLength;
-  }
-  const context = contextLines.join("\n");
-
-  retrievalResults.className = "retrieval-results";
-  retrievalResults.innerHTML = `
-    ${
-      ranked.length
-        ? ranked
-      .map(
-        ({ memory, score }) => `
-          <div class="retrieved-memory">
-            <div class="score">${score.toFixed(2)}</div>
-            <p>
-              <strong>${escapeHtml(
-                `${memory.subject}.${memory.predicate}`,
-              )}</strong><br>
-              ${escapeHtml(memory.value)}
-            </p>
-          </div>
-        `,
-      )
-      .join("")
-        : '<p>No active memory passed the relevance gate.</p>'
-    }
-    ${
-      context
-        ? `<div class="context-block">${escapeHtml(context)}</div>`
-        : ""
-    }
-  `;
-}
-
-nextButton.addEventListener("click", processNextTurn);
-resetButton.addEventListener("click", resetDemo);
-retrieveButton.addEventListener("click", retrieve);
-queryInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    retrieve();
+  if (event.target.matches(".edit-button")) {
+    const message = workspace.querySelector(".draft-message");
+    message.contentEditable = "true";
+    message.focus();
+    event.target.textContent = "Editing";
   }
 });
 
-render();
+renderScene("morning");

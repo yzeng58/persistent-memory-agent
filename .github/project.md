@@ -1,11 +1,11 @@
-# Persistent Memory Agent Project
+# Persistent Personal Agent Project
 
 ## Purpose
 
-Build a public, privacy-safe reference implementation of a personal agent that
-maintains durable memory across sessions. The repository must be useful as a
-technical artifact without exposing any real user data, credentials, private
-tools, or files from the deployed personal system.
+Build a public, privacy-safe day-in-the-life demonstration of a persistent
+personal AI chief of staff, backed by a reference implementation of durable
+memory. The public story must lead with what the agent does across everyday
+work and life, not with storage internals.
 
 ## Privacy Boundary
 
@@ -40,8 +40,8 @@ tools, or files from the deployed personal system.
 - `agent.py`: one-turn orchestration over a model backend and the memory store.
 - `openai_model.py`: optional OpenAI Responses API adapter.
 - `cli.py`: thin `demo`, `chat`, and `inspect` entrypoints.
-- `docs/`: synthetic browser demonstration of writes, supersession, provenance,
-  and retrieval.
+- `docs/`: product demonstration of a morning briefing and a relationship-aware,
+  cross-app communication workflow.
 
 Future storage or model backends must preserve the domain contracts in
 `models.py` and `agent.py` rather than creating a second memory lifecycle.
@@ -57,7 +57,8 @@ Future storage or model backends must preserve the domain contracts in
 
 1. Update the canonical implementation in `src/persistent_memory_agent/`.
 2. Add or update deterministic tests in `tests/`.
-3. Keep the static demo behavior aligned with the documented memory lifecycle.
+3. Keep the product demo focused on user outcomes while accurately representing
+   the system's routing, memory, tools, and confirmation gates.
 4. Run `python -m unittest discover -s tests -v`.
 5. Run `python -m compileall -q src tests`.
 6. Verify `docs/index.html` through a local static server before publishing.

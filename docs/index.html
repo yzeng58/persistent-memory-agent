@@ -5,122 +5,255 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta
       name="description"
-      content="An interactive, synthetic demonstration of persistent personal agent memory."
+      content="A day-in-the-life demo of a persistent personal AI chief of staff."
     >
-    <title>Persistent Memory Agent</title>
+    <title>Persistent Personal Agent</title>
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="#">Persistent Memory Agent</a>
+      <a class="brand" href="#">
+        <span class="brand-mark">PA</span>
+        <span>Persistent Personal Agent</span>
+      </a>
       <a
-        class="github-link"
+        class="source-link"
         href="https://github.com/yzeng58/persistent-memory-agent"
       >View source</a>
     </header>
 
     <main>
       <section class="hero">
-        <p class="eyebrow">Inspectable memory for long-running agents</p>
-        <h1>Remember the user without freezing them in the past.</h1>
+        <p class="eyebrow">A persistent personal AI chief of staff</p>
+        <h1>Wake up. Your agent has already checked the day.</h1>
         <p class="hero-copy">
-          A privacy-safe reference implementation of durable personal memory:
-          append-only events, versioned facts, provenance, supersession, and
-          query-aware context packing.
+          Calendar, email, AI news, stocks, credit-card offers, meals,
+          spending, reminders, relationships, work communication, and style.
+          One agent remembers the person behind every task and routes the work
+          to the right tool.
         </p>
-        <div class="architecture" aria-label="Memory architecture">
-          <span>Conversation</span>
-          <b>-></b>
-          <span>Memory writes</span>
-          <b>-></b>
-          <span>Versioned store</span>
-          <b>-></b>
-          <span>Bounded context</span>
+        <div class="hero-tags" aria-label="Agent qualities">
+          <span>Everyday</span>
+          <span>Cross-app</span>
+          <span>Relationship-aware</span>
+          <span>Action-oriented</span>
         </div>
       </section>
 
-      <section class="demo-section">
-        <div class="section-heading">
+      <section class="demo-section" aria-labelledby="demo-title">
+        <div class="demo-heading">
           <div>
-            <p class="eyebrow">Synthetic walkthrough</p>
-            <h2>Watch memory change across sessions</h2>
+            <p class="eyebrow">Day-in-the-life demo</p>
+            <h2 id="demo-title">See the agent operate, not just chat.</h2>
           </div>
-          <div class="controls">
-            <button id="reset-button" class="secondary-button">Reset</button>
-            <button id="next-button" class="primary-button">Process next turn</button>
+          <div class="scene-controls" role="group" aria-label="Demo scenes">
+            <button class="scene-button active" data-scene="morning">
+              Morning briefing
+            </button>
+            <button class="scene-button" data-scene="manager">
+              Message my manager
+            </button>
           </div>
         </div>
 
-        <div class="demo-grid">
-          <article class="panel">
-            <div class="panel-header">
-              <h3>Conversation event log</h3>
-              <span id="turn-counter">0 / 4 turns</span>
+        <div class="computer-shell">
+          <div class="window-bar">
+            <div class="window-dots" aria-hidden="true">
+              <span></span><span></span><span></span>
             </div>
-            <div id="conversation" class="conversation empty-state">
-              Process a turn to begin the synthetic conversation.
+            <div class="window-title">
+              <span class="copilot-spark">PA</span>
+              Persistent Personal Agent - Copilot CLI
             </div>
-          </article>
+            <div class="window-status">
+              <span class="live-dot"></span>
+              Running
+            </div>
+          </div>
 
-          <article class="panel">
-            <div class="panel-header">
-              <h3>Versioned memory ledger</h3>
-              <span>provenance preserved</span>
-            </div>
-            <div id="memory-ledger" class="memory-ledger empty-state">
-              Durable memory writes will appear here.
-            </div>
-          </article>
+          <div class="agent-screen">
+            <aside class="app-sidebar" aria-label="Agent sections">
+              <div class="sidebar-logo">PA</div>
+              <nav>
+                <div class="nav-item active" aria-label="Today">
+                  <span>01</span>
+                  <small>Today</small>
+                </div>
+                <div class="nav-item" aria-label="Inbox">
+                  <span>02</span>
+                  <small>Inbox</small>
+                </div>
+                <div class="nav-item" aria-label="Money">
+                  <span>03</span>
+                  <small>Money</small>
+                </div>
+                <div class="nav-item" aria-label="People">
+                  <span>04</span>
+                  <small>People</small>
+                </div>
+                <div class="nav-item" aria-label="Style">
+                  <span>05</span>
+                  <small>Style</small>
+                </div>
+              </nav>
+              <div class="profile-chip">YZ</div>
+            </aside>
+
+            <section id="workspace" class="workspace" aria-live="polite"></section>
+
+            <aside class="agent-rail">
+              <div class="rail-header">
+                <div>
+                  <p>Agent activity</p>
+                  <span id="activity-summary">Starting...</span>
+                </div>
+                <span class="pulse-ring"></span>
+              </div>
+              <div id="activity-feed" class="activity-feed"></div>
+              <div class="rail-footer">
+                <span>Persistent context</span>
+                <strong>On</strong>
+              </div>
+            </aside>
+          </div>
         </div>
 
-        <article class="panel retrieval-panel">
-          <div class="panel-header">
-            <h3>Query-aware retrieval</h3>
-            <span>active memories only</span>
-          </div>
-          <div class="query-row">
-            <input
-              id="query-input"
-              type="text"
-              value="Prepare and schedule a meeting about persistent-agent opportunities"
-              aria-label="Retrieval query"
-            >
-            <button id="retrieve-button" class="primary-button">Retrieve</button>
-          </div>
-          <div id="retrieval-results" class="retrieval-results empty-state">
-            Process conversation turns, then retrieve a bounded memory context.
-          </div>
-        </article>
+        <p class="demo-disclaimer">
+          Illustrative walkthrough based on real workflow categories. Names and
+          details are intentionally simplified; no live accounts are connected.
+        </p>
       </section>
 
-      <section class="principles">
-        <article>
-          <p class="principle-number">01</p>
-          <h3>Events are immutable</h3>
-          <p>The original observation remains available for audit and reprocessing.</p>
-        </article>
-        <article>
-          <p class="principle-number">02</p>
-          <h3>Facts are versioned</h3>
-          <p>A changed preference supersedes the old value instead of erasing history.</p>
-        </article>
-        <article>
-          <p class="principle-number">03</p>
-          <h3>Retrieval is bounded</h3>
-          <p>Only relevant, active memories enter the model context, with provenance.</p>
-        </article>
-        <article>
-          <p class="principle-number">04</p>
-          <h3>Private by design</h3>
-          <p>This public demo contains synthetic data and no connection to a real account.</p>
-        </article>
+      <section class="capabilities" aria-labelledby="capabilities-title">
+        <div class="section-intro">
+          <p class="eyebrow">One agent, the whole day</p>
+          <h2 id="capabilities-title">
+            The important tasks do not live in one app.
+          </h2>
+          <p>
+            The agent carries context across domains instead of treating each
+            request as a fresh, isolated chat.
+          </p>
+        </div>
+
+        <div class="capability-grid">
+          <article class="capability-card wide-card">
+            <span class="card-index">01</span>
+            <h3>Daily operating brief</h3>
+            <p>
+              Combines calendars, priorities, travel, reminders, email, market
+              context, and personal recommendations before the first prompt.
+            </p>
+            <div class="mini-tags">
+              <span>Schedule</span><span>Priorities</span><span>Reminders</span>
+            </div>
+          </article>
+
+          <article class="capability-card">
+            <span class="card-index">02</span>
+            <h3>Email and commitments</h3>
+            <p>
+              Scans Gmail and Outlook, drafts replies, extracts deadlines, and
+              automatically creates follow-up reminders.
+            </p>
+          </article>
+
+          <article class="capability-card">
+            <span class="card-index">03</span>
+            <h3>Stocks and AI intelligence</h3>
+            <p>
+              Checks the portfolio, relevant market changes, and AI news while
+              separating signal from noise.
+            </p>
+          </article>
+
+          <article class="capability-card">
+            <span class="card-index">04</span>
+            <h3>Spending, offers, and food</h3>
+            <p>
+              Finds credit-card offers and coupons, tracks spending, and makes
+              daily food suggestions using budget and preferences.
+            </p>
+          </article>
+
+          <article class="capability-card wide-card">
+            <span class="card-index">05</span>
+            <h3>A living map of people</h3>
+            <p>
+              Knows who someone is, how they relate to the user, what happened
+              previously, and which tone and channel fit that relationship.
+            </p>
+            <div class="mini-tags">
+              <span>Life</span><span>Work</span><span>History</span><span>Tone</span>
+            </div>
+          </article>
+
+          <article class="capability-card">
+            <span class="card-index">06</span>
+            <h3>Communication judgment</h3>
+            <p>
+              Uses saved research and books about management, influence, and
+              workplace communication before drafting sensitive messages.
+            </p>
+          </article>
+
+          <article class="capability-card">
+            <span class="card-index">07</span>
+            <h3>Fashion and aesthetics</h3>
+            <p>
+              Helps with outfits, skincare, hair, beauty treatments, trends,
+              gifts, and purchase decisions using personal context.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="agent-loop" aria-labelledby="loop-title">
+        <div class="section-intro compact">
+          <p class="eyebrow">What makes it persistent</p>
+          <h2 id="loop-title">Context becomes action.</h2>
+        </div>
+        <div class="loop-steps">
+          <article>
+            <span>01</span>
+            <h3>Observe</h3>
+            <p>Read the relevant sources across the user's digital life.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Remember</h3>
+            <p>Maintain projects, preferences, people, commitments, and history.</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Reason</h3>
+            <p>Apply domain playbooks instead of giving generic advice.</p>
+          </article>
+          <article>
+            <span>04</span>
+            <h3>Route</h3>
+            <p>Select the right account, channel, browser profile, skill, and tool.</p>
+          </article>
+          <article>
+            <span>05</span>
+            <h3>Act</h3>
+            <p>Execute the workflow while preserving confirmation gates.</p>
+          </article>
+        </div>
       </section>
     </main>
 
     <footer>
-      Built by <a href="https://yzeng58.github.io/">Yuchen Zeng</a>.
-      Reference implementation available under the MIT License.
+      <span>
+        Built by <a href="https://yzeng58.github.io/">Yuchen Zeng</a>.
+      </span>
+      <span>
+        <a href="https://github.com/yzeng58/persistent-memory-agent">
+          GitHub
+        </a>
+        / MIT License
+      </span>
     </footer>
 
     <script src="app.js"></script>

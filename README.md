@@ -1,67 +1,77 @@
-# Persistent Memory Agent
+# Persistent Personal Agent
 
-A privacy-safe reference implementation of persistent personal memory for
-tool-using agents.
+A day-in-the-life demonstration of a persistent personal AI chief of staff.
 
 **Interactive demo:** https://yzeng58.github.io/persistent-memory-agent/
 
-The project focuses on a practical failure mode in long-running agents: a user
-changes over time, but naive memory systems either forget everything or keep
-injecting stale facts forever. This implementation separates immutable events
-from versioned memories so an agent can preserve provenance, supersede outdated
-facts, and retrieve only the active context relevant to the current turn.
+The central idea is broader than chat memory. A useful personal agent wakes up
+with the user's context, monitors the parts of life spread across different
+apps, applies domain-specific judgment, routes each task to the right tool, and
+acts with appropriate confirmation gates.
 
-## What it demonstrates
+## What the demo shows
 
-- **Append-only events:** raw observations remain auditable.
-- **Versioned memory:** a new value supersedes an old value without deleting it.
-- **Explicit provenance:** every memory points to the event that produced it.
-- **Inspectable retrieval:** normalized lexical concepts gate relevance before
-  importance, confidence, and recency are combined into a transparent score.
-- **Bounded context:** only the highest-value active memories enter the model
-  prompt.
-- **Privacy boundary:** all public examples are synthetic and disconnected from
-  any deployed personal system.
+- **Morning operating brief:** combines calendars, email, reminders, market
+  context, AI news, card offers, spending, and food suggestions.
+- **Email and commitment tracking:** drafts replies, extracts deadlines, and
+  creates follow-up reminders.
+- **Relationship-aware communication:** identifies who a person is, selects an
+  appropriate tone, checks scheduling constraints, and chooses the established
+  communication channel.
+- **Cross-app routing:** sends Microsoft work tasks through authenticated Teams
+  browser workflows while other tasks use the appropriate account and tool.
+- **Personal judgment:** carries work history, network context, saved books and
+  research, financial preferences, food preferences, and aesthetic context
+  across sessions.
+- **Confirmation gates:** prepares actions but stops before high-impact steps
+  such as sending a message.
 
-## Architecture
+## Example: message my manager
 
 ```text
-user message
-    |
-    v
-append immutable event
-    |
-    v
-extract typed memory writes
-    |
-    v
-versioned SQLite memory store
-    |
-    v
-rank active memories for the current query
-    |
-    v
-pack a bounded context with provenance
-    |
-    v
-generate the agent response
+Request: Message Dimitris that the next BenchPress version is ready and ask
+whether the meeting can move to 10am.
+
+1. people-ops identifies Dimitris as the user's manager and collaborator.
+2. workplace-communication chooses a concise, warm, proactive tone.
+3. calendar-ops checks both calendars.
+4. teams-ops selects Microsoft Teams as the established channel.
+5. browser routes the action through authenticated Chrome DevTools.
+6. The agent presents the exact draft and stops before Send.
 ```
 
-The model backend has only two responsibilities:
+The point is not the individual tools. The value comes from maintaining enough
+context to choose the right sequence without making the user restate who the
+person is, why the task matters, which channel to use, or how the message should
+sound.
 
-1. Extract durable facts explicitly supported by the current user message.
-2. Generate a reply grounded in the retrieved memory context.
+## Everyday domains
 
-The memory lifecycle remains model-independent.
+- Calendar, travel, priorities, and reminders
+- Gmail and Outlook
+- Stocks, portfolio context, and AI news
+- Credit-card offers, coupons, bills, budgets, and spending
+- Daily food suggestions
+- Personal and professional network memory
+- Workplace communication research and books
+- Fashion, skincare, hair, aesthetics, trends, and gifts
 
-The included retriever is intentionally transparent rather than state of the
-art. It normalizes a small set of common concepts, requires positive lexical
-overlap, and exposes every score. An embedding or learned retriever can replace
-that baseline without changing the storage or supersession contracts.
+## Persistent memory reference implementation
+
+The repository also includes a small model-independent Python/SQLite memory
+engine. It separates immutable events from versioned memories so an agent can
+preserve provenance, supersede outdated facts, and retrieve a bounded set of
+active context for the current turn.
+
+- Append-only source events
+- One active memory per stable key
+- Superseded history instead of destructive overwrite
+- Explicit provenance, confidence, and importance
+- Transparent relevance, recency, and context-budget logic
 
 ## Quickstart
 
-The deterministic demo has no dependencies beyond Python 3.11:
+The deterministic memory-engine demo has no dependencies beyond Python 3.11:
 
 ```bash
 python -m pip install -e .
@@ -130,11 +140,14 @@ python -m unittest discover -s tests -v
 python -m compileall -q src tests
 ```
 
-## Privacy and safety
+## Demo versus deployment
 
-The repository contains no real personal memories, credentials, emails,
-calendar events, browser state, or private tool output. The static demo uses a
-small fictional history solely to visualize the lifecycle.
+The public page is an illustrative product walkthrough. Names and workflow
+details are intentionally simplified. It does not connect to live email,
+calendar, financial, browser, or personal-data sources.
+
+The repository contains no credentials, private account data, emails, calendar
+contents, browser state, or live tool output.
 
 Retrieved memory is treated as contextual evidence, not as an instruction. A
 current user message overrides stale memory, and supersession makes that update
