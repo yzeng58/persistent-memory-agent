@@ -107,11 +107,13 @@ button { font: inherit; }
   height: 22px;
   place-items: center;
   border-radius: 7px;
-  background: #13231e;
-  color: #75e5bd;
-  font-size: 8px;
-  font-weight: 900;
+  background: linear-gradient(145deg, #14372a, #35ad7e);
+  color: #d7fff0;
+  box-shadow: 0 4px 10px rgba(37, 151, 109, 0.2);
 }
+.menu-logo svg { width: 16px; height: 16px; overflow: visible; }
+.menu-logo path { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; }
+.menu-logo circle { fill: currentColor; }
 .desktop-note {
   position: absolute;
   top: 12%;
@@ -240,6 +242,9 @@ button { font: inherit; }
   font-weight: 900;
   box-shadow: 0 8px 20px rgba(37, 151, 109, 0.22);
 }
+.agent-mark svg { width: 70%; height: 70%; overflow: visible; }
+.agent-mark path { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; }
+.agent-mark circle { fill: currentColor; }
 .assistant-date { text-align: right; }
 .assistant-date strong { font-size: clamp(8px, 0.78vw, 12px); }
 .assistant-date span { color: var(--muted); font-size: clamp(6px, 0.58vw, 9px); }
@@ -564,3 +569,16 @@ button { font: inherit; }
 
 .missing-card { border-color: rgba(214, 138, 40, 0.42); background: rgba(230, 160, 60, 0.07); }
 .invest-step.warn { color: #d68a28; }
+
+
+/* ---- Provenance card ---- */
+.proof-card { border-color: rgba(23, 33, 29, 0.13); }
+.proof-rows { margin: 11px 0 10px; display: grid; gap: 7px; }
+.proof-rows > div {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px; align-items: baseline;
+  padding-bottom: 7px; border-bottom: 1px dashed rgba(23, 33, 29, 0.12);
+}
+.proof-rows > div:last-child { border-bottom: none; padding-bottom: 0; }
+.proof-rows dt { font-size: 13px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+.proof-rows dd { margin: 0; font-size: 12px; color: var(--green-dark); font-weight: 600; text-align: right; }

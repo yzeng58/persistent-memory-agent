@@ -432,9 +432,9 @@ function playAnimation() {
       "Scans filings, news, prices, and emerging opportunities.",
     );
     showPreparation(
-      "Calling the investor-agent MCP",
-      ["investor-agent", "Portfolio snapshot", "Market scan"],
-      "Loading holdings first, then screening market news before producing any recommendation.",
+      "Screening today's market",
+      ["6 news sweeps", "113 tickers", "SEC EDGAR"],
+      "Reading every source first — nothing is recommended until the evidence is in.",
     );
     investmentSteps.forEach((step) => step.classList.remove("visible"));
     showToolPreview("market", "Terminal · investor-agent MCP");
@@ -456,8 +456,8 @@ function playAnimation() {
   }, 33900);
   schedule(() => {
     showAdNarration(
-      "The signal that matters.",
-      "Connects market signals to your holdings, exposure, and goals.",
+      "It reads everything first.",
+      "Nine sectors, 113 tickers, every morning — before it forms an opinion.",
     );
     showPreparation(
       "Reading every ticker it tracks",
@@ -494,8 +494,8 @@ function playAnimation() {
   });
   schedule(() => {
     showAdNarration(
-      "Your next move. Within your rules.",
-      "Considers risk limits and past decisions before recommending action.",
+      "It will tell you to do nothing.",
+      "113 screened, 0 recommended — with the evidence for it and against it.",
     );
     showPreparation("Writing today's verdict", ["Discipline rules", "Nothing invented"], "If nothing qualifies, it says so.");
     scrollDetailTo(closingAction);

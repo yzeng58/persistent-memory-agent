@@ -59,10 +59,14 @@ The browser experience is an advertisement, not a landing page:
 - `agent.py`: one-turn orchestration over a model backend and the memory store.
 - `openai_model.py`: optional OpenAI Responses API adapter.
 - `cli.py`: thin `demo`, `chat`, and `inspect` entrypoints.
-- `docs/`: looping cinematic browser animation scenes. The opening scene runs
-  `yuchen-assistant`, presents important notices and schedule, then shows Food,
-  Work & Inbox, Stock, AI & Research, Deals, and Secondhand report entrances.
-  The cinematic cursor opens Stock as the representative deep-dive.
+- `docs/index.html`: looping cinematic browser animation. The opening scene
+  runs `yuchen-assistant`, presents important notices and schedule, then shows
+  Food, Work & Inbox, Stock, AI & Research, Deals, and Secondhand report
+  entrances. The cinematic cursor opens Stock as the representative deep-dive.
+- `docs/architecture.html`: public system architecture overview. It explains
+  the conceptual flow from digital-life signals through routing, persistent
+  personal context, domain judgment, and actions without exposing the private
+  harness, instructions, skills, or personal data.
 
 Future storage or model backends must preserve the domain contracts in
 `models.py` and `agent.py` rather than creating a second memory lifecycle.
