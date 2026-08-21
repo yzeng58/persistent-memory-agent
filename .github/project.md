@@ -76,8 +76,20 @@ Future storage or model backends must preserve the domain contracts in
 
 ## The Article
 
-`docs/architecture.html` is a technical write-up, not a landing page and not a
-paper. It exists to make a reader able to build the same thing.
+`docs/architecture.html` is a technical write-up, not a landing page. It exists
+to make a reader able to build the same thing.
+
+Its structure is fixed and was set by the author. Do not renumber or re-scope
+these without asking:
+
+1. **Where it fell short** — 1.1 It remembers the wrong things · 1.2 It answers
+   like the median person · 1.3 It never gets better
+2. **Approach** — 2.1 Address space and assignment rules · 2.2 Domain modules ·
+   2.3 Schema evolution
+3. **The deployed system** — 3.1 Domain inventory · 3.2 Module catalog
+
+Sections 2.1, 2.2, and 2.3 each repair exactly one failure from section 1, in
+that order. Every subsection ends with a numbered procedure.
 
 ### Vocabulary
 
@@ -97,6 +109,16 @@ These names are canonical. Do not introduce synonyms for them.
 
 ### Rules
 
+- **Headings are noun phrases.** A section title names its subject and stops.
+  No colon punchline, no em-dash subtitle, no imperative slogan. Write
+  `Address space and assignment rules`, not
+  `Address space: give every fact one address`. The only narrative headings
+  allowed are in the motivation section.
+- **No slogan blocks.** Centered one-line aphorisms are banned. If a sentence
+  would look at home on a product page, it does not belong here. Every
+  emphasized block must contain a rule, a measurement, or a file.
+- **Report, do not sell.** State what was built, what it cost, and where it
+  fails. Never state a benefit without the mechanism that produces it.
 - **Steps, not prose.** A reader must be able to follow the article one action
   at a time. Prefer bullets, numbered steps, tables, and trees over paragraphs.
   No section may be a wall of continuous text.
