@@ -5,142 +5,615 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta
       name="description"
-      content="Architecture of a persistent personal AI assistant that understands one person and acts across their digital life."
+      content="A technical report on building persistent memory, retrieval, routing, and execution for a personal AI assistant."
     >
-    <title>Persistent Personal Assistant — Architecture</title>
+    <title>Building a Persistent Personal AI Assistant</title>
     <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="architecture.css">
+    <link rel="stylesheet" href="architecture.css?v=2">
   </head>
   <body>
-    <main>
-      <header class="hero">
-        <a class="brand" href="./">
-          <svg viewBox="0 0 48 48" aria-hidden="true">
-            <path d="M13 16C17 10 25 8 32 11M37 18C41 25 38 33 32 38M16 37C10 33 8 24 11 18"></path>
-            <circle cx="24" cy="24" r="6"></circle>
-            <circle cx="12" cy="15" r="3"></circle>
-            <circle cx="37" cy="17" r="3"></circle>
-            <circle cx="16" cy="37" r="3"></circle>
-          </svg>
-          <span>Persistent Personal Assistant</span>
-        </a>
-        <h1>A personal AI that compounds context.</h1>
-        <p>
-          It understands the person, navigates their environment, applies
-          specialized judgment, and acts toward long-term goals.
-        </p>
-        <a class="demo-link" href="./">Watch the live demo <span>↗</span></a>
-      </header>
+    <header class="site-header">
+      <a class="brand" href="./">
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M13 16C17 10 25 8 32 11M37 18C41 25 38 33 32 38M16 37C10 33 8 24 11 18"></path>
+          <circle cx="24" cy="24" r="6"></circle>
+          <circle cx="12" cy="15" r="3"></circle>
+          <circle cx="37" cy="17" r="3"></circle>
+          <circle cx="16" cy="37" r="3"></circle>
+        </svg>
+        <span>Persistent Personal Assistant</span>
+      </a>
+      <nav aria-label="Project links">
+        <a href="#article">Technical report</a>
+        <a href="./">Live demo</a>
+        <a href="https://github.com/yzeng58/persistent-memory-agent">GitHub</a>
+      </nav>
+    </header>
 
-      <section class="architecture" aria-labelledby="architecture-title">
-        <div class="section-label">SYSTEM ARCHITECTURE</div>
-        <h2 id="architecture-title">One assistant. A complete life context.</h2>
+    <main id="article">
+      <article class="paper">
+        <header class="paper-header">
+          <p class="eyebrow">TECHNICAL REPORT &middot; AUGUST 2026</p>
+          <h1>Building a Persistent Personal AI Assistant</h1>
+          <p class="dek">
+            A practical architecture for turning conversations into durable,
+            inspectable context without letting stale memory become hidden truth.
+          </p>
+          <div class="paper-meta">
+            <span>Yuchen Zeng</span>
+            <span>Memory systems &middot; agent orchestration &middot; tool use</span>
+          </div>
+          <div class="paper-actions">
+            <a class="primary-action" href="./">Watch the system demo</a>
+            <a href="https://github.com/yzeng58/persistent-memory-agent">
+              View the reference implementation &nearr;
+            </a>
+          </div>
+        </header>
 
-        <div class="architecture-map">
-          <section class="architecture-column sources">
-            <header>
-              <span>01</span>
-              <div>
-                <small>OBSERVE</small>
-                <strong>Digital life</strong>
-              </div>
-            </header>
-            <div class="source-grid">
-              <article><i>✉</i><span>Email</span></article>
-              <article><i>▦</i><span>Calendar</span></article>
-              <article><i>◎</i><span>Browser</span></article>
-              <article><i>◫</i><span>Work</span></article>
-              <article><i>♥</i><span>Health</span></article>
-              <article><i>↗</i><span>Finance</span></article>
-              <article><i>♙</i><span>Network</span></article>
-              <article><i>⌁</i><span>Projects</span></article>
+        <div class="paper-layout">
+          <aside class="table-of-contents">
+            <p>CONTENTS</p>
+            <nav aria-label="Article sections">
+              <a href="#abstract">Abstract</a>
+              <a href="#problem">1. The problem</a>
+              <a href="#architecture">2. System architecture</a>
+              <a href="#memory-model">3. Memory model</a>
+              <a href="#lifecycle">4. Memory lifecycle</a>
+              <a href="#retrieval">5. Retrieval and context</a>
+              <a href="#agent-loop">6. Agent loop</a>
+              <a href="#walkthrough">7. End-to-end walkthrough</a>
+              <a href="#boundaries">8. System boundaries</a>
+              <a href="#limitations">9. Limitations</a>
+              <a href="#reproduce">10. Reproduce</a>
+            </nav>
+            <div class="implementation-note">
+              <strong>Implementation status</strong>
+              <span>
+                The memory substrate, SQLite store, retrieval logic, agent loop,
+                model adapter, CLI, and tests are public.
+              </span>
             </div>
-          </section>
+          </aside>
 
-          <div class="flow-arrow" aria-hidden="true"><span>→</span></div>
+          <div class="paper-body">
+            <section id="abstract" class="abstract">
+              <h2>Abstract</h2>
+              <p>
+                Most assistants start every interaction from scratch or depend on
+                opaque conversation summaries. A persistent personal assistant
+                needs a stronger contract: every durable fact must be traceable to
+                an observation, updates must preserve history, retrieval must be
+                bounded and inspectable, and current user intent must override
+                memory. This report describes a small model-independent reference
+                implementation and the larger agent architecture built around it.
+              </p>
+            </section>
 
-          <section class="architecture-column intelligence">
-            <header>
-              <span>02–04</span>
-              <div>
-                <small>UNDERSTAND</small>
-                <strong>Personal intelligence core</strong>
+            <section id="problem">
+              <p class="section-number">01</p>
+              <h2>The problem is not storing more text</h2>
+              <p>
+                A useful personal agent operates across weeks, accounts, and
+                domains. It should remember a meeting preference, understand that
+                a job search changes what opportunities matter, and know when a
+                previously correct address is no longer current. Simply appending
+                transcripts to a vector database does not solve these problems.
+              </p>
+              <div class="design-grid">
+                <article>
+                  <strong>Durability</strong>
+                  <span>Context should survive process and model changes.</span>
+                </article>
+                <article>
+                  <strong>Provenance</strong>
+                  <span>Every memory should point to the event that created it.</span>
+                </article>
+                <article>
+                  <strong>Revision</strong>
+                  <span>New facts should supersede old facts without deleting history.</span>
+                </article>
+                <article>
+                  <strong>Bounded use</strong>
+                  <span>Only relevant context should enter the current model call.</span>
+                </article>
+                <article>
+                  <strong>Inspectability</strong>
+                  <span>Retrieval and memory writes should be visible and testable.</span>
+                </article>
+                <article>
+                  <strong>Safety</strong>
+                  <span>Memory is evidence, never an instruction or credential store.</span>
+                </article>
               </div>
-            </header>
+            </section>
 
-            <article class="layer routing">
-              <span>ACCESS &amp; ROUTING</span>
-              <p>Chooses the right account, API, browser, channel, and tool.</p>
-            </article>
+            <section id="architecture">
+              <p class="section-number">02</p>
+              <h2>System architecture</h2>
+              <p>
+                The system separates observations, durable memory, reasoning, and
+                external actions. This prevents a model response from becoming
+                memory merely because it appeared in a transcript, and it keeps
+                tool execution outside the memory store.
+              </p>
 
-            <article class="memory-core">
-              <div class="memory-orbit orbit-one"></div>
-              <div class="memory-orbit orbit-two"></div>
-              <div class="memory-center">
-                <svg viewBox="0 0 48 48" aria-hidden="true">
-                  <path d="M13 16C17 10 25 8 32 11M37 18C41 25 38 33 32 38M16 37C10 33 8 24 11 18"></path>
-                  <circle cx="24" cy="24" r="6"></circle>
-                  <circle cx="12" cy="15" r="3"></circle>
-                  <circle cx="37" cy="17" r="3"></circle>
-                  <circle cx="16" cy="37" r="3"></circle>
-                </svg>
-                <strong>Persistent personal context</strong>
-                <p>Goals · preferences · relationships · projects · decisions</p>
+              <figure class="system-figure">
+                <div class="figure-title">
+                  <strong>Figure 1.</strong>
+                  <span>Data and control flow for one assistant turn.</span>
+                </div>
+
+                <div class="pipeline pipeline-top">
+                  <article>
+                    <small>OBSERVE</small>
+                    <strong>User or tool event</strong>
+                    <span>Immutable source content</span>
+                  </article>
+                  <i aria-hidden="true">&rarr;</i>
+                  <article>
+                    <small>RECORD</small>
+                    <strong>Append-only event log</strong>
+                    <span>Content, source, metadata, time</span>
+                  </article>
+                  <i aria-hidden="true">&rarr;</i>
+                  <article>
+                    <small>EXTRACT</small>
+                    <strong>Candidate memory writes</strong>
+                    <span>Explicit durable facts only</span>
+                  </article>
+                  <i aria-hidden="true">&rarr;</i>
+                  <article>
+                    <small>CONSOLIDATE</small>
+                    <strong>Versioned memory store</strong>
+                    <span>One active value per stable key</span>
+                  </article>
+                </div>
+
+                <div class="pipeline-bridge" aria-hidden="true">
+                  <span>persistent state</span>
+                  <i>&darr;</i>
+                </div>
+
+                <div class="pipeline pipeline-bottom">
+                  <article>
+                    <small>RETRIEVE</small>
+                    <strong>Rank active memories</strong>
+                    <span>Relevance, importance, confidence, recency</span>
+                  </article>
+                  <i aria-hidden="true">&rarr;</i>
+                  <article>
+                    <small>GROUND</small>
+                    <strong>Pack bounded context</strong>
+                    <span>Provenance-bearing text block</span>
+                  </article>
+                  <i aria-hidden="true">&rarr;</i>
+                  <article>
+                    <small>DECIDE</small>
+                    <strong>Agent and domain router</strong>
+                    <span>Intent, constraints, judgment</span>
+                  </article>
+                  <i aria-hidden="true">&rarr;</i>
+                  <article>
+                    <small>ACT</small>
+                    <strong>Tools and approval gates</strong>
+                    <span>Browser, APIs, messages, files</span>
+                  </article>
+                </div>
+
+                <div class="feedback-bar">
+                  Outcome and tool results return as new events; only validated
+                  durable changes become memory.
+                </div>
+              </figure>
+
+              <p>
+                The public repository implements the memory and single-turn
+                orchestration path. A full deployment adds domain routing, account
+                selection, tool adapters, and human approval policies around the
+                same memory contract.
+              </p>
+            </section>
+
+            <section id="memory-model">
+              <p class="section-number">03</p>
+              <h2>Memory is a versioned record, not a summary</h2>
+              <p>
+                The store has two canonical tables. <code>events</code> preserve
+                what happened. <code>memories</code> preserve the current durable
+                interpretation while retaining prior versions.
+              </p>
+
+              <div class="schema-table-wrap">
+                <table class="schema-table">
+                  <thead>
+                    <tr>
+                      <th>Record</th>
+                      <th>Important fields</th>
+                      <th>Invariant</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>Event</code></td>
+                      <td><code>source</code>, <code>content</code>, <code>metadata</code>, <code>created_at</code></td>
+                      <td>Append-only observation</td>
+                    </tr>
+                    <tr>
+                      <td><code>Memory</code></td>
+                      <td><code>subject</code>, <code>predicate</code>, <code>kind</code>, <code>value</code></td>
+                      <td>One active version per stable key</td>
+                    </tr>
+                    <tr>
+                      <td><code>Provenance</code></td>
+                      <td><code>source_event_id</code>, <code>supersedes_id</code></td>
+                      <td>Every value is traceable and revision history is preserved</td>
+                    </tr>
+                    <tr>
+                      <td><code>Validity</code></td>
+                      <td><code>status</code>, <code>valid_from</code>, <code>valid_to</code></td>
+                      <td>Only active, temporally valid versions are retrieved</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-            </article>
 
-            <article class="layer judgment">
-              <span>DOMAIN JUDGMENT</span>
-              <p>Applies specialized skills, constraints, and communication norms.</p>
-            </article>
-          </section>
-
-          <div class="flow-arrow" aria-hidden="true"><span>→</span></div>
-
-          <section class="architecture-column outcomes">
-            <header>
-              <span>05</span>
-              <div>
-                <small>ACT</small>
-                <strong>Optimized outcomes</strong>
+              <h3>A stable key defines identity</h3>
+              <div class="equation">
+                <span>memory key</span>
+                <strong>(subject, predicate, kind) &rarr; value</strong>
               </div>
-            </header>
-            <div class="outcome-list">
-              <article>
-                <i>☀</i>
-                <div><strong>Daily optimization</strong><span>Priorities, schedule, food, follow-through</span></div>
-              </article>
-              <article>
-                <i>✦</i>
-                <div><strong>Career advancement</strong><span>Opportunities, positioning, applications</span></div>
-              </article>
-              <article>
-                <i>◌</i>
-                <div><strong>Relationship-aware communication</strong><span>Who, where, when, and how to talk</span></div>
-              </article>
-              <article>
-                <i>♥</i>
-                <div><strong>Health &amp; life administration</strong><span>Records, deadlines, bills, and next actions</span></div>
-              </article>
-              <article>
-                <i>↗</i>
-                <div><strong>Investment judgment</strong><span>Explore, connect, decide within your rules</span></div>
-              </article>
-            </div>
-          </section>
+              <p>
+                For example, <code>(user, meeting_time, preference)</code> may
+                map to <code>after 10:00 local time</code>. The value can change;
+                the key remains stable enough to identify what is being revised.
+              </p>
 
-          <div class="feedback-loop">
-            <span>RESULTS &amp; FEEDBACK</span>
-            <strong>Every action improves the context for the next decision.</strong>
-            <i aria-hidden="true">↶</i>
+              <pre><code>MemoryWrite {
+    subject: "user"
+    predicate: "meeting_time"
+    kind: "preference"
+    value: "after 10:00 local time"
+    importance: 0.90
+    confidence: 1.00
+}</code></pre>
+              <p>
+                The reference implementation supports six deliberately narrow
+                memory kinds: profile, preference, project, relationship,
+                commitment, and procedure. It does not create unstructured hidden
+                summaries.
+              </p>
+            </section>
+
+            <section id="lifecycle">
+              <p class="section-number">04</p>
+              <h2>Memory lifecycle: write, supersede, preserve</h2>
+              <p>
+                Every incoming message is recorded before extraction. Candidate
+                writes are validated against the schema. A changed value closes
+                the current version and inserts a new active version linked to the
+                old one.
+              </p>
+
+              <pre><code>function consolidate(message):
+    event_id = append_event(source="user", content=message)
+    writes = model.extract_explicit_durable_facts(message)
+
+    for write in writes:
+        validate_kind_key_value_and_probabilities(write)
+        previous = find_active_memory(write.key)
+
+        if previous exactly equals write:
+            continue
+
+        transaction:
+            if previous exists:
+                mark_superseded(previous, valid_to=now)
+            insert_active(write,
+                          source_event_id=event_id,
+                          supersedes_id=previous.id)
+
+    return event_id</code></pre>
+
+              <div class="version-example" aria-label="Memory version example">
+                <article class="old-version">
+                  <small>VERSION 17 &middot; SUPERSEDED</small>
+                  <strong>user.home_city = Seattle</strong>
+                  <span>valid until Aug 20</span>
+                </article>
+                <i aria-hidden="true">&rarr;</i>
+                <article class="active-version">
+                  <small>VERSION 23 &middot; ACTIVE</small>
+                  <strong>user.home_city = San Francisco</strong>
+                  <span>supersedes version 17</span>
+                </article>
+              </div>
+
+              <p>
+                This is intentionally different from destructive overwrite. The
+                assistant can inspect what it believed, when that belief changed,
+                and which user event justified the update.
+              </p>
+            </section>
+
+            <section id="retrieval">
+              <p class="section-number">05</p>
+              <h2>Retrieval is explicit and budgeted</h2>
+              <p>
+                The reference implementation uses a transparent baseline rather
+                than an embedding service. Query and memory tokens are normalized,
+                simple aliases are resolved, and unrelated memories are removed.
+                Active candidates are ranked with four inspectable terms.
+              </p>
+
+              <div class="score-card">
+                <span>retrieval score</span>
+                <strong>
+                  0.55 lexical + 0.20 importance + 0.15 confidence + 0.10 recency
+                </strong>
+                <small>recency = exp(-age_in_days / 30)</small>
+              </div>
+
+              <p>
+                The final context pack is capped by a character budget. Each line
+                includes kind, stable key, value, provenance event, and confidence.
+                The model never receives the full database by default.
+              </p>
+
+              <pre><code>[project] user.career_focus = memory and persistent-agent research roles (source event 3, confidence 1.00)
+[preference] user.meeting_time = after 10:00 local time (source event 1, confidence 1.00)</code></pre>
+
+              <div class="callout">
+                <strong>Why not retrieve everything?</strong>
+                <p>
+                  Larger context is not automatically better. Irrelevant personal
+                  facts add latency, create accidental associations, and make it
+                  harder to audit why a response was produced.
+                </p>
+              </div>
+            </section>
+
+            <section id="agent-loop">
+              <p class="section-number">06</p>
+              <h2>The agent loop has one owner for each state transition</h2>
+              <p>
+                The model proposes memory writes and generates a reply. The store
+                owns persistence, versioning, retrieval, and context packing. The
+                orchestrator orders those operations for one turn.
+              </p>
+
+              <pre><code>function handle_message(user_message):
+    event_id = store.record_event("user", user_message)
+
+    writes = model.extract_memory_writes(user_message)
+    written_memories = [
+        store.set_memory(write, source_event_id=event_id)
+        for write in writes
+    ]
+    memory_ids = [memory.id for memory in written_memories]
+
+    context = store.build_context(query=user_message)
+    reply = model.generate_reply(user_message, context)
+
+    store.record_event("assistant", reply,
+                       metadata={"written_memory_ids": memory_ids})
+    return AgentTurn(reply, context, memory_ids)</code></pre>
+
+              <p>
+                In a tool-using deployment, the reply step becomes a planner and
+                router. It selects a domain policy, resolves the appropriate
+                account and channel, gathers fresh evidence, and requests approval
+                before consequential external actions.
+              </p>
+
+              <div class="layer-stack">
+                <article>
+                  <span>04</span>
+                  <div>
+                    <strong>Execution layer</strong>
+                    <p>Browser, APIs, files, messages, calendars, and explicit approval gates.</p>
+                  </div>
+                </article>
+                <article>
+                  <span>03</span>
+                  <div>
+                    <strong>Access and routing layer</strong>
+                    <p>Selects the domain workflow, account, channel, and tool adapter.</p>
+                  </div>
+                </article>
+                <article>
+                  <span>02</span>
+                  <div>
+                    <strong>Judgment layer</strong>
+                    <p>Applies domain constraints, communication norms, and user goals.</p>
+                  </div>
+                </article>
+                <article>
+                  <span>01</span>
+                  <div>
+                    <strong>Persistent context layer</strong>
+                    <p>Maintains provenance-bearing facts, preferences, projects, and relationships.</p>
+                  </div>
+                </article>
+              </div>
+            </section>
+
+            <section id="walkthrough">
+              <p class="section-number">07</p>
+              <h2>End-to-end walkthrough</h2>
+              <p class="scenario">
+                Synthetic request: <q>Schedule a research conversation about
+                persistent agents next week. I do not want an early meeting.</q>
+              </p>
+
+              <ol class="walkthrough">
+                <li>
+                  <strong>Record the request.</strong>
+                  <span>The complete message becomes an immutable user event.</span>
+                </li>
+                <li>
+                  <strong>Extract only the durable update.</strong>
+                  <span>
+                    If the preference is new, create
+                    <code>user.meeting_time = after 10:00</code>. The scheduling
+                    request itself is not automatically treated as permanent memory.
+                  </span>
+                </li>
+                <li>
+                  <strong>Retrieve context for this decision.</strong>
+                  <span>
+                    Meeting preference, career focus, relevant relationship context,
+                    and current commitments outrank unrelated health or finance facts.
+                  </span>
+                </li>
+                <li>
+                  <strong>Route the task.</strong>
+                  <span>
+                    The planner selects calendar availability and the appropriate
+                    communication channel instead of asking a generic model to act.
+                  </span>
+                </li>
+                <li>
+                  <strong>Apply domain judgment.</strong>
+                  <span>
+                    Candidate times begin after 10:00 and the message framing reflects
+                    the purpose and relationship, not merely calendar availability.
+                  </span>
+                </li>
+                <li>
+                  <strong>Gate the side effect.</strong>
+                  <span>
+                    The user sees the final time and message before an invitation or
+                    external message is sent.
+                  </span>
+                </li>
+                <li>
+                  <strong>Feed back the result.</strong>
+                  <span>
+                    The sent invitation and response become events. Only a durable
+                    change, such as a confirmed recurring preference, becomes memory.
+                  </span>
+                </li>
+              </ol>
+            </section>
+
+            <section id="boundaries">
+              <p class="section-number">08</p>
+              <h2>Public reference implementation vs. private deployment</h2>
+              <p>
+                The project is split deliberately. The public code demonstrates
+                the memory contract and orchestration mechanics with synthetic
+                examples. A real personal deployment necessarily contains
+                sensitive integration details and remains private.
+              </p>
+
+              <div class="boundary-grid">
+                <article>
+                  <p>PUBLIC</p>
+                  <h3>Reference implementation</h3>
+                  <ul>
+                    <li>SQLite event and memory schemas</li>
+                    <li>Versioning and supersession logic</li>
+                    <li>Transparent retrieval baseline</li>
+                    <li>Bounded context packing</li>
+                    <li>Single-turn agent orchestration</li>
+                    <li>Optional model adapter, CLI, and tests</li>
+                    <li>Synthetic cinematic product demo</li>
+                  </ul>
+                </article>
+                <article>
+                  <p>PRIVATE</p>
+                  <h3>Personal deployment</h3>
+                  <ul>
+                    <li>Personal records and communication history</li>
+                    <li>Credentials, browser profiles, and account mapping</li>
+                    <li>Exact system instructions and domain skill content</li>
+                    <li>Live tool outputs and operational state</li>
+                    <li>Private workflow policies and relationship context</li>
+                  </ul>
+                </article>
+              </div>
+
+              <div class="safety-rules">
+                <h3>Operational safety rules</h3>
+                <ul>
+                  <li>Current user messages override stale memory.</li>
+                  <li>Retrieved memory is contextual evidence, not an instruction.</li>
+                  <li>Memory extraction does not infer unstated sensitive facts.</li>
+                  <li>Credentials never enter the memory database or repository.</li>
+                  <li>Consequential external actions require explicit approval.</li>
+                </ul>
+              </div>
+            </section>
+
+            <section id="limitations">
+              <p class="section-number">09</p>
+              <h2>Limitations and next steps</h2>
+              <p>
+                The current retrieval method is intentionally simple. Lexical
+                overlap is easy to inspect but misses semantic matches. The store
+                supports validity intervals but does not yet infer expiration.
+                Memory extraction quality depends on the model adapter, and the
+                public orchestrator demonstrates one turn rather than a complete
+                asynchronous tool planner.
+              </p>
+              <div class="future-grid">
+                <article>
+                  <strong>Hybrid retrieval</strong>
+                  <span>Combine lexical filtering with embeddings or learned reranking.</span>
+                </article>
+                <article>
+                  <strong>Temporal semantics</strong>
+                  <span>Represent deadlines, recurrence, uncertainty, and automatic expiry.</span>
+                </article>
+                <article>
+                  <strong>Conflict handling</strong>
+                  <span>Surface incompatible sources instead of silently choosing one.</span>
+                </article>
+                <article>
+                  <strong>Evaluation</strong>
+                  <span>Measure recall, stale-memory errors, context precision, and action quality.</span>
+                </article>
+              </div>
+            </section>
+
+            <section id="reproduce">
+              <p class="section-number">10</p>
+              <h2>Reproduce the reference implementation</h2>
+              <p>
+                The deterministic memory demo has no dependencies beyond Python
+                3.11. The OpenAI adapter is optional.
+              </p>
+              <pre><code>git clone https://github.com/yzeng58/persistent-memory-agent.git
+cd persistent-memory-agent
+python -m pip install -e .
+
+persistent-memory-agent demo
+python -m unittest discover -s tests -v</code></pre>
+              <p>
+                The source is organized around four canonical owners:
+                <a href="https://github.com/yzeng58/persistent-memory-agent/blob/main/src/persistent_memory_agent/models.py"><code>models.py</code></a>
+                defines the records,
+                <a href="https://github.com/yzeng58/persistent-memory-agent/blob/main/src/persistent_memory_agent/store.py"><code>store.py</code></a>
+                owns persistence and retrieval,
+                <a href="https://github.com/yzeng58/persistent-memory-agent/blob/main/src/persistent_memory_agent/agent.py"><code>agent.py</code></a>
+                owns the turn sequence, and
+                <a href="https://github.com/yzeng58/persistent-memory-agent/blob/main/src/persistent_memory_agent/openai_model.py"><code>openai_model.py</code></a>
+                implements the optional model boundary.
+              </p>
+            </section>
+
+            <footer class="paper-footer">
+              <strong>Persistent Personal Assistant</strong>
+              <span>
+                Technical concept and system by Yuchen Zeng. The private harness,
+                instructions, skills, credentials, and personal context are not
+                published.
+              </span>
+            </footer>
           </div>
         </div>
-      </section>
-
-      <footer>
-        <span>Concept and system by Yuchen Zeng.</span>
-        <span>Private harness, instructions, skills, and personal context are not published.</span>
-      </footer>
+      </article>
     </main>
   </body>
 </html>

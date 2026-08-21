@@ -63,10 +63,11 @@ The browser experience is an advertisement, not a landing page:
   runs `yuchen-assistant`, presents important notices and schedule, then shows
   Food, Work & Inbox, Stock, AI & Research, Deals, and Secondhand report
   entrances. The cinematic cursor opens Stock as the representative deep-dive.
-- `docs/architecture.html`: public system architecture overview. It explains
-  the conceptual flow from digital-life signals through routing, persistent
-  personal context, domain judgment, and actions without exposing the private
-  harness, instructions, skills, or personal data.
+- `docs/architecture.html`: paper-style technical project article. It explains
+  the implemented event and memory schemas, supersession lifecycle, retrieval
+  score, bounded context packing, agent loop, full-system routing boundary, and
+  reproducible quickstart without exposing private instructions, credentials,
+  personal data, or operational deployment details.
 
 Future storage or model backends must preserve the domain contracts in
 `models.py` and `agent.py` rather than creating a second memory lifecycle.
