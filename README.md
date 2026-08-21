@@ -4,7 +4,8 @@ A cinematic demonstration of a persistent personal AI chief of staff.
 
 **Interactive demo:** https://yzeng58.github.io/persistent-memory-agent/
 
-**Technical article:** https://yzeng58.github.io/persistent-memory-agent/architecture.html
+**Write-up — How to make a personal AI system that knows you well:**
+https://yzeng58.github.io/persistent-memory-agent/architecture.html
 
 The public demo is intentionally presented like a short advertisement rather
 than a feature page. Each looping scene shows one real request moving across

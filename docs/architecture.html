@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta
       name="description"
-      content="A technical report on building persistent memory, retrieval, routing, and execution for a personal AI assistant."
+      content="How to build a personal AI system that knows you well: give every fact one address, make the write path and the read path the same tree, and let a control plane keep every domain the same shape."
     >
-    <title>Building a Persistent Personal AI Assistant</title>
+    <title>How to make a personal AI system that knows you well</title>
     <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="architecture.css?v=3">
+    <link rel="stylesheet" href="architecture.css?v=4">
   </head>
   <body>
     <header class="site-header">
@@ -24,7 +24,7 @@
         <span>Persistent Personal Assistant</span>
       </a>
       <nav aria-label="Project links">
-        <a href="#article">Technical report</a>
+        <a href="#article">The write-up</a>
         <a href="./">Live demo</a>
         <a href="https://github.com/yzeng58/persistent-memory-agent">GitHub</a>
       </nav>
@@ -33,15 +33,16 @@
     <main id="article">
       <article class="paper">
         <header class="paper-header">
-          <p class="eyebrow">TECHNICAL REPORT &middot; AUGUST 2026</p>
-          <h1>Building a Persistent Personal AI Assistant</h1>
+          <p class="eyebrow">FIELD NOTES &middot; AUGUST 2026</p>
+          <h1>How to make a personal AI system that knows you well</h1>
           <p class="dek">
-            A practical architecture for turning conversations into durable,
-            inspectable context without letting stale memory become hidden truth.
+            The hard part is not remembering more. It is guaranteeing that every
+            fact has exactly one address &mdash; and that the path you use to
+            store it is the same path you use to find it again.
           </p>
           <div class="paper-meta">
             <span>Yuchen Zeng</span>
-            <span>Memory systems &middot; agent orchestration &middot; tool use</span>
+            <span>Addressing &middot; routing &middot; agent architecture</span>
           </div>
           <div class="paper-actions">
             <a class="primary-action" href="./">Watch the system demo</a>
@@ -55,534 +56,873 @@
           <aside class="table-of-contents">
             <p>CONTENTS</p>
             <nav aria-label="Article sections">
-              <a href="#abstract">Abstract</a>
-              <a href="#problem">1. The problem</a>
-              <a href="#architecture">2. System architecture</a>
-              <a href="#memory-model">3. Memory model</a>
-              <a href="#lifecycle">4. Memory lifecycle</a>
-              <a href="#retrieval">5. Retrieval and context</a>
-              <a href="#agent-loop">6. Agent loop</a>
-              <a href="#walkthrough">7. End-to-end walkthrough</a>
-              <a href="#boundaries">8. System boundaries</a>
-              <a href="#limitations">9. Limitations</a>
-              <a href="#reproduce">10. Reproduce</a>
+              <a href="#addressing">1. One fact, one address</a>
+              <a href="#shape">2. The shape uniqueness forces</a>
+              <a href="#worth-saving">3. What is worth saving</a>
+              <a href="#control-plane">4. The control plane</a>
+              <a href="#recipe">5. How to build one</a>
+              <a href="#inventory">6. What is actually in mine</a>
+              <a href="#expertise">7. Turning books into gates</a>
+              <a href="#costs">8. What it costs</a>
+              <a href="#reproduce">9. Reproduce</a>
             </nav>
             <div class="implementation-note">
-              <strong>Implementation status</strong>
+              <strong>What is published</strong>
               <span>
-                The memory substrate, SQLite store, retrieval logic, agent loop,
-                model adapter, CLI, and tests are public.
+                A small reference implementation of the memory substrate is
+                public. The private deployment described here &mdash; the
+                charter, the skills, the personal record &mdash; is not.
               </span>
             </div>
           </aside>
 
           <div class="paper-body">
-            <section id="abstract" class="abstract">
-              <h2>Abstract</h2>
-              <p>
-                Most assistants start every interaction from scratch or depend on
-                opaque conversation summaries. A persistent personal assistant
-                needs a stronger contract: every durable fact must be traceable to
-                an observation, updates must preserve history, retrieval must be
-                bounded and inspectable, and current user intent must override
-                memory. This report describes a small model-independent reference
-                implementation and the larger agent architecture built around it.
-              </p>
-            </section>
-
-            <section id="problem">
+            <section id="addressing">
               <p class="section-number">01</p>
-              <h2>The problem is not storing more text</h2>
+              <h2>One fact, one address</h2>
               <p>
-                A useful personal agent operates across weeks, accounts, and
-                domains. It should remember a meeting preference, understand that
-                a job search changes what opportunities matter, and know when a
-                previously correct address is no longer current. Simply appending
-                transcripts to a vector database does not solve these problems.
+                An assistant that has known you for six months fails in a very
+                specific way. It does not forget. It surfaces something true,
+                from some earlier conversation, that has nothing to do with what
+                you are doing right now &mdash; and then it quietly steers the
+                answer with it.
+              </p>
+              <p>
+                That is not a recall problem. It is an addressing problem. The
+                whole system rests on two invariants:
               </p>
               <div class="design-grid">
                 <article>
-                  <strong>Durability</strong>
-                  <span>Context should survive process and model changes.</span>
+                  <strong>Exactly one place</strong>
+                  <span>
+                    Every durable fact lives in exactly one writable file. Not
+                    one per workflow. One, total.
+                  </span>
                 </article>
                 <article>
-                  <strong>Provenance</strong>
-                  <span>Every memory should point to the event that created it.</span>
-                </article>
-                <article>
-                  <strong>Revision</strong>
-                  <span>New facts should supersede old facts without deleting history.</span>
-                </article>
-                <article>
-                  <strong>Bounded use</strong>
-                  <span>Only relevant context should enter the current model call.</span>
-                </article>
-                <article>
-                  <strong>Inspectability</strong>
-                  <span>Retrieval and memory writes should be visible and testable.</span>
-                </article>
-                <article>
-                  <strong>Safety</strong>
-                  <span>Memory is evidence, never an instruction or credential store.</span>
+                  <strong>A computable address</strong>
+                  <span>
+                    Given the fact, you can derive the path that holds it
+                    without searching for it.
+                  </span>
                 </article>
               </div>
-            </section>
-
-            <section id="architecture">
-              <p class="section-number">02</p>
-              <h2>System architecture</h2>
               <p>
-                The system separates observations, durable memory, reasoning, and
-                external actions. This prevents a model response from becoming
-                memory merely because it appeared in a transcript, and it keeps
-                tool execution outside the memory store.
+                Similarity search over stored conversation cannot give you
+                either one, and the reasons are structural rather than a matter
+                of tuning:
               </p>
-
-              <figure class="system-figure">
-                <div class="figure-title">
-                  <strong>Figure 1.</strong>
-                  <span>Data and control flow for one assistant turn.</span>
-                </div>
-
-                <div class="pipeline pipeline-top">
-                  <article>
-                    <small>OBSERVE</small>
-                    <strong>User or tool event</strong>
-                    <span>Immutable source content</span>
-                  </article>
-                  <i aria-hidden="true">&rarr;</i>
-                  <article>
-                    <small>RECORD</small>
-                    <strong>Append-only event log</strong>
-                    <span>Content, source, metadata, time</span>
-                  </article>
-                  <i aria-hidden="true">&rarr;</i>
-                  <article>
-                    <small>EXTRACT</small>
-                    <strong>Candidate memory writes</strong>
-                    <span>Explicit durable facts only</span>
-                  </article>
-                  <i aria-hidden="true">&rarr;</i>
-                  <article>
-                    <small>CONSOLIDATE</small>
-                    <strong>Versioned memory store</strong>
-                    <span>One active value per stable key</span>
-                  </article>
-                </div>
-
-                <div class="pipeline-bridge" aria-hidden="true">
-                  <span>persistent state</span>
-                  <i>&darr;</i>
-                </div>
-
-                <div class="pipeline pipeline-bottom">
-                  <article>
-                    <small>RETRIEVE</small>
-                    <strong>Rank active memories</strong>
-                    <span>Relevance, importance, confidence, recency</span>
-                  </article>
-                  <i aria-hidden="true">&rarr;</i>
-                  <article>
-                    <small>GROUND</small>
-                    <strong>Pack bounded context</strong>
-                    <span>Provenance-bearing text block</span>
-                  </article>
-                  <i aria-hidden="true">&rarr;</i>
-                  <article>
-                    <small>DECIDE</small>
-                    <strong>Agent and domain router</strong>
-                    <span>Intent, constraints, judgment</span>
-                  </article>
-                  <i aria-hidden="true">&rarr;</i>
-                  <article>
-                    <small>ACT</small>
-                    <strong>Tools and approval gates</strong>
-                    <span>Browser, APIs, messages, files</span>
-                  </article>
-                </div>
-
-                <div class="feedback-bar">
-                  Outcome and tool results return as new events; only validated
-                  durable changes become memory.
-                </div>
-              </figure>
-
-              <p>
-                The public repository implements the memory and single-turn
-                orchestration path. A full deployment adds domain routing, account
-                selection, tool adapters, and human approval policies around the
-                same memory contract.
-              </p>
-            </section>
-
-            <section id="memory-model">
-              <p class="section-number">03</p>
-              <h2>Memory is a versioned record, not a summary</h2>
-              <p>
-                The store has two canonical tables. <code>events</code> preserve
-                what happened. <code>memories</code> preserve the current durable
-                interpretation while retaining prior versions.
-              </p>
-
-              <div class="schema-table-wrap">
-                <table class="schema-table">
-                  <thead>
-                    <tr>
-                      <th>Record</th>
-                      <th>Important fields</th>
-                      <th>Invariant</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td><code>Event</code></td>
-                      <td><code>source</code>, <code>content</code>, <code>metadata</code>, <code>created_at</code></td>
-                      <td>Append-only observation</td>
-                    </tr>
-                    <tr>
-                      <td><code>Memory</code></td>
-                      <td><code>subject</code>, <code>predicate</code>, <code>kind</code>, <code>value</code></td>
-                      <td>One active version per stable key</td>
-                    </tr>
-                    <tr>
-                      <td><code>Provenance</code></td>
-                      <td><code>source_event_id</code>, <code>supersedes_id</code></td>
-                      <td>Every value is traceable and revision history is preserved</td>
-                    </tr>
-                    <tr>
-                      <td><code>Validity</code></td>
-                      <td><code>status</code>, <code>valid_from</code>, <code>valid_to</code></td>
-                      <td>Only active, temporally valid versions are retrieved</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <h3>A stable key defines identity</h3>
+              <ul>
+                <li>
+                  <strong>A vector store has no primary key.</strong> There is
+                  no <code>UPDATE</code>. A corrected fact is appended as a
+                  second, competing fact, and cosine distance decides which one
+                  wins at read time.
+                </li>
+                <li>
+                  <strong><code>top-k</code> always returns k.</strong> It has
+                  no way to say <em>nothing here is relevant</em>. It will
+                  always hand you five things, whether or not five things exist.
+                </li>
+                <li>
+                  <strong>Similar is not the same as binding.</strong>
+                  <em>She locked this position</em> and <em>she likes this
+                  stock</em> sit close together in embedding space. One is a
+                  hard constraint, the other a preference. Similarity has no
+                  dimension for the difference.
+                </li>
+                <li>
+                  <strong>A corpus is not a state store.</strong> A corpus can
+                  tell you everything ever said about your address. It has no
+                  representation of <em>your address right now</em>.
+                </li>
+              </ul>
               <div class="equation">
-                <span>memory key</span>
-                <strong>(subject, predicate, kind) &rarr; value</strong>
+                <span>The distinction the whole design rests on</span>
+                <strong>Retrieval is a guess. Routing is a decision.</strong>
               </div>
               <p>
-                For example, <code>(user, meeting_time, preference)</code> may
-                map to <code>after 10:00 local time</code>. The value can change;
-                the key remains stable enough to identify what is being revised.
+                Both designs fail. What matters is that they fail differently,
+                and that one of the two failures is one you can actually see:
               </p>
-
-              <pre><code>MemoryWrite {
-    subject: "user"
-    predicate: "meeting_time"
-    kind: "preference"
-    value: "after 10:00 local time"
-    importance: 0.90
-    confidence: 1.00
-}</code></pre>
-              <p>
-                The reference implementation supports six deliberately narrow
-                memory kinds: profile, preference, project, relationship,
-                commitment, and procedure. It does not create unstructured hidden
-                summaries.
-              </p>
-            </section>
-
-            <section id="lifecycle">
-              <p class="section-number">04</p>
-              <h2>Memory lifecycle: write, supersede, preserve</h2>
-              <p>
-                Every incoming message is recorded before extraction. Candidate
-                writes are validated against the schema. A changed value closes
-                the current version and inserts a new active version linked to the
-                old one.
-              </p>
-
-              <pre><code>function consolidate(message):
-    event_id = append_event(source="user", content=message)
-    writes = model.extract_explicit_durable_facts(message)
-
-    for write in writes:
-        validate_kind_key_value_and_probabilities(write)
-        previous = find_active_memory(write.key)
-
-        if previous exactly equals write:
-            continue
-
-        transaction:
-            if previous exists:
-                mark_superseded(previous, valid_to=now)
-            insert_active(write,
-                          source_event_id=event_id,
-                          supersedes_id=previous.id)
-
-    return event_id</code></pre>
-
-              <div class="version-example" aria-label="Memory version example">
+              <div class="version-example">
                 <article class="old-version">
-                  <small>VERSION 17 &middot; SUPERSEDED</small>
-                  <strong>user.home_city = Seattle</strong>
-                  <span>valid until Aug 20</span>
+                  <small>SIMILARITY SEARCH</small>
+                  <strong>Confidently irrelevant</strong>
+                  <span>
+                    The memory is accurate and was retrieved for the wrong
+                    moment. Nothing in the output tells you this happened.
+                  </span>
                 </article>
-                <i aria-hidden="true">&rarr;</i>
+                <i>vs</i>
                 <article class="active-version">
-                  <small>VERSION 23 &middot; ACTIVE</small>
-                  <strong>user.home_city = San Francisco</strong>
-                  <span>supersedes version 17</span>
+                  <small>ADDRESSED FILES</small>
+                  <strong>Confidently stale</strong>
+                  <span>
+                    The lookup was correct and the file was never updated. The
+                    file has a path and a timestamp, so the failure has a
+                    location you can go inspect.
+                  </span>
                 </article>
               </div>
-
               <p>
-                This is intentionally different from destructive overwrite. The
-                assistant can inspect what it believed, when that belief changed,
-                and which user event justified the update.
+                One more distinction, because it is where most people get the
+                rule wrong. Plenty of facts belong to two subjects at once
+                &mdash; the card you pay the mortgage with belongs to both the
+                house and to your finances. The temptation is to write it down
+                in both places. Do that and you have manufactured the oldest bug
+                in data modelling: you will update one copy, miss the other, and
+                the two will disagree forever. Relational design has a name for
+                it, the <em>update anomaly</em>, and a fix that is now fifty
+                years old &mdash; store the fact once, and point at it from
+                everywhere else.
               </p>
-            </section>
-
-            <section id="retrieval">
-              <p class="section-number">05</p>
-              <h2>Retrieval is explicit and budgeted</h2>
-              <p>
-                The reference implementation uses a transparent baseline rather
-                than an embedding service. Query and memory tokens are normalized,
-                simple aliases are resolved, and unrelated memories are removed.
-                Active candidates are ranked with four inspectable terms.
-              </p>
-
-              <div class="score-card">
-                <span>retrieval score</span>
-                <strong>
-                  0.55 lexical + 0.20 importance + 0.15 confidence + 0.10 recency
-                </strong>
-                <small>recency = exp(-age_in_days / 30)</small>
-              </div>
-
-              <p>
-                The final context pack is capped by a character budget. Each line
-                includes kind, stable key, value, provenance event, and confidence.
-                The model never receives the full database by default.
-              </p>
-
-              <pre><code>[project] user.career_focus = memory and persistent-agent research roles (source event 3, confidence 1.00)
-[preference] user.meeting_time = after 10:00 local time (source event 1, confidence 1.00)</code></pre>
-
               <div class="callout">
-                <strong>Why not retrieve everything?</strong>
+                <strong>Owners may be many. Copies must be one.</strong>
                 <p>
-                  Larger context is not automatically better. Irrelevant personal
-                  facts add latency, create accidental associations, and make it
-                  harder to audit why a response was produced.
+                  A file can be reached from several places in the tree. That is
+                  a feature. What must never happen is the same fact existing as
+                  two independently editable copies.
                 </p>
               </div>
             </section>
 
-            <section id="agent-loop">
-              <p class="section-number">06</p>
-              <h2>The agent loop has one owner for each state transition</h2>
+            <section id="shape">
+              <p class="section-number">02</p>
+              <h2>The shape uniqueness forces</h2>
               <p>
-                The model proposes memory writes and generates a reply. The store
-                owns persistence, versioning, retrieval, and context packing. The
-                orchestrator orders those operations for one turn.
+                If every fact must have an address you can compute rather than
+                search for, then something has to compute it. That something is
+                a decision tree, and it is the first file the system loads. This
+                is the top of the real one:
               </p>
-
-              <pre><code>function handle_message(user_message):
-    event_id = store.record_event("user", user_message)
-
-    writes = model.extract_memory_writes(user_message)
-    written_memories = [
-        store.set_memory(write, source_event_id=event_id)
-        for write in writes
-    ]
-    memory_ids = [memory.id for memory in written_memories]
-
-    context = store.build_context(query=user_message)
-    reply = model.generate_reply(user_message, context)
-
-    store.record_event("assistant", reply,
-                       metadata={"written_memory_ids": memory_ids})
-    return AgentTurn(reply, context, memory_ids)</code></pre>
-
+              <pre><code>ANY TASK
+├─ a skill matches               → invoke that skill, do not improvise
+├─ a person is mentioned         → people-ops        → network/&lt;person&gt;/
+├─ a project is named            → projects.md       → path, URL, status
+├─ scheduling                    → calendar-ops
+├─ mail                          → email-ops
+├─ a web page must be opened     → browser
+├─ an experiment must run        → experiment-ops + env-control
+├─ code is written or debugged   → code-writing
+├─ identity / legal / contract   → high-stakes       → read literally, zero loss
+├─ a file is created or sought   → system-maintenance → file-directory.md
+└─ the system itself changes     → system-maintenance → registrar gate</code></pre>
               <p>
-                In a tool-using deployment, the reply step becomes a planner and
-                router. It selects a domain policy, resolves the appropriate
-                account and channel, gathers fresh evidence, and requests approval
-                before consequential external actions.
+                The rule that governs the whole structure is one line, and it is
+                the single most useful sentence in the system:
               </p>
-
+              <div class="equation">
+                <span>from file-directory.md</span>
+                <strong>
+                  Walk this tree before you write a file.<br>
+                  Walk the same tree when you look for one.
+                </strong>
+              </div>
+              <p>
+                This is what similarity search structurally cannot do. There,
+                writing is <code>embed and insert</code> and reading is
+                <code>embed the query and take the top k</code> &mdash; two
+                different functions, which is exactly why reading can only ever
+                approximate what writing did. Here it is one function used in
+                both directions, so a lookup is exact rather than close.
+              </p>
+              <h3>The spine is a tree; the cross-links make it a graph</h3>
+              <p>
+                A strict tree breaks the moment a fact has two legitimate
+                parents. The resolution is not to duplicate and not to agonize
+                over which parent is truer &mdash; it is to let both branches
+                terminate at the same file. Many entry points, one copy. My own
+                system does this to itself: two of its skill names are pure
+                aliases that resolve to canonical modules elsewhere, kept alive
+                so that older instructions referencing the old name still land
+                in the right place.
+              </p>
+              <pre><code>finance-ops    → alias → asset-snapshot
+facebook-ops   → alias → secondhand-ops</code></pre>
+              <h3>Every domain module has the same three parts</h3>
+              <p>
+                Health, money, travel, appearance: each is its own small system
+                with its own procedures. What makes seventy of them navigable is
+                that all seventy have identical anatomy.
+              </p>
               <div class="layer-stack">
                 <article>
-                  <span>04</span>
+                  <span>1</span>
                   <div>
-                    <strong>Execution layer</strong>
-                    <p>Browser, APIs, files, messages, calendars, and explicit approval gates.</p>
+                    <strong>Router &mdash; <code>SKILL.md</code></strong>
+                    <p>
+                      A decision tree plus hard rules. Must stay small enough
+                      that loading it is never a decision. Mine average 2.6 KB.
+                    </p>
                   </div>
                 </article>
                 <article>
-                  <span>03</span>
+                  <span>2</span>
                   <div>
-                    <strong>Access and routing layer</strong>
-                    <p>Selects the domain workflow, account, channel, and tool adapter.</p>
+                    <strong>Procedures &mdash; <code>assets/</code></strong>
+                    <p>
+                      Executable steps, scripts, templates. Read only when the
+                      router sends you there.
+                    </p>
                   </div>
                 </article>
                 <article>
-                  <span>02</span>
+                  <span>3</span>
                   <div>
-                    <strong>Judgment layer</strong>
-                    <p>Applies domain constraints, communication norms, and user goals.</p>
-                  </div>
-                </article>
-                <article>
-                  <span>01</span>
-                  <div>
-                    <strong>Persistent context layer</strong>
-                    <p>Maintains provenance-bearing facts, preferences, projects, and relationships.</p>
+                    <strong>The record &mdash; <code>references/</code></strong>
+                    <p>
+                      Durable facts and distilled knowledge. Can be arbitrarily
+                      large, because it is never loaded speculatively.
+                    </p>
                   </div>
                 </article>
               </div>
+              <p>
+                That split is what keeps the context window from being the
+                binding constraint. The routers are a constant; the knowledge
+                behind them is a variable.
+              </p>
+              <div class="score-card">
+                <span>Resident cost vs. addressable knowledge</span>
+                <strong>185 KB of routers &nbsp;&rarr;&nbsp; 139 MB behind them</strong>
+                <small>70 routers &middot; 3,080 files &middot; ratio 1 : 736</small>
+              </div>
             </section>
 
-            <section id="walkthrough">
-              <p class="section-number">07</p>
-              <h2>End-to-end walkthrough</h2>
-              <p class="scenario">
-                Synthetic request: <q>Schedule a research conversation about
-                persistent agents next week. I do not want an early meeting.</q>
+            <section id="worth-saving">
+              <p class="section-number">03</p>
+              <h2>What is worth saving</h2>
+              <p>
+                Everything above is about the read side, and the read side is
+                the easy half. These systems actually die on the write side
+                &mdash; either because nothing gets written down, or because
+                everything does and the tree fills with noise that outranks the
+                facts.
               </p>
+              <p>A fact earns its own file only when all three hold:</p>
+              <ul>
+                <li>
+                  <strong>It outlives the conversation.</strong> If it stops
+                  mattering when the task ends, it is scratch, not memory.
+                </li>
+                <li>
+                  <strong>It has exactly one subject.</strong> If you cannot
+                  name the subject, you cannot compute the address, and it will
+                  end up somewhere arbitrary.
+                </li>
+                <li>
+                  <strong>Someone could check it.</strong> Prefer the account
+                  number, the date, the confirmation code. Impressions age badly
+                  and cannot be verified later.
+                </li>
+              </ul>
+              <p>Four things that should never become durable memory:</p>
+              <ul>
+                <li>Reasoning you could redo from the facts you already stored.</li>
+                <li>Anything derivable &mdash; store the vest schedule, not the
+                  monthly total.</li>
+                <li>Raw transcripts. A transcript is evidence, not state.</li>
+                <li>
+                  Session scratch. My charter says it explicitly:
+                  <em>session state is not long-term storage</em>. Work in
+                  progress that is never promoted is simply lost, on purpose.
+                </li>
+              </ul>
+              <p>
+                The part that took me longest to get right: the decision to save
+                should not be discretionary. It should be routed by the same
+                tree that decides where. The charter does not say <em>remember
+                important things about people</em>. It says:
+              </p>
+              <div class="equation">
+                <span>write-side routing</span>
+                <strong>A person is mentioned, even in passing &rarr; people-ops &rarr; network/</strong>
+              </div>
+              <p>
+                Same trigger, same destination, every session, regardless of
+                which model is running. That is what makes the address
+                predictable a year later.
+              </p>
+            </section>
 
+            <section id="control-plane">
+              <p class="section-number">04</p>
+              <h2>The control plane</h2>
+              <p>
+                Each domain is a small system with its own construction and its
+                own operating rules. Nothing stops seventy of them from drifting
+                into seventy different conventions except a layer that does no
+                domain work at all. The vocabulary from network and cluster
+                design fits exactly, so I use it:
+              </p>
+              <div class="boundary-grid">
+                <article>
+                  <p>DATA PLANE</p>
+                  <h3>Domain modules</h3>
+                  <ul>
+                    <li>Seventy modules: money, health, travel, writing, compute, people.</li>
+                    <li>Each owns its own record exclusively.</li>
+                    <li>Reaches another domain by pointer, never by copying its facts.</li>
+                    <li>This is where all actual work happens.</li>
+                  </ul>
+                </article>
+                <article>
+                  <p>CONTROL PLANE</p>
+                  <h3>Charter and registrar</h3>
+                  <ul>
+                    <li>Does no domain work whatsoever.</li>
+                    <li>Owns the top-level route and the invariants.</li>
+                    <li>Is the only thing allowed to create, merge, move, or delete a part.</li>
+                    <li>Enforces that every module has the same anatomy.</li>
+                  </ul>
+                </article>
+              </div>
+              <p>It has two components, and they have different jobs:</p>
+              <div class="layer-stack">
+                <article>
+                  <span>C</span>
+                  <div>
+                    <strong>The charter &mdash; always resident</strong>
+                    <p>
+                      About four kilobytes, loaded every session before anything
+                      else. Holds the top-level route, the non-negotiables, and
+                      the rule that a matching module must be invoked rather
+                      than improvised from memory.
+                    </p>
+                  </div>
+                </article>
+                <article>
+                  <span>R</span>
+                  <div>
+                    <strong>The registrar &mdash; invoked on change</strong>
+                    <p>
+                      Decides where a new file goes, how a module is created or
+                      split, what documentation style applies, and runs the
+                      pre-completion audit. It is the only writer permitted
+                      inside the system directory.
+                    </p>
+                  </div>
+                </article>
+              </div>
+              <p>
+                The registrar guards itself with an assertion, because a system
+                that can edit its own rules without friction will eventually
+                edit away the rule that was protecting you:
+              </p>
+              <div class="safety-rules">
+                <h3>Registrar gate</h3>
+                <ul>
+                  <li>No write to the system directory until the exact file, scope, and text are approved in this same task.</li>
+                  <li>Otherwise: present the proposal and stop.</li>
+                  <li>After any change: verify line counts and inbound references, then emit a change report.</li>
+                  <li>Delete the old entry point. Leaving a working legacy path invites future sessions to use it.</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <strong>The registrar&rsquo;s product is not skills. It is sameness.</strong>
+                <p>
+                  Uniform anatomy is the entire reason one small router can
+                  navigate seventy subsystems. The moment modules are allowed to
+                  each have their own shape, the top-level tree stops being able
+                  to address them and you are back to searching.
+                </p>
+              </div>
+            </section>
+
+            <section id="recipe">
+              <p class="section-number">05</p>
+              <h2>How to build one</h2>
+              <p>
+                Everything above condenses into eight steps. They are ordered;
+                the first two are the ones that are expensive to change later.
+              </p>
               <ol class="walkthrough">
                 <li>
-                  <strong>Record the request.</strong>
-                  <span>The complete message becomes an immutable user event.</span>
-                </li>
-                <li>
-                  <strong>Extract only the durable update.</strong>
+                  <strong>Write the router before the content.</strong>
                   <span>
-                    If the preference is new, create
-                    <code>user.meeting_time = after 10:00</code>. The scheduling
-                    request itself is not automatically treated as permanent memory.
+                    If you cannot write the decision tree that finds a fact, you
+                    do not yet know where that fact belongs. Content written
+                    before its router always has to be moved.
                   </span>
                 </li>
                 <li>
-                  <strong>Retrieve context for this decision.</strong>
+                  <strong>Classify by subject, not by workflow.</strong>
                   <span>
-                    Meeting preference, career focus, relevant relationship context,
-                    and current commitments outrank unrelated health or finance facts.
+                    A fact is used by many workflows but is about exactly one
+                    subject. Filing by workflow guarantees duplication; filing
+                    by subject makes uniqueness automatic. This is the single
+                    highest-leverage decision in the whole design.
                   </span>
                 </li>
                 <li>
-                  <strong>Route the task.</strong>
+                  <strong>Make the address computable.</strong>
                   <span>
-                    The planner selects calendar availability and the appropriate
-                    communication channel instead of asking a generic model to act.
+                    From the fact alone you should be able to derive the path.
+                    If finding it requires a search, the classification rule is
+                    not yet sharp enough.
                   </span>
                 </li>
                 <li>
-                  <strong>Apply domain judgment.</strong>
+                  <strong>Reference, never replicate.</strong>
                   <span>
-                    Candidate times begin after 10:00 and the message framing reflects
-                    the purpose and relationship, not merely calendar availability.
+                    When two domains need the same fact, the second one gets a
+                    pointer. Two copies are two futures in which one of them is
+                    wrong.
                   </span>
                 </li>
                 <li>
-                  <strong>Gate the side effect.</strong>
+                  <strong>Keep routers a constant, put the mass in leaves.</strong>
                   <span>
-                    The user sees the final time and message before an invitation or
-                    external message is sent.
+                    Anything that grows without bound belongs behind the router,
+                    never inside it. A router that grows with your knowledge
+                    stops being loadable exactly when the knowledge gets good.
                   </span>
                 </li>
                 <li>
-                  <strong>Feed back the result.</strong>
+                  <strong>Route the write, not just the read.</strong>
                   <span>
-                    The sent invitation and response become events. Only a durable
-                    change, such as a confirmed recurring preference, becomes memory.
+                    Attach saving to triggers in the charter. A rule that
+                    depends on the model deciding to be diligent is not a rule.
+                  </span>
+                </li>
+                <li>
+                  <strong>Put a gate on the output.</strong>
+                  <span>
+                    Generation is not the last step. A checklist that can reject
+                    the draft and send it back is what separates a good answer
+                    from a good-enough one. Section seven is entirely about this.
+                  </span>
+                </li>
+                <li>
+                  <strong>Let the schema grow. Do not design it.</strong>
+                  <span>
+                    Ten domains chosen up front will be wrong, and wrong
+                    up-front schemas are the expensive kind. Split a folder when
+                    it stops being uniquely addressable, and not before.
                   </span>
                 </li>
               </ol>
+              <p>
+                That last one is not advice I reasoned my way to. It is just
+                what the commit history shows. I never sat down and designed a
+                taxonomy of my own life; domains split off, one at a time, each
+                time a folder had accumulated enough that its contents stopped
+                having one obvious home.
+              </p>
+              <div class="schema-table-wrap">
+                <table class="schema-table">
+                  <thead>
+                    <tr><th>Date</th><th>Domains that appeared</th><th>Why</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>2026-03-02</td><td>career, education</td><td>The first split: work facts and credentials stopped mixing well.</td></tr>
+                    <tr><td>2026-03-25</td><td>identity documents, network</td><td>People needed per-person files; documents needed an archive, not a note.</td></tr>
+                    <tr><td>2026-04-01</td><td>finance, living</td><td>Accounts and housing were each large enough to have internal structure.</td></tr>
+                    <tr><td>2026-04-14</td><td>health</td><td>Records and visit notes stopped fitting anywhere else.</td></tr>
+                    <tr><td>2026-05-22</td><td>appearance and care</td><td>Split out of health once it had its own vendors and receipts.</td></tr>
+                    <tr><td>2026-08-06</td><td>travel</td><td>Trips needed per-trip folders rather than one running document.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p>
+                Nine domains in five months, in four waves, none of them planned
+                in advance. The rule that produced all of them is the same one:
+                a folder splits when its contents can no longer be uniquely
+                addressed.
+              </p>
             </section>
 
-            <section id="boundaries">
-              <p class="section-number">08</p>
-              <h2>Public reference implementation vs. private deployment</h2>
+            <section id="inventory">
+              <p class="section-number">06</p>
+              <h2>What is actually in mine</h2>
+              <h3>The record: ten domains</h3>
+              <div class="schema-table-wrap">
+                <table class="schema-table">
+                  <thead>
+                    <tr><th>Domain</th><th>What lives there</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>career</td><td>Role, compensation structure, employment documents, career thesis, manager-conversation prep.</td></tr>
+                    <tr><td>finance</td><td>Accounts, equity schedules, payment instruments, statements.</td></tr>
+                    <tr><td>health</td><td>Visit notes, lab reports, prescriptions, provider portals.</td></tr>
+                    <tr><td>network</td><td>One folder per person: how we met, what they care about, how much to trust a claim.</td></tr>
+                    <tr><td>living</td><td>Housing, utilities, furniture, address-change evidence.</td></tr>
+                    <tr><td>education</td><td>Degrees and diplomas.</td></tr>
+                    <tr><td>identity documents</td><td>Immigration and legal documents, kept as scans with an index.</td></tr>
+                    <tr><td>travel</td><td>One folder per trip, plus a standing packing document.</td></tr>
+                    <tr><td>appearance and care</td><td>Providers, procedures, receipts, product history.</td></tr>
+                    <tr><td>identity</td><td>The small set of facts every other domain references.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <h3>The data plane: seventy modules</h3>
               <p>
-                The project is split deliberately. The public code demonstrates
-                the memory contract and orchestration mechanics with synthetic
-                examples. A real personal deployment necessarily contains
-                sensitive integration details and remains private.
+                Grouped by what they route. Every one of these is a directory
+                with the same three-part anatomy from section two.
+              </p>
+              <div class="schema-table-wrap">
+                <table class="schema-table">
+                  <thead>
+                    <tr><th>Group</th><th>Modules</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Control plane</td>
+                      <td>
+                        <code>system-maintenance</code> the registrar &middot;
+                        <code>copilot-config</code> model and effort defaults &middot;
+                        <code>mcp-ops</code> tool-server install and repair
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Communication</td>
+                      <td>
+                        <code>email-ops</code> read, draft, send, scan &middot;
+                        <code>calendar-ops</code> four calendars, one write target &middot;
+                        <code>teams-ops</code> &middot;
+                        <code>slack-ops</code> &middot;
+                        <code>sms-ops</code> also the MFA read path &middot;
+                        <code>wechat-bot</code> &middot;
+                        <code>loop-ops</code> &middot;
+                        <code>apple-notification</code> push to watch when blocked on me &middot;
+                        <code>workplace-communication</code> routes hard conversations
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Research and writing</td>
+                      <td>
+                        <code>paper-ops</code> full paper lifecycle &middot;
+                        <code>theory-writing</code> theorem and proof conventions &middot;
+                        <code>notation-management</code> symbol registry before any formula &middot;
+                        <code>overleaf-ops</code> git sync and compile errors &middot;
+                        <code>poster-ops</code> &middot;
+                        <code>openreview-ops</code> &middot;
+                        <code>academic-profile-ops</code> homepage, Scholar, CV &middot;
+                        <code>experiment-ops</code> &middot;
+                        <code>code-writing</code> &middot;
+                        <code>wandb-ops</code> &middot;
+                        <code>de-ai-tone</code> &middot;
+                        <code>high-stakes</code> zero-loss reading of critical documents
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Compute and tooling</td>
+                      <td>
+                        <code>env-control</code> decides where code runs &middot;
+                        <code>chtc-ops</code> &middot;
+                        <code>gpu-cluster-ops</code> &middot;
+                        <code>job-scheduler-cli</code> &middot;
+                        <code>azure-ops</code> &middot;
+                        <code>browser</code> escalation ladder from curl to a real browser &middot;
+                        <code>clean-copilot</code> isolated agent environments &middot;
+                        <code>internet-debugging</code> &middot;
+                        <code>ghostty-ops</code> &middot;
+                        <code>sync-all</code> &middot;
+                        <code>session-history-ops</code>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Money</td>
+                      <td>
+                        <code>investment-ops</code> a four-layer pipeline with its own sub-router &middot;
+                        <code>asset-snapshot</code> exact balances, estimates forbidden &middot;
+                        <code>spending-ops</code> &middot;
+                        <code>purchase-ops</code> &middot;
+                        <code>tax-filing</code> &middot;
+                        <code>expense-ops</code> &middot;
+                        <code>adp</code> &middot;
+                        <code>finance-ops</code> alias
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Life administration</td>
+                      <td>
+                        <code>health-ops</code> &middot;
+                        <code>travel-ops</code> &middot;
+                        <code>address-change-ops</code> exhaustive obligation sweep &middot;
+                        <code>apartment-search</code> &middot;
+                        <code>home-renovation-ops</code> &middot;
+                        <code>account-ops</code> credential lookup before any login &middot;
+                        <code>legal-advisor</code> no claim without a citation &middot;
+                        <code>negotiation</code> &middot;
+                        <code>secondhand-ops</code> &middot;
+                        <code>facebook-ops</code> alias &middot;
+                        <code>compliance-process</code> &middot;
+                        <code>reporting-ops</code> daily and weekly briefings
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>People and judgment</td>
+                      <td>
+                        <code>people-ops</code> writes the person record &middot;
+                        <code>personal-development</code> &middot;
+                        <code>relationship-advisor</code> &middot;
+                        <code>beauty-search</code> &middot;
+                        <code>add-book</code> the ingestion pipeline for section seven
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Publishing</td>
+                      <td>
+                        <code>xhs</code> &middot;
+                        <code>twitter-ops</code> &middot;
+                        <code>linkedin-ops</code> &middot;
+                        <code>notion-ops</code> &middot;
+                        <code>social-scout</code> cross-platform research &middot;
+                        <code>social-media-development</code> &middot;
+                        <code>html-slide-ops</code> &middot;
+                        <code>office-docs-ops</code> &middot;
+                        <code>pdf-ops</code> &middot;
+                        <code>download-cv</code>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p>
+                Four names that reference internal infrastructure have been
+                generalized here, and two modules are omitted from this public
+                listing.
               </p>
 
-              <div class="boundary-grid">
-                <article>
-                  <p>PUBLIC</p>
-                  <h3>Reference implementation</h3>
-                  <ul>
-                    <li>SQLite event and memory schemas</li>
-                    <li>Versioning and supersession logic</li>
-                    <li>Transparent retrieval baseline</li>
-                    <li>Bounded context packing</li>
-                    <li>Single-turn agent orchestration</li>
-                    <li>Optional model adapter, CLI, and tests</li>
-                    <li>Synthetic cinematic product demo</li>
-                  </ul>
-                </article>
-                <article>
-                  <p>PRIVATE</p>
-                  <h3>Personal deployment</h3>
-                  <ul>
-                    <li>Personal records and communication history</li>
-                    <li>Credentials, browser profiles, and account mapping</li>
-                    <li>Exact system instructions and domain skill content</li>
-                    <li>Live tool outputs and operational state</li>
-                    <li>Private workflow policies and relationship context</li>
-                  </ul>
-                </article>
+              <h3>Compression, module by module</h3>
+              <p>
+                The point of the anatomy is visible in the ratio between what a
+                module costs to consider and what it can reach:
+              </p>
+              <div class="schema-table-wrap">
+                <table class="schema-table">
+                  <thead>
+                    <tr><th>Module</th><th>Router</th><th>Files behind it</th><th>Ratio</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>personal-development</td><td>2.9 KB</td><td>1,662</td><td>1 : 574</td></tr>
+                    <tr><td>relationship-advisor</td><td>2.4 KB</td><td>472</td><td>1 : 195</td></tr>
+                    <tr><td>investment-ops</td><td>3.8 KB</td><td>148</td><td>1 : 39</td></tr>
+                    <tr><td>negotiation</td><td>1.8 KB</td><td>69</td><td>1 : 39</td></tr>
+                  </tbody>
+                </table>
               </div>
-
-              <div class="safety-rules">
-                <h3>Operational safety rules</h3>
-                <ul>
-                  <li>Current user messages override stale memory.</li>
-                  <li>Retrieved memory is contextual evidence, not an instruction.</li>
-                  <li>Memory extraction does not infer unstated sensitive facts.</li>
-                  <li>Credentials never enter the memory database or repository.</li>
-                  <li>Consequential external actions require explicit approval.</li>
-                </ul>
+              <div class="score-card">
+                <span>System totals, August 2026</span>
+                <strong>11,320 markdown files &middot; 4,008 sessions &middot; 14 distilled books</strong>
+                <small>vector databases: 0 &middot; embedding indexes: 0 &middot; agent frameworks: 0</small>
               </div>
             </section>
 
-            <section id="limitations">
-              <p class="section-number">09</p>
-              <h2>Limitations and next steps</h2>
+            <section id="expertise">
+              <p class="section-number">07</p>
+              <h2>Turning books into gates</h2>
               <p>
-                The current retrieval method is intentionally simple. Lexical
-                overlap is easy to inspect but misses semantic matches. The store
-                supports validity intervals but does not yet infer expiration.
-                Memory extraction quality depends on the model adapter, and the
-                public orchestrator demonstrates one turn rather than a complete
-                asynchronous tool planner.
+                Everything so far is plumbing: it makes the system know you. It
+                does not make the system any good at the things you are bad at.
+                And the moments where an assistant is genuinely worth having are
+                exactly those &mdash; managing up, negotiating a lease, reading
+                a room you are too close to.
+              </p>
+              <p>
+                Ask a general chatbot about any of them and you get an answer
+                from the middle of the distribution, because that is what it was
+                trained near. Median advice on a negotiation is not merely
+                unhelpful; it is the advice your counterparty is expecting.
+              </p>
+              <div class="equation">
+                <span>the problem this section solves</span>
+                <strong>You do not want the median answer.<br>You want a specific expert&rsquo;s answer, with the citation attached.</strong>
+              </div>
+              <p>Three moves, in order.</p>
+
+              <h3>a. Distill the book</h3>
+              <ul>
+                <li>
+                  Books are ingested by a module, not dropped in a folder. The
+                  pipeline parses the source, splits it into chapters, writes an
+                  index, then adds pointers from the places that should trigger
+                  it.
+                </li>
+                <li>
+                  Its filing rule is the uniqueness rule applied to knowledge:
+                  <em>a book lives with the module that uses it, never in a
+                  global library.</em> There is no <code>books/</code> at the
+                  root.
+                </li>
+                <li>
+                  A distilled book is an <code>index.md</code> (one paragraph of
+                  thesis, roughly a dozen named concepts, a chapter table with
+                  one line each) beside <code>chapters/</code> and the original
+                  file, which is deliberately kept. Distillation builds an index
+                  over the source; it does not replace it. You can always
+                  re-distill. Chunked embeddings are a one-way door.
+                </li>
+                <li>
+                  Pick books that occupy different layers rather than three that
+                  agree. The negotiation module carries exactly three: one for
+                  tactics, one for principled framing, one for the psychology of
+                  influence.
+                </li>
+              </ul>
+
+              <h3>b. Search for what changes</h3>
+              <ul>
+                <li>
+                  Books give you the invariants. They cannot give you this
+                  month&rsquo;s vacancy rate. So each scenario file separates
+                  the two explicitly and lists the facts that must be looked up
+                  fresh every time &mdash; comparable rents, vacancy rate,
+                  concessions being offered nearby, the current inflation print,
+                  the landlord&rsquo;s turnover cost.
+                </li>
+                <li>
+                  Each one is stored with its source and with how it is used,
+                  not just what it is. A vacancy rate above five percent is not
+                  a statistic; it is the reason you have leverage.
+                </li>
+              </ul>
+
+              <h3>c. Compile it into a gate</h3>
+              <p>
+                This is the part that actually produces the quality difference,
+                and the part almost nobody builds. Generating the draft is not
+                the last step. The draft is then checked against a list that can
+                reject it.
+              </p>
+              <pre><code>write the draft
+   ↓
+run every check
+   ↓
+any failure → revise → run every check again
+   ↓
+all pass → only now may it be sent</code></pre>
+              <p>Five of the ten checks, as they are actually written:</p>
+              <div class="schema-table-wrap">
+                <table class="schema-table">
+                  <thead>
+                    <tr><th>Check</th><th>Mechanically</th><th>Source</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>No menu of options</td>
+                      <td>Search for <code>alternatively</code>, <code>we could</code>, <code>or</code>. Keep one ask. Offering options tells them you will take anything.</td>
+                      <td>Never Split the Difference, ch. 9</td>
+                    </tr>
+                    <tr>
+                      <td>Never state your ceiling</td>
+                      <td>Search for <code>at most</code>, <code>budget</code>, <code>maximum</code>. Your walk-away is an internal instrument.</td>
+                      <td>Getting to Yes, ch. 6</td>
+                    </tr>
+                    <tr>
+                      <td>No competitor numbers</td>
+                      <td>Search for currency figures. Say <q>competitive offers</q>. A specific number is a target to beat by one dollar.</td>
+                      <td>Never Split the Difference, ch. 6</td>
+                    </tr>
+                    <tr>
+                      <td>Length ceiling</td>
+                      <td>Over 150 words, cut. Every extra sentence of justification reads as doubt.</td>
+                      <td>Never Split the Difference, ch. 2</td>
+                    </tr>
+                    <tr>
+                      <td>Never a round number</td>
+                      <td><code>$2,200</code> becomes <code>$2,173</code>. A precise figure says you calculated. A round one says you guessed.</td>
+                      <td>Never Split the Difference, ch. 9</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p>
+                The last one is the cheapest demonstration of the whole idea.
+                Ask any general assistant to write a rent negotiation email and
+                it will propose a round number, because round numbers are what
+                the median writer uses. Mine cannot: check eight rejects the
+                draft, and it can tell you the rejection came from chapter nine
+                of a specific book that is sitting on the disk next to the rule.
+              </p>
+              <div class="callout">
+                <strong>Distillation&rsquo;s output is not a summary. It is a checklist with citations.</strong>
+                <p>
+                  A summary is unusable at the moment of writing. A gate is
+                  usable precisely then. That is the whole difference between
+                  having read a book and having the book in the loop.
+                </p>
+              </div>
+            </section>
+
+            <section id="costs">
+              <p class="section-number">08</p>
+              <h2>What it costs</h2>
+              <p>
+                This design pays for its precision, and mostly in places you do
+                not notice until months in.
               </p>
               <div class="future-grid">
                 <article>
-                  <strong>Hybrid retrieval</strong>
-                  <span>Combine lexical filtering with embeddings or learned reranking.</span>
+                  <strong>The cost moves to write time</strong>
+                  <span>
+                    Every fact must be classified when it arrives. Similarity
+                    search defers that work to read time. Deferring is cheaper
+                    per event and worse per year.
+                  </span>
                 </article>
                 <article>
-                  <strong>Temporal semantics</strong>
-                  <span>Represent deadlines, recurrence, uncertainty, and automatic expiry.</span>
+                  <strong>Confidently stale</strong>
+                  <span>
+                    If nothing writes, the tree returns last month&rsquo;s
+                    answer with total confidence. Similarity search would have
+                    surfaced the recent conversation. This is a real inversion,
+                    not a rhetorical one.
+                  </span>
                 </article>
                 <article>
-                  <strong>Conflict handling</strong>
-                  <span>Surface incompatible sources instead of silently choosing one.</span>
+                  <strong>Migration debt is visible</strong>
+                  <span>
+                    Two of my domains still have both a flat file and a
+                    directory with the same name &mdash; a split that started
+                    and never finished. Growing the schema means periodically
+                    paying to finish moves.
+                  </span>
                 </article>
                 <article>
-                  <strong>Evaluation</strong>
-                  <span>Measure recall, stale-memory errors, context precision, and action quality.</span>
+                  <strong>No promotion between domains</strong>
+                  <span>
+                    A claim recorded in one domain does not automatically
+                    upgrade a fact in another when it turns out to be true.
+                    There is no edge for that yet, and it has to be walked by
+                    hand.
+                  </span>
+                </article>
+                <article>
+                  <strong>Cold start is real</strong>
+                  <span>
+                    A router with nothing behind it is worse than no system. The
+                    payoff arrives only after a domain has enough record to be
+                    worth routing to.
+                  </span>
+                </article>
+                <article>
+                  <strong>None of this is benchmarked</strong>
+                  <span>
+                    These are field notes from one system used daily for six
+                    months, not an evaluation. The measurements I would want:
+                    stale-fact rate, misroute rate, and how much of what enters
+                    context was actually load-bearing.
+                  </span>
                 </article>
               </div>
+              <p>
+                The honest summary is that I traded a failure mode I could not
+                see for one I can. A wrong file has a path and a modification
+                date. A retrieval that quietly pulled the wrong memory into
+                context leaves nothing behind at all.
+              </p>
             </section>
 
             <section id="reproduce">
-              <p class="section-number">10</p>
-              <h2>Reproduce the reference implementation</h2>
+              <p class="section-number">09</p>
+              <h2>Reproduce</h2>
               <p>
-                The deterministic memory demo has no dependencies beyond Python
-                3.11. The OpenAI adapter is optional.
+                The deterministic memory substrate is public and has no
+                dependencies beyond Python 3.11. The model adapter is optional.
               </p>
               <pre><code>git clone https://github.com/yzeng58/persistent-memory-agent.git
 cd persistent-memory-agent
@@ -591,7 +931,8 @@ python -m pip install -e .
 persistent-memory-agent demo
 python -m unittest discover -s tests -v</code></pre>
               <p>
-                The source is organized around four canonical owners:
+                The source keeps one canonical owner per concern, which is the
+                same rule the file tree uses:
                 <a href="https://github.com/yzeng58/persistent-memory-agent/blob/main/src/persistent_memory_agent/models.py"><code>models.py</code></a>
                 defines the records,
                 <a href="https://github.com/yzeng58/persistent-memory-agent/blob/main/src/persistent_memory_agent/store.py"><code>store.py</code></a>
@@ -601,14 +942,21 @@ python -m unittest discover -s tests -v</code></pre>
                 <a href="https://github.com/yzeng58/persistent-memory-agent/blob/main/src/persistent_memory_agent/openai_model.py"><code>openai_model.py</code></a>
                 implements the optional model boundary.
               </p>
+              <p>
+                If you build one of these, the two decisions that are expensive
+                to reverse are both in section five: write the router before the
+                content, and classify by subject rather than by workflow.
+                Everything else can be refactored later.
+              </p>
             </section>
 
             <footer class="paper-footer">
               <strong>Persistent Personal Assistant</strong>
               <span>
-                Technical concept and system by Yuchen Zeng. The private harness,
-                instructions, skills, credentials, and personal context are not
-                published.
+                Concept and system by Yuchen Zeng. The private deployment
+                &mdash; charter, modules, credentials, and personal record
+                &mdash; is not published. Names and identifying details in the
+                demo are substituted.
               </span>
             </footer>
           </div>

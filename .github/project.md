@@ -63,14 +63,76 @@ The browser experience is an advertisement, not a landing page:
   runs `yuchen-assistant`, presents important notices and schedule, then shows
   Food, Work & Inbox, Stock, AI & Research, Deals, and Secondhand report
   entrances. The cinematic cursor opens Stock as the representative deep-dive.
-- `docs/architecture.html`: paper-style technical project article. It explains
-  the implemented event and memory schemas, supersession lifecycle, retrieval
-  score, bounded context packing, agent loop, full-system routing boundary, and
-  reproducible quickstart without exposing private instructions, credentials,
-  personal data, or operational deployment details.
+- `docs/architecture.html`: the written companion to the demo, titled
+  "How to make a personal AI system that knows you well". Nine sections:
+  addressing, the tree that uniqueness forces, what is worth saving, the control
+  plane, an eight-step build recipe, an inventory of the deployed system, how
+  books become output gates, honest costs, and a reproducible quickstart. It
+  describes the private deployment in aggregate without exposing instructions,
+  credentials, personal data, or identifiable names.
 
 Future storage or model backends must preserve the domain contracts in
 `models.py` and `agent.py` rather than creating a second memory lifecycle.
+
+## The Article
+
+`docs/architecture.html` is a technical write-up, not a landing page and not a
+paper. It exists to make a reader able to build the same thing.
+
+### Vocabulary
+
+These names are canonical. Do not introduce synonyms for them.
+
+| Concept | Canonical name |
+|---|---|
+| The governing layer that does no domain work | control plane |
+| The seventy working modules | data plane, or domain modules |
+| The always-resident top-level instruction file | the charter |
+| The only component allowed to create, move, or delete parts | the registrar |
+| A module's `SKILL.md` | router |
+| A module's `assets/` | procedures |
+| A module's `references/` | the record |
+| The decision tree that assigns paths | the address space |
+| A pointer that lets two branches reach one file | cross-link |
+
+### Rules
+
+- **Steps, not prose.** A reader must be able to follow the article one action
+  at a time. Prefer bullets, numbered steps, tables, and trees over paragraphs.
+  No section may be a wall of continuous text.
+- **Every claim carries an artifact.** A design assertion is only allowed next
+  to a real tree, rule, count, or file listing taken from the running system.
+  Never invent an example, a number, or a rule that is not on disk.
+- **Numbers get verified before they are written.** Counts in the article
+  (modules, files, bytes, ratios, dates) are measured, not remembered. Re-measure
+  before changing any of them.
+- **Every section ends with something executable** — a tree, an assertion, a
+  checklist, or a numbered procedure. Not a summary sentence.
+- **Keep the tradeoffs section honest.** Section 8 must state real costs,
+  including where this design is worse than similarity search. Removing it makes
+  the whole article read as marketing.
+- **The article must obey its own rules.** One canonical statement per idea; if
+  a point is repeated, one of the two copies is wrong. Terminology is uniform
+  because uniformity is the thesis.
+
+### Privacy
+
+- No employer, team, org, cluster, or internal codename. Generalize
+  infrastructure names and say that they were generalized.
+- No real colleague names, and no words attributed to a real person.
+- Domains and module names may be listed; their contents may not be quoted.
+- Aggregate counts are publishable. Individual records are not.
+- Before publishing: render the page and search the text for names, employers,
+  and internal terms. Do not rely on reading the source.
+
+### Validation
+
+1. `python - <<` tag-balance and anchor check: every `href="#x"` resolves to a
+   `<section id="x">`.
+2. Serve `docs/` locally and load the page with a real browser; require zero
+   console errors and zero failed requests.
+3. Screenshot the full scroll and read it as a reader would.
+4. Grep the rendered `innerText` (not the HTML) for private terms.
 
 ## Naming
 
@@ -90,3 +152,5 @@ Future storage or model backends must preserve the domain contracts in
 5. Run `python -m unittest discover -s tests -v`.
 6. Run `python -m compileall -q src tests`.
 7. Verify `docs/index.html` through a local static server before publishing.
+8. When `docs/architecture.html` changes, run the four checks in
+   **The Article / Validation** before publishing.

@@ -241,6 +241,7 @@ main {
 }
 
 .paper-body section {
+  scroll-margin-top: 96px;
   margin-top: 82px;
 }
 
@@ -826,5 +827,60 @@ pre code {
   .paper-body p,
   .paper-body li {
     font-size: 16px;
+  }
+}
+
+/* Top-level bullet lists in the article body */
+.paper-body > section > ul {
+  margin: 22px 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 13px;
+}
+
+.paper-body > section > ul > li {
+  position: relative;
+  padding-left: 22px;
+  font-size: 15px;
+  line-height: 1.62;
+}
+
+.paper-body > section > ul > li::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 2px;
+  width: 9px;
+  height: 3px;
+  background: var(--green);
+}
+
+.paper-body > section > ul > li > strong {
+  color: var(--ink);
+}
+
+.paper-body > section > ul > li > code,
+.schema-table code {
+  font-size: 11px;
+}
+
+.schema-table td code {
+  color: var(--ink);
+  background: #f1f4f1;
+  padding: 1px 4px;
+}
+
+.layer-stack article > div {
+  min-width: 0;
+}
+
+.paper-body q {
+  font-style: italic;
+}
+
+@media (max-width: 720px) {
+  .paper-body > section > ul > li {
+    font-size: 14px;
   }
 }
