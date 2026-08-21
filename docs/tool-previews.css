@@ -1,0 +1,492 @@
+.tool-screen {
+  padding: 0;
+  background: #eef1f4;
+}
+
+.browser-chrome {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 25px;
+  background: #dee2e7;
+  padding: 0 8px;
+}
+
+.browser-chrome > i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #aab1ba;
+}
+
+.browser-tab {
+  overflow: hidden;
+  max-width: 52%;
+  margin-left: 4px;
+  border-radius: 6px 6px 0 0;
+  background: #f7f8fa;
+  color: #59616b;
+  padding: 5px 9px;
+  font-size: 7px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.browser-lock {
+  margin-left: auto;
+  color: #68736c;
+  font-size: 7px;
+}
+
+.tool-frame {
+  height: calc(100% - 25px);
+  border-radius: 0;
+  padding: 0;
+}
+
+.gmail-frame,
+.outlook-frame,
+.teams-frame {
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+  align-content: stretch;
+  gap: 0;
+  overflow: hidden;
+}
+
+.tool-preview[data-tool="outlook"] .outlook-frame {
+  display: grid;
+}
+
+.app-avatar {
+  display: grid;
+  width: 19px;
+  height: 19px;
+  place-items: center;
+  border-radius: 50%;
+  background: #345b9c;
+  color: white;
+  font-size: 7px;
+  font-weight: 800;
+}
+
+.gmail-top {
+  display: grid;
+  grid-template-columns: auto auto auto 1fr auto;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  border-bottom: 1px solid #e6e9ed;
+  background: white;
+  padding: 0 8px;
+}
+
+.gmail-menu {
+  color: #5f6368;
+  font-size: 11px;
+}
+
+.gmail-logo {
+  background: linear-gradient(135deg, #4285f4 20%, #ea4335 20% 48%, #fbbc04 48% 72%, #34a853 72%);
+  color: transparent;
+  background-clip: text;
+  font-size: 16px;
+  font-weight: 950;
+}
+
+.gmail-top strong {
+  color: #5f6368;
+  font-size: 10px;
+}
+
+.gmail-search {
+  border-radius: 7px;
+  background: #edf3fa;
+  color: #687078;
+  padding: 6px 8px;
+  font-size: 7px;
+}
+
+.gmail-shell {
+  display: grid;
+  grid-template-columns: 31% 1fr;
+  min-height: 0;
+}
+
+.gmail-sidebar {
+  display: grid;
+  align-content: start;
+  gap: 3px;
+  background: #f7f9fc;
+  padding: 8px 5px;
+}
+
+.gmail-sidebar b {
+  border-radius: 10px;
+  background: #c2e7ff;
+  color: #33465a;
+  padding: 7px;
+  font-size: 7px;
+}
+
+.gmail-sidebar span {
+  display: flex;
+  justify-content: space-between;
+  border-radius: 8px;
+  color: #59636e;
+  padding: 5px 7px;
+  font-size: 7px;
+}
+
+.gmail-sidebar span.active {
+  background: #d3e3fd;
+  color: #1f3654;
+  font-weight: 800;
+}
+
+.gmail-sidebar i {
+  font-style: normal;
+}
+
+.gmail-inbox {
+  background: white;
+}
+
+.gmail-actions {
+  border-bottom: 1px solid #e5e8eb;
+  color: #727980;
+  padding: 6px 8px;
+  font-size: 7px;
+}
+
+.gmail-email {
+  display: grid;
+  grid-template-columns: auto 29% 1fr auto;
+  gap: 5px;
+  border-bottom: 1px solid #eceff1;
+  color: #5f666d;
+  padding: 7px 6px;
+  font-size: 6.5px;
+}
+
+.gmail-email.unread {
+  background: #f6f9ff;
+  color: #30353a;
+}
+
+.gmail-email i {
+  color: #889098;
+  font-style: normal;
+}
+
+.gmail-email span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gmail-email time {
+  font-size: 6px;
+  font-weight: 750;
+}
+
+.outlook-top {
+  display: grid;
+  grid-template-columns: auto auto auto 1fr auto;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  background: #0f6cbd;
+  color: white;
+  padding: 0 8px;
+}
+
+.outlook-grid {
+  font-size: 13px;
+}
+
+.outlook-logo {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  background: #1473e6;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.outlook-top strong {
+  font-size: 9px;
+}
+
+.outlook-search {
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #4b5c70;
+  padding: 5px 8px;
+  font-size: 7px;
+}
+
+.outlook-shell {
+  display: grid;
+  grid-template-columns: 24px 30% 1fr;
+  min-height: 0;
+  background: white;
+}
+
+.outlook-rail,
+.teams-rail {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  background: #f2f2f2;
+  padding: 8px 4px;
+}
+
+.outlook-rail span,
+.teams-rail span {
+  display: grid;
+  height: 20px;
+  place-items: center;
+  border-radius: 4px;
+  color: #61676d;
+  font-size: 8px;
+}
+
+.outlook-rail span.active {
+  background: #dcecff;
+  color: #0f6cbd;
+}
+
+.outlook-mini {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  border-right: 1px solid #e6e6e6;
+  padding: 10px 8px;
+  font-size: 7px;
+}
+
+.outlook-mini b {
+  font-size: 9px;
+}
+
+.outlook-mini i {
+  color: #586675;
+  font-style: normal;
+}
+
+.outlook-calendar header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #e6e6e6;
+  padding: 8px;
+  font-size: 7px;
+}
+
+.calendar-row {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  min-height: 43px;
+  border-bottom: 1px solid #edf0f2;
+}
+
+.calendar-row time {
+  color: #75808b;
+  padding: 6px;
+  font-size: 6px;
+}
+
+.calendar-event {
+  align-self: center;
+  border-left: 3px solid;
+  border-radius: 3px;
+  padding: 6px;
+  font-size: 7px;
+  font-weight: 750;
+}
+
+.calendar-event.purple { border-color: #7b61c9; background: #eee9fb; color: #544189; }
+.calendar-event.green { border-color: #2e9b69; background: #e7f5ed; color: #267550; }
+.calendar-event.blue { border-color: #2678c7; background: #e5f1fb; color: #205f99; }
+
+.teams-top {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  background: #5b5fc7;
+  color: white;
+  padding: 0 8px;
+}
+
+.teams-grid {
+  font-size: 13px;
+}
+
+.teams-logo {
+  display: grid;
+  width: 19px;
+  height: 19px;
+  place-items: center;
+  border-radius: 4px;
+  background: #7b83eb;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.teams-search {
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #545770;
+  padding: 5px 8px;
+  font-size: 7px;
+}
+
+.teams-shell {
+  display: grid;
+  grid-template-columns: 24px 35% 1fr;
+  min-height: 0;
+  background: white;
+}
+
+.teams-rail {
+  background: #ebebf2;
+}
+
+.teams-rail span.active {
+  background: white;
+  color: #5b5fc7;
+}
+
+.teams-chats {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  border-right: 1px solid #e3e4e8;
+  background: #f7f7f9;
+  padding: 8px 5px;
+}
+
+.teams-chats > b {
+  padding: 0 4px 5px;
+  font-size: 9px;
+}
+
+.teams-chats > span {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  border-radius: 5px;
+  padding: 5px;
+}
+
+.teams-chats > span.active {
+  background: #e8e8f5;
+}
+
+.teams-chats i,
+.teams-thread header > i {
+  display: grid;
+  width: 19px;
+  height: 19px;
+  grid-row: span 2;
+  place-items: center;
+  border-radius: 50%;
+  background: #8b72c7;
+  color: white;
+  font-size: 6px;
+  font-style: normal;
+}
+
+.teams-chats em {
+  font-size: 7px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.teams-chats small {
+  overflow: hidden;
+  color: #777b84;
+  font-size: 6px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.teams-thread {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-width: 0;
+  padding: 7px;
+}
+
+.teams-thread header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid #e6e6e8;
+  padding-bottom: 6px;
+}
+
+.teams-thread header div {
+  display: grid;
+}
+
+.teams-thread header b {
+  font-size: 8px;
+}
+
+.teams-thread header span {
+  color: #6f747d;
+  font-size: 6px;
+}
+
+.teams-thread p {
+  align-self: start;
+  margin: 10px 0;
+  border-radius: 6px;
+  background: #f1f1f5;
+  color: #4d4f56;
+  padding: 8px;
+  font-size: 7px;
+  line-height: 1.45;
+}
+
+.teams-thread p b {
+  display: block;
+  margin-bottom: 3px;
+  color: #33343a;
+}
+
+.teams-compose {
+  border: 1px solid #d7d8de;
+  border-radius: 4px;
+  color: #8a8e97;
+  padding: 6px;
+  font-size: 6px;
+}
+
+.agent-tool-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.agent-tool-title > span {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 8px;
+  background: #e4f3eb;
+  color: #287052;
+}
+
+.agent-tool-title div {
+  display: grid;
+}
+
+.agent-tool-title small {
+  color: #77847d;
+  font-size: 7px;
+}

@@ -1,59 +1,40 @@
 # Persistent Personal Agent
 
-A day-in-the-life demonstration of a persistent personal AI chief of staff.
+A cinematic demonstration of a persistent personal AI chief of staff.
 
 **Interactive demo:** https://yzeng58.github.io/persistent-memory-agent/
 
-The central idea is broader than chat memory. A useful personal agent wakes up
-with the user's context, monitors the parts of life spread across different
-apps, applies domain-specific judgment, routes each task to the right tool, and
-acts with appropriate confirmation gates.
+The public demo is intentionally presented like a short advertisement rather
+than a feature page. Each looping scene shows one real request moving across
+memory, judgment, apps, and tools until the user receives a concrete result.
 
-## What the demo shows
-
-- **Morning operating brief:** combines calendars, email, reminders, market
-  context, AI news, card offers, spending, and food suggestions.
-- **Email and commitment tracking:** drafts replies, extracts deadlines, and
-  creates follow-up reminders.
-- **Relationship-aware communication:** identifies who a person is, selects an
-  appropriate tone, checks scheduling constraints, and chooses the established
-  communication channel.
-- **Cross-app routing:** sends Microsoft work tasks through authenticated Teams
-  browser workflows while other tasks use the appropriate account and tool.
-- **Personal judgment:** carries work history, network context, saved books and
-  research, financial preferences, food preferences, and aesthetic context
-  across sessions.
-- **Confirmation gates:** prepares actions but stops before high-impact steps
-  such as sending a message.
-
-## Example: message my manager
+## Current opening scene
 
 ```text
-Request: Message Dimitris that the next BenchPress version is ready and ask
-whether the meeting can move to 10am.
-
-1. people-ops identifies Dimitris as the user's manager and collaborator.
-2. workplace-communication chooses a concise, warm, proactive tone.
-3. calendar-ops checks both calendars.
-4. teams-ops selects Microsoft Teams as the established channel.
-5. browser routes the action through authenticated Chrome DevTools.
-6. The agent presents the exact draft and stops before Send.
+Open Terminal.
+Run: yuchen-assistant
 ```
 
-The point is not the individual tools. The value comes from maintaining enough
-context to choose the right sequence without making the user restate who the
-person is, why the task matters, which channel to use, or how the message should
-sound.
+The command opens a focused daily brief. Important notices and the schedule stay
+fully visible at the top. Below them are six report entry points:
 
-## Everyday domains
+- Food recommendations for today
+- Work and inbox for today
+- Stock report for today
+- AI and research for today
+- Good deals for today
+- Secondhand for today
 
-- Calendar, travel, priorities, and reminders
-- Gmail and Outlook
-- Stocks, portfolio context, and AI news
-- Credit-card offers, coupons, bills, budgets, and spending
-- Daily food suggestions
-- Personal and professional network memory
-- Workplace communication research and books
+Each entry opens a full analysis page. The current cinematic draft demonstrates
+Stock: it pauses on portfolio status, then simulates scrolling into
+recommendations and stock-specific news.
+
+## Planned scenes
+
+- Relationship-aware workplace messaging with a human approval gate
+- Email triage, reminders, and follow-through
+- AI news, markets, and portfolio context
+- Personal and professional network workflows
 - Fashion, skincare, hair, aesthetics, trends, and gifts
 
 ## Persistent memory reference implementation
