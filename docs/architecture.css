@@ -47,7 +47,7 @@ a {
   gap: 24px;
   border-bottom: 1px solid rgba(23, 32, 28, 0.11);
   background: rgba(255, 254, 250, 0.92);
-  padding: 12px max(24px, calc((100vw - 1260px) / 2));
+  padding: 12px clamp(18px, 3vw, 56px);
   backdrop-filter: blur(18px);
 }
 
@@ -99,7 +99,8 @@ a {
 }
 
 main {
-  width: min(1260px, calc(100% - 40px));
+  width: calc(100% - clamp(24px, 4vw, 80px));
+  max-width: 1800px;
   margin: 32px auto 64px;
 }
 
@@ -111,7 +112,10 @@ main {
 
 .paper-header {
   border-bottom: 1px solid var(--line);
-  padding: clamp(46px, 7vw, 94px) clamp(28px, 8vw, 112px) 54px;
+  padding:
+    clamp(46px, 6vw, 110px)
+    clamp(28px, 8vw, 160px)
+    clamp(54px, 5vw, 74px);
 }
 
 .eyebrow,
@@ -124,17 +128,17 @@ main {
 }
 
 .paper-header h1 {
-  max-width: 940px;
+  max-width: min(1120px, 86%);
   margin: 16px 0 22px;
   font-family: Charter, "Iowan Old Style", "Palatino Linotype", Georgia, serif;
-  font-size: clamp(48px, 7.2vw, 86px);
+  font-size: clamp(48px, 6vw, 96px);
   font-weight: 650;
   letter-spacing: -0.055em;
   line-height: 0.98;
 }
 
 .dek {
-  max-width: 770px;
+  max-width: 900px;
   margin: 0;
   color: #46534c;
   font-family: Charter, "Iowan Old Style", Georgia, serif;
@@ -175,10 +179,13 @@ main {
 
 .paper-layout {
   display: grid;
-  grid-template-columns: 220px minmax(0, 760px);
+  grid-template-columns: clamp(210px, 17vw, 300px) minmax(0, 1000px);
   justify-content: center;
-  gap: 68px;
-  padding: 62px clamp(28px, 6vw, 82px) 80px;
+  gap: clamp(40px, 5vw, 90px);
+  padding:
+    clamp(54px, 5vw, 74px)
+    clamp(28px, 7vw, 128px)
+    clamp(72px, 7vw, 104px);
 }
 
 .table-of-contents {
@@ -705,7 +712,7 @@ pre code {
   line-height: 1.5;
 }
 
-@media (max-width: 940px) {
+@media (max-width: 1080px) {
   .paper-layout {
     grid-template-columns: 1fr;
     gap: 48px;
