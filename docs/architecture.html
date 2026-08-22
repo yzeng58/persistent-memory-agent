@@ -113,28 +113,42 @@
               </ul>
 
               <p>
-                Both come from one property: similarity search returns
-                <em>k</em> items and has no way to return zero. If the binding
-                fact is not in the top <em>k</em>, it is silently missed. And
-                because the <em>k</em> slots get filled regardless of whether
-                anything relevant exists, true-but-unrelated material is shipped
-                to fill them. One call, two failure types.
+                I cannot tell you what causes this, because I cannot see
+                inside the products I was using. What I can say is what the
+                behaviour looked like from outside, and which designs produce
+                that shape.
               </p>
 
               <p>
-                Three properties of an embedding store make this structural
-                rather than a tuning problem:
+                From outside, the two symptoms behave like one thing rather than
+                two: they arrive together, in the same answer, and neither is
+                announced. That is the signature of a step that always returns a
+                fixed number of items regardless of whether the right one is
+                among them &mdash; if the governing fact is not in the returned
+                set it is silently missed, and the remaining slots are filled
+                with whatever ranked next. I am describing a shape, not an
+                implementation.
+              </p>
+
+              <p>
+                So the useful question is not what any particular vendor does.
+                It is: what do I have to build so this cannot happen to me?
+                Which means being precise about what similarity retrieval, as a
+                technique, does and does not guarantee. Three properties, none
+                of which are tuning problems:
               </p>
 
               <ul>
                 <li>
-                  <strong>There is no primary key, so there is no UPDATE.</strong>
-                  Write &ldquo;I live at A,&rdquo; then later write &ldquo;I
-                  moved to B,&rdquo; and the store holds two rows, not one
-                  corrected row. At read time whichever sits closer to the query
-                  wins. Recency is not part of cosine distance unless you build
-                  it in yourself, and even then it is a heuristic competing with
-                  semantics rather than a fact replacing a stale one.
+                  <strong>Nothing gives a fact a stable key.</strong>
+                  Vector stores do have record IDs and can overwrite by ID. What
+                  they do not have is anything that decides &ldquo;I moved to
+                  B&rdquo; is a new value for the same variable as &ldquo;I live
+                  at A,&rdquo; and should therefore replace it. Absent that, you
+                  get two rows, and at read time whichever sits closer to the
+                  query wins. Recency can be added as a re-ranking term, but
+                  that makes it a heuristic competing with semantics rather than
+                  a new value replacing an old one.
                 </li>
                 <li>
                   <strong>Similarity is not bindingness.</strong>
@@ -175,13 +189,14 @@
               </p>
 
               <p>
-                The mechanism is the training objective doing exactly what it
-                should. For a given phrasing, generation lands near the mode of
-                the conditional distribution. Most people who write &ldquo;my
-                manager did X and I feel Y&rdquo; want to be comforted, so
-                comfort is the modal continuation. That is the right answer for
-                the population and the wrong answer for the person in front of
-                it.
+                I do not think this is a defect. A model trained on what
+                people write, then tuned on what people rate well, is going to
+                answer the way that works for most people who phrase a question
+                that way &mdash; and most people who write &ldquo;my manager did
+                X and I feel Y&rdquo; do want to be comforted. Whatever the
+                exact mechanism, the outcome is an answer aimed at the
+                population rather than at the person in front of it. That is the
+                right default and the wrong answer for me.
               </p>
 
               <p>
