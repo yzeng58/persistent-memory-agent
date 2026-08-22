@@ -314,17 +314,40 @@
 Walk the same tree when looking for one.</code></pre>
 
               <p>
-                Compare the shapes. Similarity retrieval has two different
-                functions: writing is <code>embed(text) &rarr; insert</code>,
-                reading is <code>embed(query) &rarr; top-k</code>. They are not
-                inverses of each other, and nothing in the system forces them to
-                agree &mdash; which is precisely why a fact can be present and
-                unreachable. Here there is one function. Storage computes
-                <code>f(fact)</code>; lookup computes <code>f(fact)</code>
-                again. If lookup fails, exactly two things can be true: the fact
-                was never stored, or the tree changed since it was. Both are
-                diagnosable in a way that &ldquo;the embedding did not rank it
-                highly today&rdquo; is not.
+                Storing and finding are the same walk. To file &ldquo;this
+                position is locked and cannot be sold,&rdquo; I ask what the
+                information is about &mdash; my money &mdash; and the tree sends
+                me down <code>finance/</code>. Months later I want to know
+                whether I can sell. I ask the same question, take the same
+                branch, and land on the same file. I never had to remember how
+                the original sentence was worded, because the tree branches on
+                what a fact is about, not on how it was phrased.
+              </p>
+
+              <p>
+                Similarity retrieval cannot work this way. Writing embeds the
+                fact. Reading embeds the question. Those are two different
+                pieces of text:
+              </p>
+
+              <pre><code>write:  embed("locked, cannot be sold") &rarr; insert
+read:   embed("can I sell this?")       &rarr; top-k</code></pre>
+
+              <p>
+                Two functions, not one, and they are not inverses of each other.
+                Nothing in the system requires the second to land where the
+                first did. That is how a fact can be stored and still be
+                unreachable.
+              </p>
+
+              <p>
+                When a lookup on the tree comes back empty, there are exactly
+                two explanations: the fact was never written, or the tree
+                changed shape since it was. The first is settled with
+                <code>ls</code>. The second is settled with <code>git log</code>
+                on the directory. Neither is a guess. &ldquo;The embedding did
+                not rank it highly today&rdquo; cannot be settled either way,
+                and leaves nothing to fix.
               </p>
 
               <h4>The uniqueness assertion</h4>
