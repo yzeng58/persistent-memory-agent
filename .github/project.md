@@ -90,6 +90,22 @@ these without asking:
 Sections 2.1, 2.2, and 2.3 each repair exactly one failure from section 1, in
 that order. Every subsection ends with a numbered procedure.
 
+### The LaTeX editing copy
+
+There is an Overleaf project that holds the same article as a LaTeX document,
+so the author can revise the prose by hand and read it as a PDF:
+
+- Overleaf: https://www.overleaf.com/project/6a8b11b8076e047ac2bbd27b
+- Local clone: `~/.copilot/overleaf/6a8b11b8076e047ac2bbd27b/`
+- `main.tex` was generated from `docs/index.html` by `html2tex.py`, which is
+  kept in that same project.
+
+`docs/index.html` stays the published source. The LaTeX copy is a one-way
+export used for revision. **Once the author has edited `main.tex`, do not
+regenerate it** — that would overwrite the edits. Port the revisions back into
+`docs/index.html` by hand, section by section, then leave the LaTeX copy alone
+until the next export.
+
 ### Vocabulary
 
 These names are canonical. Do not introduce synonyms for them.
