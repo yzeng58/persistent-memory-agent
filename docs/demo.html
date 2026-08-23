@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="A cinematic morning briefing from a persistent personal agent."
+    >
+    <title>Persistent Personal Agent</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="tool-processes.css">
+    <link rel="stylesheet" href="tool-previews.css">
+  </head>
+  <body>
+    <main id="stage" class="stage" aria-label="Persistent personal agent animation">
+      <section id="ad-narration" class="ad-narration" aria-hidden="true">
+        <strong id="ad-narration-headline">Your day. Optimized.</strong>
+        <span id="ad-narration-detail">Turns your messages, calendars, and commitments into a prioritized day.</span>
+      </section>
+      <div class="computer">
+        <div class="camera-dot"></div>
+        <div class="screen">
+          <div class="desktop">
+            <div class="menu-bar">
+              <div class="menu-left">
+                <span class="menu-logo" aria-hidden="true">
+                  <svg viewBox="0 0 48 48">
+                    <path d="M13 16C17 10 25 8 32 11M37 18C41 25 38 33 32 38M16 37C10 33 8 24 11 18"></path>
+                    <circle cx="24" cy="24" r="6"></circle>
+                    <circle cx="12" cy="15" r="3"></circle>
+                    <circle cx="37" cy="17" r="3"></circle>
+                    <circle cx="16" cy="37" r="3"></circle>
+                  </svg>
+                </span>
+                <strong>Finder</strong>
+                <span>File</span>
+                <span>Edit</span>
+                <span>View</span>
+              </div>
+              <div class="menu-right">
+                <span>Wi-Fi</span>
+                <span>100%</span>
+                <span>Thu 7:28 AM</span>
+              </div>
+            </div>
+
+            <div class="desktop-note">
+              <span>THURSDAY</span>
+              <strong>7:28</strong>
+              <small>AUG 20</small>
+            </div>
+
+            <section id="terminal-window" class="terminal-window">
+              <header class="window-header terminal-header">
+                <div class="traffic-lights" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </div>
+                <strong>Terminal</strong>
+                <span>zsh</span>
+              </header>
+              <div class="terminal-body">
+                <div class="terminal-prompt">
+                  <span class="prompt-path">~</span>
+                  <span id="typed-command"></span>
+                  <span id="command-caret" class="command-caret"></span>
+                </div>
+                <div id="boot-status" class="boot-status">
+                  <span class="boot-spinner"></span>
+                  <div>
+                    <strong>Preparing your day</strong>
+                    <small>Calendar, spending, offers, alerts, and work</small>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section id="assistant-window" class="assistant-window">
+              <header class="assistant-topbar">
+                <div class="brand-lockup">
+                  <span class="agent-mark" aria-hidden="true">
+                    <svg viewBox="0 0 48 48">
+                      <path d="M13 16C17 10 25 8 32 11M37 18C41 25 38 33 32 38M16 37C10 33 8 24 11 18"></path>
+                      <circle cx="24" cy="24" r="6"></circle>
+                      <circle cx="12" cy="15" r="3"></circle>
+                      <circle cx="37" cy="17" r="3"></circle>
+                      <circle cx="16" cy="37" r="3"></circle>
+                    </svg>
+                  </span>
+                  <div>
+                    <strong>Yuchen Assistant</strong>
+                    <small><i></i> Ready</small>
+                  </div>
+                </div>
+                <div class="assistant-date">
+                  <strong>Thursday</strong>
+                  <span>August 20 · Bellevue</span>
+                </div>
+              </header>
+
+              <div class="assistant-body">
+                <aside class="agent-runtime">
+                  <section id="preparation-panel" class="preparation-panel">
+                    <div class="preparation-copy">
+                      <span class="preparation-kicker"><i></i> AGENT STATUS</span>
+                      <strong id="preparation-title">Searching your inbox</strong>
+                      <p id="preparation-note">
+                        Automatically choosing the best available access method for each account.
+                      </p>
+                    </div>
+                    <div id="preparation-routes" class="preparation-routes">
+                      <span>Gmail · API</span>
+                      <span>Outlook · Chrome</span>
+                    </div>
+                  </section>
+
+                  <section id="tool-preview" class="tool-preview" data-tool="gmail">
+                    <header>
+                      <span id="tool-preview-title">Gmail API</span>
+                      <small>LIVE WORKSPACE</small>
+                    </header>
+                    <div class="tool-screen">
+                      <div class="browser-chrome">
+                        <i></i><i></i><i></i>
+                        <span class="browser-tab">Authenticated workspace</span>
+                        <span class="browser-lock">● secure</span>
+                      </div>
+
+                      <div class="tool-frame gmail-frame">
+                        <div class="gmail-top">
+                          <span class="gmail-menu">☰</span>
+                          <span class="gmail-logo">M</span>
+                          <strong>Gmail</strong>
+                          <span class="gmail-search">⌕ Search mail</span>
+                          <span class="app-avatar">YZ</span>
+                        </div>
+                        <div class="gmail-shell">
+                          <nav class="gmail-sidebar">
+                            <b>＋ Compose</b>
+                            <span class="active">▣ Inbox <i>3</i></span>
+                            <span>☆ Starred</span>
+                            <span>◷ Snoozed</span>
+                            <span>➤ Sent</span>
+                          </nav>
+                          <div class="gmail-inbox">
+                            <div class="gmail-actions">☐　↻　⋮</div>
+                            <div class="gmail-email unread"><i>☆</i><b>Priya Raman</b><span>OpenAI referral — Action required</span><time>9:42 AM</time></div>
+                            <div class="gmail-email unread"><i>☆</i><b>Bellevue Medical</b><span>Your $20 balance is due</span><time>8:15 AM</time></div>
+                            <div class="gmail-email"><i>☆</i><b>Research Sync</b><span>Agenda for this afternoon</span><time>Yesterday</time></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="tool-frame outlook-frame">
+                        <div class="outlook-top">
+                          <span class="outlook-grid">⠿</span>
+                          <span class="outlook-logo">O</span>
+                          <strong>Outlook</strong>
+                          <span class="outlook-search">⌕ Search</span>
+                          <span class="app-avatar">YZ</span>
+                        </div>
+                        <div class="outlook-shell">
+                          <nav class="outlook-rail"><span>✉</span><span class="active">▦</span><span>☑</span><span>♙</span></nav>
+                          <aside class="outlook-mini">
+                            <b>Calendar</b>
+                            <span>My calendars</span>
+                            <i>■ Work</i>
+                            <i>■ Personal</i>
+                          </aside>
+                          <div class="outlook-calendar">
+                            <header><b>Thursday, August 20</b><span>Day　Week</span></header>
+                            <div class="calendar-row"><time>10 AM</time><span class="calendar-event purple">Review with Marcus</span></div>
+                            <div class="calendar-row"><time>1 PM</time><span class="calendar-event green">Research sync</span></div>
+                            <div class="calendar-row"><time>3 PM</time><span class="calendar-event blue">Team planning update</span></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="tool-frame chrome-frame">
+                        <div class="chrome-launch">
+                          <span class="chrome-logo"></span>
+                          <strong>Google Chrome</strong>
+                          <p>Opening your authenticated work profile</p>
+                          <div class="chrome-profile"><span class="app-avatar">YZ</span><div><b>Yuchen</b><small>Microsoft account · Sync on</small></div><i>✓</i></div>
+                        </div>
+                        <div class="chrome-navigation">
+                          <div class="chrome-tabs"><span class="active">New Tab</span><i>＋</i></div>
+                          <div class="chrome-address-row"><span>‹　›　↻</span><b>🔒 <i id="chrome-address"></i></b><em>YZ</em></div>
+                          <div class="chrome-new-tab"><span class="chrome-logo"></span><strong>Google</strong><p>Searching and opening Microsoft Teams…</p></div>
+                        </div>
+                      </div>
+
+                      <div class="tool-frame teams-frame">
+                        <div class="teams-top">
+                          <span class="teams-grid">⠿</span>
+                          <span class="teams-logo">T</span>
+                          <span class="teams-search">⌕ Search</span>
+                          <span class="app-avatar">YZ</span>
+                        </div>
+                        <div class="teams-shell">
+                          <nav class="teams-rail"><span>◉</span><span class="active">▣</span><span>♟</span><span>▦</span></nav>
+                          <aside class="teams-chats">
+                            <b>Chat</b>
+                            <span class="active"><i>MA</i><em>Marcus</em><small>Let's review the new...</small></span>
+                            <span><i>BP</i><em>BenchPress</em><small>New evaluation ready</small></span>
+                            <span><i>RO</i><em>Research Ops</em><small>Planning update at 3:30</small></span>
+                          </aside>
+                          <div class="teams-thread">
+                            <header><i>MA</i><div><b>Marcus</b><span>Manager · Available</span></div></header>
+                            <p><b>Marcus</b>Let's review the new BenchPress version tomorrow. We can also discuss the team changes.</p>
+                            <div class="teams-compose">Type a new message　　➤</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="tool-frame market-frame">
+                        <div class="invest-terminal">
+                          <header><i></i><i></i><i></i><span>investment-mcp — zsh</span></header>
+                          <div class="invest-output">
+                            <span class="invest-step"><b>$</b> web_search --today fed · geopolitics · ai-semis · msft · holdings · commodities</span>
+                            <span class="invest-step success">✓ 6 sweeps · 41 sources read</span>
+                            <span class="invest-step"><b>$</b> read knowledge/tickers/** --sectors 9</span>
+                            <span class="invest-step success">✓ 113 ticker files loaded</span>
+                            <span class="invest-step"><b>$</b> mcp call investor-agent get_ticker_data --batch 113</span>
+                            <span class="invest-step success">✓ 113 quotes · each stamped with source + timestamp</span>
+                            <span class="invest-step"><b>$</b> fetch sec.gov/edgar MRVL 8-K 2026-08-19</span>
+                            <span class="invest-step alert">→ verdict: no new actionable candidate</span>
+                            <i class="terminal-caret"></i>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="tool-frame sources-frame">
+                        <div class="source-query">
+                          <span>⌕</span>
+                          <div>
+                            <small>SEARCHING ACROSS SOURCES</small>
+                            <strong id="source-activity-title">Finding relevant signals</strong>
+                          </div>
+                        </div>
+                        <div id="source-activity-list" class="source-activity-list"></div>
+                      </div>
+                      <div class="tool-frame network-frame">
+                        <div class="agent-tool-title"><span>◎</span><div><b>Personal network</b><small>Relationship memory</small></div></div>
+                        <span class="profile-name">Marcus</span>
+                        <span>Manager · BenchPress collaborator</span>
+                        <span>Preferred channel · Microsoft Teams</span>
+                      </div>
+                    </div>
+                  </section>
+                </aside>
+
+                <main class="result-stage">
+                  <div id="assistant-content" class="assistant-content">
+                  <section id="day-heading" class="day-heading">
+                    <div>
+                      <strong>Good morning, Yuchen.</strong>
+                      <small>Here is what matters today.</small>
+                    </div>
+                    <span class="weather-pill">66 F · Clear</span>
+                  </section>
+
+                  <section id="important-card" class="important-card">
+                    <div class="important-title">
+                      <span>IMPORTANT TODAY</span>
+                      <strong>Three things need your attention.</strong>
+                      <small class="result-source">Agent searched Gmail through APIs and Outlook through authenticated Chrome.</small>
+                    </div>
+                    <div class="important-items">
+                      <span><b>1</b> Reply to OpenAI referral email</span>
+                      <span><b>2</b> Resolve the 11:00 meeting conflict</span>
+                      <span><b>3</b> Pay the $20 medical bill</span>
+                    </div>
+                  </section>
+
+                  <section id="schedule-card" class="schedule-card">
+                    <header class="schedule-header">
+                      <div>
+                        <span class="section-label">TODAY'S SCHEDULE</span>
+                        <h1>Your day, at a glance.</h1>
+                        <small class="result-source schedule-source">Agent merged Google Calendar APIs and Outlook Calendar through Chrome.</small>
+                      </div>
+                      <span class="schedule-count">3 events</span>
+                    </header>
+                    <div class="schedule-line">
+                      <article>
+                        <time>10:00</time>
+                        <span class="event-dot meeting"></span>
+                        <div>
+                          <strong>Review with Marcus</strong>
+                          <small>Teams · 30 minutes</small>
+                        </div>
+                      </article>
+                      <article>
+                        <time>1:30</time>
+                        <span class="event-dot focus"></span>
+                        <div>
+                          <strong>Research sync</strong>
+                          <small>Memory agents · Room 4</small>
+                        </div>
+                      </article>
+                      <article>
+                        <time>3:30</time>
+                        <span class="event-dot company"></span>
+                        <div>
+                          <strong>Team planning update</strong>
+                          <small>Room 2 / Teams</small>
+                        </div>
+                      </article>
+                    </div>
+                  </section>
+
+                  <section id="report-sections" class="report-sections">
+                    <article class="report-section food-section">
+                      <button class="report-trigger" type="button" data-section="food">
+                        <span class="report-icon">🍽️</span>
+                        <span class="report-title">
+                          <strong>Food recommendations for today</strong>
+                          <small>Agent combined calendar, spending, preferences, and card offers</small>
+                        </span>
+                        <span class="report-status">2 picks</span>
+                        <span class="report-arrow">→</span>
+                      </button>
+                    </article>
+
+                    <article class="report-section work-section">
+                      <button class="report-trigger" type="button" data-section="work">
+                        <span class="report-icon">💼</span>
+                        <span class="report-title">
+                          <strong>Work & inbox for today</strong>
+                          <small>Agent checked Outlook and Teams through authenticated Chrome</small>
+                        </span>
+                        <span class="report-status">5 updates</span>
+                        <span class="report-arrow">→</span>
+                      </button>
+                    </article>
+
+                    <article class="report-section stock-section">
+                      <button
+                        class="report-trigger"
+                        type="button"
+                        data-section="stock"
+                      >
+                        <span class="report-icon">📈</span>
+                        <span class="report-title">
+                          <strong>Stock report for today</strong>
+                          <small>113 tickers screened across 9 sectors · 0 recommended</small>
+                        </span>
+                        <span class="report-status neutral">0 buys</span>
+                        <span class="report-arrow">→</span>
+                      </button>
+                    </article>
+
+                    <article class="report-section news-section">
+                      <button
+                        class="report-trigger"
+                        type="button"
+                        data-section="news"
+                      >
+                        <span class="report-icon">🧠</span>
+                        <span class="report-title">
+                          <strong>AI & research for today</strong>
+                          <small>Agent filtered AI news, new papers, and research memory</small>
+                        </span>
+                        <span class="report-status">3 new</span>
+                        <span class="report-arrow">→</span>
+                      </button>
+                    </article>
+
+                    <article class="report-section deals-section">
+                      <button
+                        class="report-trigger"
+                        type="button"
+                        data-section="deals"
+                      >
+                        <span class="report-icon">🏷️</span>
+                        <span class="report-title">
+                          <strong>Good deals for today</strong>
+                          <small>Agent matched card offers and coupons to today's spending</small>
+                        </span>
+                        <span class="report-status">2 useful</span>
+                        <span class="report-arrow">→</span>
+                      </button>
+                    </article>
+
+                    <article class="report-section secondhand-section">
+                      <button
+                        class="report-trigger"
+                        type="button"
+                        data-section="secondhand"
+                      >
+                        <span class="report-icon">♻️</span>
+                        <span class="report-title">
+                          <strong>Secondhand for today</strong>
+                          <small>Agent checked Marketplace messages, listings, and price changes</small>
+                        </span>
+                        <span class="report-status">1 alert</span>
+                        <span class="report-arrow">→</span>
+                      </button>
+                    </article>
+                  </section>
+                  </div>
+                </main>
+              </div>
+
+              <section id="conversation-window" class="conversation-window">
+                <header class="conversation-header">
+                  <span>ASK YOUR ASSISTANT</span>
+                  <strong>One request becomes a complete workflow.</strong>
+                </header>
+                <div id="conversation-scroll" class="conversation-scroll">
+                  <article id="user-request-bubble" class="user-request-bubble">
+                    <span>YOU</span>
+                    <p>Check Marcus's latest Teams message and help me reply.</p>
+                  </article>
+                  <div class="agent-trace">
+                    <article class="trace-step"><b>1</b><div><strong>Searching your network</strong><span>people-ops · locating Marcus and your relationship</span></div></article>
+                    <article class="trace-step"><b>2</b><div><strong>Relationship identified</strong><span>Manager · BenchPress collaborator</span></div></article>
+                    <article class="trace-step"><b>3</b><div><strong>Opening the conversation</strong><span>Microsoft Teams has no supported message API → authenticated Chrome</span></div></article>
+                    <article class="trace-step"><b>4</b><div><strong>Reading context and history</strong><span>Latest thread, BenchPress update, team changes, and your established tone</span></div></article>
+                    <article class="trace-step"><b>5</b><div><strong>Applying workplace communication</strong><span>Concise · warm · proactive · appropriate for your manager</span></div></article>
+                  </div>
+                  <article id="reply-draft" class="reply-draft">
+                    <span>DRAFT READY · WAITING FOR APPROVAL</span>
+                    <p>Sounds good — I have the next BenchPress version ready, so we can review it tomorrow and use the rest of the time to discuss the team changes.</p>
+                  </article>
+                </div>
+                <footer id="chat-composer" class="chat-composer">
+                  <span id="chat-input"></span><i></i><b>↑</b>
+                </footer>
+              </section>
+            </section>
+
+            <section id="stock-detail-window" class="stock-detail-window">
+              <header class="detail-topbar">
+                <div class="detail-brand">
+                  <span class="detail-mark">DB</span>
+                  <div>
+                    <span>DAILY BREAKING</span>
+                    <strong>Stock report for today</strong>
+                  </div>
+                </div>
+                <div class="market-state">
+                  <i></i>
+                  <div>
+                    <strong>Market open</strong>
+                    <span>Thursday · August 20</span>
+                  </div>
+                </div>
+              </header>
+
+              <div id="stock-scroll" class="stock-scroll">
+                <section class="stock-overview">
+                  <span class="detail-eyebrow">TODAY'S STOCK RESEARCH</span>
+                  <h1>Buy nothing today.</h1>
+                  <p>
+                    It read <strong>113 tickers</strong> across nine sectors,
+                    swept the news six ways, and pulled one SEC filing —
+                    to tell you to do nothing.
+                  </p>
+                  <div class="overview-facts">
+                    <span><b>113</b> tickers screened</span>
+                    <span><b>41</b> sources read</span>
+                    <span><b>0</b> recommended</span>
+                  </div>
+                  <div class="scroll-prompt">
+                    <span>↓</span>
+                    Scroll for the work behind it
+                  </div>
+                </section>
+
+                <section class="stock-feed">
+                  <header class="feed-heading">
+                    <span>WHAT IT ACTUALLY DID</span>
+                    <h2>Nine sectors. Every ticker. One at a time.</h2>
+                    <p>No shortlist. It opens the whole universe every morning.</p>
+                  </header>
+
+                  <ol class="scan-grid">
+                    <li class="chain-link scan-row"><span>01 · defense &amp; hedge</span><b>15</b><i style="--w:52%"></i></li>
+                    <li class="chain-link scan-row"><span>02 · sectors</span><b>32</b><i style="--w:100%"></i></li>
+                    <li class="chain-link scan-row"><span>03 · semiconductors</span><b>15</b><i style="--w:52%"></i></li>
+                    <li class="chain-link scan-row"><span>04 · tech &amp; internet</span><b>13</b><i style="--w:45%"></i></li>
+                    <li class="chain-link scan-row"><span>05 · geographic</span><b>15</b><i style="--w:52%"></i></li>
+                    <li class="chain-link scan-row"><span>06 · commodities</span><b>8</b><i style="--w:28%"></i></li>
+                    <li class="chain-link scan-row"><span>07 · broad income</span><b>10</b><i style="--w:34%"></i></li>
+                    <li class="chain-link scan-row"><span>08 · themes</span><b>5</b><i style="--w:18%"></i></li>
+                    <li class="chain-link scan-row"><span>09 · AI infrastructure</span><b>29</b><i style="--w:91%"></i></li>
+                    <li class="chain-link scan-total"><span>total read today</span><b>113</b></li>
+                  </ol>
+
+                  <header class="feed-heading">
+                    <span>HOW IT NARROWED</span>
+                    <h2>Four questions, asked 113 times.</h2>
+                  </header>
+
+                  <ol class="gate-list">
+                    <li class="chain-link gate-row">
+                      <span class="gate-q">Is it a physical bottleneck in AI capex?</span>
+                      <span class="gate-n">113 <i>→</i> 41</span>
+                    </li>
+                    <li class="chain-link gate-row">
+                      <span class="gate-q">Any new hard signal in the last 24 hours?</span>
+                      <span class="gate-n">41 <i>→</i> 6</span>
+                    </li>
+                    <li class="chain-link gate-row">
+                      <span class="gate-q">Evidence — or is it just up on hype?</span>
+                      <span class="gate-n">6 <i>→</i> 1</span>
+                    </li>
+                    <li class="chain-link gate-row gate-final">
+                      <span class="gate-q">Still early — or am I chasing the move?</span>
+                      <span class="gate-n">1 <i>→</i> 0</span>
+                    </li>
+                  </ol>
+
+                  <section class="memory-block">
+                    <header class="feed-heading">
+                      <span>THE ONE THAT GOT CLOSEST</span>
+                      <h2>And why it still said no.</h2>
+                    </header>
+
+                    <article class="memory-receipt lead-card">
+                      <header class="lead-head">
+                        <span class="lead-tic">MRVL</span>
+                        <span class="lead-co">Marvell Technology</span>
+                        <span class="lead-mv">+5.79% <b>$251.01</b></span>
+                      </header>
+                      <dl class="lead-rows">
+                        <div><dt>Bottleneck</dt><dd>Optical interconnect &amp; custom silicon for AI data centers</dd></div>
+                        <div><dt>Hard signal</dt><dd>Form 8-K, Aug 19 — Google granted a warrant for <b>58,970,907</b> shares at <b>$206.58</b></dd></div>
+                        <div><dt>Source</dt><dd class="lead-src">sec.gov/edgar · filed by the company itself <i>↗</i></dd></div>
+                      </dl>
+                    </article>
+
+                    <article class="memory-receipt against-card">
+                      <p class="receipt-question">⚠ And here is the case against it</p>
+                      <ul class="against-list">
+                        <li>That warrant dilutes existing shareholders</li>
+                        <li>The whole thesis leans on one customer — Google</li>
+                        <li>Already +20.7% this month · buying now is chasing</li>
+                      </ul>
+                      <p class="receipt-source"><i>⤷</i> written before any recommendation, not after</p>
+                    </article>
+
+                    <article class="memory-receipt proof-card">
+                      <p class="receipt-question">Every number above, and where it came from</p>
+                      <dl class="proof-rows">
+                        <div><dt>$251.01 · +5.79%</dt><dd>investor-agent · Aug 20 close</dd></div>
+                        <div><dt>58,970,907 @ $206.58</dt><dd>SEC Form 8-K · filed Aug 19</dd></div>
+                        <div><dt>+20.70% · 1 month</dt><dd>investor-agent · 30-day window</dd></div>
+                      </dl>
+                      <p class="receipt-source"><i>⤷</i> nothing estimated · a number it cannot source, it does not write</p>
+                    </article>
+                  </section>
+
+                  <section class="closing-action">
+                    <span>TODAY'S VERDICT</span>
+                    <strong>No new actionable candidate.</strong>
+                    <p>113 screened. 0 recommended. Every product wants you to trade. This one shows the work, then tells you to sit still.</p>
+                  </section>
+                </section>
+              </div>
+            </section>
+
+            <svg
+              id="cursor"
+              class="cursor"
+              viewBox="0 0 32 40"
+              aria-hidden="true"
+            >
+              <path
+                d="M2 2L2 31L10 24L16 37L22 34L16 22L27 22L2 2Z"
+                fill="white"
+                stroke="#10151d"
+                stroke-width="2"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+        </div>
+        <div class="computer-base"></div>
+      </div>
+    </main>
+
+    <a class="writeup-link" href="./">
+      How this is built &nearr;
+    </a>
+
+    <script src="app.js"></script>
+  </body>
+</html>

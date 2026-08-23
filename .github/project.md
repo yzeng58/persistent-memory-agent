@@ -40,7 +40,7 @@ The browser experience is an advertisement, not a landing page:
 
 ```text
 .
-├── docs/                         # Static GitHub Pages demonstration
+├── docs/                         # GitHub Pages: write-up at /, demo at /demo.html
 ├── src/persistent_memory_agent/  # Python reference implementation
 ├── tests/                        # Standard-library unit tests
 ├── .github/
@@ -59,24 +59,23 @@ The browser experience is an advertisement, not a landing page:
 - `agent.py`: one-turn orchestration over a model backend and the memory store.
 - `openai_model.py`: optional OpenAI Responses API adapter.
 - `cli.py`: thin `demo`, `chat`, and `inspect` entrypoints.
-- `docs/index.html`: looping cinematic browser animation. The opening scene
+- `docs/demo.html`: looping cinematic browser animation. The opening scene
   runs `yuchen-assistant`, presents important notices and schedule, then shows
   Food, Work & Inbox, Stock, AI & Research, Deals, and Secondhand report
   entrances. The cinematic cursor opens Stock as the representative deep-dive.
-- `docs/architecture.html`: the written companion to the demo, titled
-  "How to make a personal AI system that knows you well". Nine sections:
-  addressing, the tree that uniqueness forces, what is worth saving, the control
-  plane, an eight-step build recipe, an inventory of the deployed system, how
-  books become output gates, honest costs, and a reproducible quickstart. It
-  describes the private deployment in aggregate without exposing instructions,
-  credentials, personal data, or identifiable names.
+- `docs/index.html`: the write-up, and the site's front door. Titled
+  "How to make a personal AI system that knows you well". Three sections; see
+  **The Article** below for the fixed structure. It describes the private
+  deployment in aggregate without exposing instructions, credentials, personal
+  data, or identifiable names. Its stylesheet is `docs/doc.css`; the demo uses
+  `styles.css`, `tool-processes.css`, and `tool-previews.css`.
 
 Future storage or model backends must preserve the domain contracts in
 `models.py` and `agent.py` rather than creating a second memory lifecycle.
 
 ## The Article
 
-`docs/architecture.html` is a technical write-up, not a landing page. It exists
+`docs/index.html` is a technical write-up, not a landing page. It exists
 to make a reader able to build the same thing.
 
 Its structure is fixed and was set by the author. Do not renumber or re-scope
@@ -173,6 +172,6 @@ These names are canonical. Do not introduce synonyms for them.
    representing routing, memory, tools, and confirmation gates.
 5. Run `python -m unittest discover -s tests -v`.
 6. Run `python -m compileall -q src tests`.
-7. Verify `docs/index.html` through a local static server before publishing.
-8. When `docs/architecture.html` changes, run the four checks in
+7. Verify `docs/demo.html` through a local static server before publishing.
+8. When `docs/index.html` changes, run the four checks in
    **The Article / Validation** before publishing.
