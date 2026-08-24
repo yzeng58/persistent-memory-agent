@@ -367,15 +367,20 @@
               </ol>
 
               <p>
-                Each case study follows the same pattern. The system starts with
-                a router, a small decision tree that tells it which file to open
-                next. That file can point to another, so the request moves
-                through a clear chain of decisions.
+                Based on these two criteria, I built the memory system for my
+                personal AI assistant. It starts with the global instruction,
+                which is a decision tree. Under different scenarios, it routes
+                the model to different files. Each file is another branch of
+                the larger decision tree and can route the model to the next
+                file. Sometimes the structure is closer to a graph: two
+                different branches can point to the same file. In every case,
+                the model is directed to the specific files it needs and
+                connects the relevant memories to solve the problem.
               </p>
 
               <p>
-                Someone still has to design this structure. I return to that
-                limitation at the end.
+                Below, I show how this memory system, built around the two rules
+                above, solves all seven failures described in the last section.
               </p>
 
               <h3>2.1 Case 1: Sending one email</h3>
