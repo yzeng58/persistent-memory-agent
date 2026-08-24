@@ -989,3 +989,50 @@ pre code {
   font-style: italic;
   fill: var(--muted);
 }
+
+.routing-map .g-rule rect {
+  fill: #fdf6e3;
+  stroke: #b98a1f;
+  stroke-width: 1.2;
+}
+
+.routing-map .g-off rect {
+  fill: transparent;
+  stroke: var(--line);
+  stroke-width: 1.2;
+  stroke-dasharray: 3 3;
+}
+
+.routing-map .g-off text {
+  fill: var(--faint);
+}
+
+.routing-map .g-edge-off {
+  stroke-dasharray: 3 4;
+  stroke: #d3cfc6;
+}
+
+.routing-map .g-edge-loop {
+  stroke-dasharray: 3 4;
+}
+
+.system-figure + p {
+  margin-top: 22px;
+}
+
+.map-caption {
+  display: block;
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+.map-caption code {
+  font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.92em;
+  background: none;
+  padding: 0;
+  color: inherit;
+  white-space: nowrap;
+}

@@ -9,7 +9,7 @@
     >
     <title>How to make a personal AI system that knows you well</title>
     <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="doc.css?v=7">
+    <link rel="stylesheet" href="doc.css?v=10">
   </head>
   <body>
     <header class="site-header">
@@ -61,6 +61,12 @@
               <a class="toc-sub" href="#shortfalls">1.5 It answers like anyone else</a>
               <a href="#approach">2. Organized memory is all you need</a>
               <a class="toc-sub" href="#approach">2.1 Sending one email</a>
+              <a class="toc-sub" href="#approach">2.2 Booking a flight</a>
+              <a class="toc-sub" href="#approach">2.3 The second experiment</a>
+              <a class="toc-sub" href="#approach">2.4 Saving an idea</a>
+              <a class="toc-sub" href="#approach">2.5 An air fryer for my parents</a>
+              <a class="toc-sub" href="#approach">2.6 A deadline that passed</a>
+              <a class="toc-sub" href="#approach">2.7 Pushing back on a rent increase</a>
               <a href="#system">3. The deployed system</a>
               <a class="toc-sub" href="#system">3.1 Domain inventory</a>
               <a class="toc-sub" href="#system">3.2 Module catalog</a>
@@ -398,7 +404,7 @@
 
               <figure class="system-figure">
                 <svg class="routing-map" viewBox="0 0 900 400" role="img" aria-label="Routing map for a single email request"><path class="g-edge" d="M 450 60 V 76 H 450 V 92"/><path class="g-edge" d="M 450 134 V 155 H 170 V 176"/><path class="g-edge" d="M 450 134 V 155 H 610 V 176"/><path class="g-edge" d="M 170 218 V 239 H 170 V 260"/><path class="g-edge" d="M 610 218 V 239 H 400 V 260"/><path class="g-edge" d="M 610 218 V 239 H 610 V 260"/><path class="g-edge" d="M 610 218 V 239 H 820 V 260"/><path class="g-edge" d="M 170 302 V 323 H 170 V 344"/><path class="g-edge" d="M 820 302 V 323 H 820 V 344"/><g class="g-req"><rect x="280" y="18" width="340" height="42" rx="5"/><text x="450" y="44" text-anchor="middle">&#8220;email my collaborator about the draft&#8221;</text></g><g class="g-mod"><rect x="310" y="92" width="280" height="42" rx="5"/><text x="450" y="110" text-anchor="middle">copilot-instructions.md</text><text class="g-sub" x="450" y="125" text-anchor="middle">top-level routing table</text></g><g class="g-mod"><rect x="75" y="176" width="190" height="42" rx="5"/><text x="170" y="202" text-anchor="middle">people-ops</text></g><g class="g-mod"><rect x="515" y="176" width="190" height="42" rx="5"/><text x="610" y="202" text-anchor="middle">email-ops</text></g><g class="g-file"><rect x="65" y="260" width="210" height="42" rx="5"/><text x="170" y="278" text-anchor="middle">network/README.md</text><text class="g-sub" x="170" y="293" text-anchor="middle">lookup table</text></g><g class="g-file"><rect x="305" y="260" width="190" height="42" rx="5"/><text x="400" y="278" text-anchor="middle">sender-routing.md</text><text class="g-sub" x="400" y="293" text-anchor="middle">which account</text></g><g class="g-file"><rect x="515" y="260" width="190" height="42" rx="5"/><text x="610" y="278" text-anchor="middle">writing-guide.md</text><text class="g-sub" x="610" y="293" text-anchor="middle">tone and register</text></g><g class="g-mod"><rect x="745" y="260" width="150" height="42" rx="5"/><text x="820" y="286" text-anchor="middle">account-ops</text></g><g class="g-file"><rect x="45" y="344" width="250" height="42" rx="5"/><text x="170" y="362" text-anchor="middle">network/work/&hellip;/README.md</text><text class="g-sub" x="170" y="377" text-anchor="middle">address, history</text></g><g class="g-file"><rect x="745" y="344" width="150" height="42" rx="5"/><text x="820" y="362" text-anchor="middle">credentials</text><text class="g-sub" x="820" y="377" text-anchor="middle">encrypted</text></g></svg>
-                <figcaption class="figure-title">
+                <figcaption class="map-caption">
                   One request, and the files it opens. Green boxes route. Blue
                   boxes hold information, and each piece of information sits in
                   exactly one of them. Every edge is written down somewhere: no
@@ -424,6 +430,232 @@
                 person&rsquo;s folder, the account table, and the writing guide,
                 in that order. It did not search for any of them. Each one was
                 named by the step before it.
+              </p>
+
+              <h3>2.2 Booking a flight</h3>
+
+              <p>
+                A flight needs more than one kind of fact, and they belong to
+                completely different parts of my life. Which airport I fly out
+                of. Which card earns what on airfare. My frequent flyer numbers.
+                My passport number. Whether anyone is travelling with me. Every
+                one of those has exactly one home, and none of those homes is
+                inside the travel module.
+              </p>
+
+              <figure class="system-figure">
+                <svg class="routing-map" viewBox="0 0 900 410" role="img" aria-label="Routing map for booking a flight"><defs><marker id="arw" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 7 4 L 0 7 z" fill="#b0b8b3"/></marker></defs><path class="g-edge" d="M 450 60 V 80 H 450 V 100"/><path class="g-edge" d="M 450 142 V 163 H 245 V 184"/><path class="g-edge" d="M 450 142 V 163 H 635 V 184"/><path class="g-edge" d="M 635 226 V 247 H 137 V 268"/><path class="g-edge" d="M 635 226 V 247 H 340 V 268"/><path class="g-edge" d="M 635 226 V 247 H 560 V 268"/><path class="g-edge" d="M 635 226 V 247 H 780 V 268"/><path class="g-edge g-edge-loop" marker-end="url(#arw)" d="M 370 121 H 16 V 373 H 326"/><g class="g-req"><rect x="255" y="18" width="390" height="42" rx="5"/><text x="450" y="44" text-anchor="middle">&#8220;book me a flight to the conference&#8221;</text></g><g class="g-mod"><rect x="370" y="100" width="160" height="42" rx="5"/><text x="450" y="126" text-anchor="middle">travel-ops</text></g><g class="g-file"><rect x="120" y="184" width="250" height="42" rx="5"/><text x="245" y="202" text-anchor="middle">flights/money-saving.md</text><text class="g-sub" x="245" y="217" text-anchor="middle">points vs cash, nearby airports</text></g><g class="g-file"><rect x="510" y="184" width="250" height="42" rx="5"/><text x="635" y="202" text-anchor="middle">travel/README.md</text><text class="g-sub" x="635" y="217" text-anchor="middle">preferences + source table</text></g><g class="g-file"><rect x="44" y="268" width="186" height="42" rx="5"/><text x="137" y="286" text-anchor="middle">finance/</text><text class="g-sub" x="137" y="301" text-anchor="middle">card benefits</text></g><g class="g-mod"><rect x="250" y="268" width="180" height="42" rx="5"/><text x="340" y="286" text-anchor="middle">account-ops</text><text class="g-sub" x="340" y="301" text-anchor="middle">airline numbers</text></g><g class="g-file"><rect x="450" y="268" width="220" height="42" rx="5"/><text x="560" y="286" text-anchor="middle">identity_documents/</text><text class="g-sub" x="560" y="301" text-anchor="middle">passport</text></g><g class="g-file"><rect x="690" y="268" width="180" height="42" rx="5"/><text x="780" y="286" text-anchor="middle">network/&hellip;/</text><text class="g-sub" x="780" y="301" text-anchor="middle">other travellers</text></g><g class="g-file"><rect x="330" y="352" width="240" height="42" rx="5"/><text x="450" y="370" text-anchor="middle">travel/trips/&lt;trip&gt;/</text><text class="g-sub" x="450" y="385" text-anchor="middle">the booking, written back</text></g></svg>
+                <figcaption class="map-caption">Booking a flight. <code>travel-ops</code> holds the procedure and none of the facts. The preferences file carries a table of where each kind of fact lives, and the booking is written back to one place when it is done.</figcaption>
+              </figure>
+
+              <p>
+                <code>travel-ops</code> holds how to book a flight: how to
+                compare points against cash, when a nearby airport is worth the
+                drive, what to check before paying. It stores no passport
+                number, no card number, and no airline account. Those sit in
+                the identity, finance, and credential stores, where everything
+                else that needs them also looks.
+              </p>
+
+              <p>
+                The preferences file does the joining. It carries a small table
+                that says, for each kind of travel fact, which file owns it. The
+                assistant does not guess where a passport number might be. It
+                reads the row.
+              </p>
+
+              <p>
+                When the booking is done, the result goes back to one place: a
+                folder for that trip, holding the reservation number, the seats,
+                the total, and which card paid. My calendar entry is generated
+                from that folder. If the flight changes, I change the folder, and
+                the calendar entry follows. The calendar never becomes a second
+                version of the truth.
+              </p>
+
+              <h3>2.3 The second experiment</h3>
+
+              <p>
+                This one is not about finding a fact. Nothing was missing when
+                the assistant rewrote my evaluation. It just did not look for
+                what was already there.
+              </p>
+
+              <figure class="system-figure">
+                <svg class="routing-map" viewBox="0 0 900 326" role="img" aria-label="Routing map for reusing an evaluation"><defs><marker id="arw" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 7 4 L 0 7 z" fill="#b0b8b3"/></marker></defs><path class="g-edge" d="M 450 60 V 80 H 450 V 100"/><path class="g-edge" d="M 450 142 V 163 H 450 V 184"/><path class="g-edge" d="M 450 226 V 247 H 260 V 268"/><path class="g-edge" d="M 450 226 V 247 H 640 V 268"/><g class="g-req"><rect x="265" y="18" width="370" height="42" rx="5"/><text x="450" y="44" text-anchor="middle">&#8220;now implement the second experiment&#8221;</text></g><g class="g-mod"><rect x="360" y="100" width="180" height="42" rx="5"/><text x="450" y="126" text-anchor="middle">experiment-ops</text></g><g class="g-rule"><rect x="250" y="184" width="400" height="42" rx="5"/><text x="450" y="202" text-anchor="middle">search for an existing metric before writing one</text><text class="g-sub" x="450" y="217" text-anchor="middle">step 2, run before any code is written</text></g><g class="g-file"><rect x="110" y="268" width="300" height="42" rx="5"/><text x="260" y="286" text-anchor="middle">the evaluation already written</text><text class="g-sub" x="260" y="301" text-anchor="middle">imported, not rewritten</text></g><g class="g-file"><rect x="490" y="268" width="300" height="42" rx="5"/><text x="640" y="286" text-anchor="middle">written once, in one file</text><text class="g-sub" x="640" y="301" text-anchor="middle">every later experiment calls it</text></g></svg>
+                <figcaption class="map-caption">The second experiment. The rule that prevents the rewrite runs before any code is written, and it is part of the experiment procedure rather than something I have to remember to say.</figcaption>
+              </figure>
+
+              <p>
+                So the rule is written into the experiment procedure itself:
+                before writing any measurement, search the project for one that
+                already exists, and if it exists, call it. That check is a step
+                in the module, not a preference I have to state each time.
+              </p>
+
+              <p>
+                If nothing is found, the evaluation gets written once, in a file
+                whose job is to hold it. The next experiment finds it and calls
+                it. That is the same shape as the figure rules: the second copy
+                is what causes the damage, so the procedure stops the second copy
+                from being created at all.
+              </p>
+
+              <h3>2.4 Saving an idea</h3>
+
+              <p>
+                Earlier, the assistant saved an idea to a file and then never
+                read that file again. The file was real. The problem was that
+                nothing pointed at it, so no later task had a reason to open it.
+              </p>
+
+              <figure class="system-figure">
+                <svg class="routing-map" viewBox="0 0 900 326" role="img" aria-label="Routing map for saving an idea"><defs><marker id="arw" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 7 4 L 0 7 z" fill="#b0b8b3"/></marker></defs><path class="g-edge" d="M 450 60 V 80 H 450 V 100"/><path class="g-edge" d="M 450 142 V 163 H 450 V 184"/><path class="g-edge" d="M 450 226 V 247 H 255 V 268"/><path class="g-edge" d="M 450 226 V 247 H 645 V 268"/><g class="g-req"><rect x="285" y="18" width="330" height="42" rx="5"/><text x="450" y="44" text-anchor="middle">&#8220;save this idea for later&#8221;</text></g><g class="g-mod"><rect x="330" y="100" width="240" height="42" rx="5"/><text x="450" y="118" text-anchor="middle">system-maintenance</text><text class="g-sub" x="450" y="133" text-anchor="middle">the only module that creates files</text></g><g class="g-file"><rect x="330" y="184" width="240" height="42" rx="5"/><text x="450" y="202" text-anchor="middle">file-directory.md</text><text class="g-sub" x="450" y="217" text-anchor="middle">where things go</text></g><g class="g-file"><rect x="110" y="268" width="290" height="42" rx="5"/><text x="255" y="286" text-anchor="middle">the file that holds the idea</text><text class="g-sub" x="255" y="301" text-anchor="middle">one location, decided by the tree</text></g><g class="g-file"><rect x="500" y="268" width="290" height="42" rx="5"/><text x="645" y="286" text-anchor="middle">a pointer from the project</text><text class="g-sub" x="645" y="301" text-anchor="middle">so the file is named somewhere</text></g></svg>
+                <figcaption class="map-caption">Saving an idea. One module owns every file that gets created, and it produces two things: the file, and the pointer that makes the file reachable.</figcaption>
+              </figure>
+
+              <p>
+                Now only one module is allowed to create, move, or delete
+                anything in the system. When it saves something, it consults the
+                storage tree for where that kind of thing goes, so the location
+                is decided by a rule rather than by whatever folder happens to be
+                open. Then it writes the pointer.
+              </p>
+
+              <p>
+                The pointer is not optional, and it is not a separate task I
+                might forget. Saving means both: the file, and a line somewhere
+                that names it. A file with no pointer is exactly the failure from
+                the last section, and it is the same thing that would happen if I
+                moved the figure rules into their own file and stopped there.
+              </p>
+
+              <h3>2.5 An air fryer for my parents</h3>
+
+              <p>
+                The air fryer answer went wrong because a true fact about my
+                kitchen was applied to somebody else&rsquo;s kitchen. So the
+                question is what decides that a fact about my apartment is not
+                relevant here.
+              </p>
+
+              <p>
+                The storage tree answers it. Information is filed by who or what
+                it is about, not by which task might use it. My counter space is
+                a fact about my apartment, so it lives with the apartment. My
+                parents&rsquo; kitchen is a fact about my parents, so it lives in
+                their folder.
+              </p>
+
+              <figure class="system-figure">
+                <svg class="routing-map" viewBox="0 0 900 242" role="img" aria-label="Routing map for a purchase made for someone else"><defs><marker id="arw" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 7 4 L 0 7 z" fill="#b0b8b3"/></marker></defs><path class="g-edge" d="M 450 60 V 80 H 450 V 100"/><path class="g-edge" d="M 450 142 V 163 H 240 V 184"/><path class="g-edge g-edge-off" d="M 450 142 V 163 H 660 V 184"/><g class="g-req"><rect x="255" y="18" width="390" height="42" rx="5"/><text x="450" y="44" text-anchor="middle">&#8220;which air fryer should I get my parents&#8221;</text></g><g class="g-mod"><rect x="370" y="100" width="160" height="42" rx="5"/><text x="450" y="126" text-anchor="middle">purchase-ops</text></g><g class="g-file"><rect x="90" y="184" width="300" height="42" rx="5"/><text x="240" y="202" text-anchor="middle">network/family/parents/</text><text class="g-sub" x="240" y="217" text-anchor="middle">whose kitchen this is for</text></g><g class="g-off"><rect x="510" y="184" width="300" height="42" rx="5"/><text x="660" y="202" text-anchor="middle">living/</text><text class="g-sub" x="660" y="217" text-anchor="middle">my apartment &mdash; no edge leads here</text></g></svg>
+                <figcaption class="map-caption">An air fryer for my parents. The grey box is the file that caused the bad answer. With facts filed by who they are about, no edge leads to it, so it is never opened and never has to be ranked.</figcaption>
+              </figure>
+
+              <p>
+                When the purchase is for my parents, the chain runs through their
+                folder. Nothing in that chain names the apartment file, so the
+                apartment file is never opened. It is not retrieved and then
+                discarded, and it is not outranked by something more relevant.
+                There is simply no path to it from this question.
+              </p>
+
+              <p>
+                That is the second rule read backwards. A path that leads to the
+                right file is also, by construction, a path that does not lead
+                anywhere else. Relevance stops being a scoring problem and
+                becomes a question of which files this task is allowed to reach.
+              </p>
+
+              <h3>2.6 A deadline that passed</h3>
+
+              <p>
+                The stale deadline is different again. It was filed correctly and
+                retrieved correctly. It had just stopped being true, and nothing
+                in the system was watching for that.
+              </p>
+
+              <p>
+                The fix is to sort things by how long they stay true before
+                deciding where to put them.
+              </p>
+
+              <figure class="system-figure">
+                <svg class="routing-map" viewBox="0 0 900 242" role="img" aria-label="Where an incoming fact is stored"><defs><marker id="arw" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 7 4 L 0 7 z" fill="#b0b8b3"/></marker></defs><path class="g-edge" d="M 450 60 V 80 H 450 V 100"/><path class="g-edge" d="M 450 142 V 163 H 150 V 184"/><path class="g-edge" d="M 450 142 V 163 H 450 V 184"/><path class="g-edge" d="M 450 142 V 163 H 752 V 184"/><g class="g-req"><rect x="310" y="18" width="280" height="42" rx="5"/><text x="450" y="44" text-anchor="middle">something I tell the assistant</text></g><g class="g-file"><rect x="330" y="100" width="240" height="42" rx="5"/><text x="450" y="118" text-anchor="middle">file-directory.md</text><text class="g-sub" x="450" y="133" text-anchor="middle">decides where it goes</text></g><g class="g-file"><rect x="15" y="184" width="270" height="42" rx="5"/><text x="150" y="202" text-anchor="middle">references/personal/&hellip;</text><text class="g-sub" x="150" y="217" text-anchor="middle">true until I change it</text></g><g class="g-file"><rect x="310" y="184" width="280" height="42" rx="5"/><text x="450" y="202" text-anchor="middle">reminders.json</text><text class="g-sub" x="450" y="217" text-anchor="middle">carries its own end date</text></g><g class="g-off"><rect x="615" y="184" width="275" height="42" rx="5"/><text x="752" y="202" text-anchor="middle">not stored at all</text><text class="g-sub" x="752" y="217" text-anchor="middle">fetched from the source when needed</text></g></svg>
+                <figcaption class="map-caption">Where an incoming fact goes. Three destinations, decided by how long the fact stays true. The grey box is not a store: some facts are deliberately not kept, because the real source can change without telling me.</figcaption>
+              </figure>
+
+              <p>
+                Some facts stay true until I change them: where I live, which
+                cards I hold, how I like figures to look. Those go into the
+                personal record, and because each one sits in exactly one file, I
+                change it in one place when it changes. That is the whole update
+                story. There is no second copy left behind to contradict the
+                first.
+              </p>
+
+              <p>
+                Other facts have an end date built in. A deadline is one of
+                those. It does not go into the personal record at all. It goes
+                into the reminder file, where every entry carries the date it
+                becomes relevant and a status. Once the date passes, it stops
+                being shown. I do not have to remember to take it back, which is
+                the part I was never going to do.
+              </p>
+
+              <p>
+                The third case is the one that surprised me. Some facts are not
+                mine to hold. My immigration entry record and my account balances
+                are true right up until someone else changes them, and nobody
+                tells me when they do. Storing those is worse than not storing
+                them, because a stored copy looks current and is not. So the
+                system stores the address of the source instead of the value, and
+                fetches it at the moment it is needed.
+              </p>
+
+              <h3>2.7 Pushing back on a rent increase</h3>
+
+              <p>
+                The last gap is not a memory problem. When I asked how to push
+                back on a rent increase, nothing about me was missing. What was
+                missing was a way of answering that question that is better than
+                the average one.
+              </p>
+
+              <p>
+                So that had to be written down too. Not facts about me this time,
+                but a way of working through a negotiation.
+              </p>
+
+              <figure class="system-figure">
+                <svg class="routing-map" viewBox="0 0 900 410" role="img" aria-label="Routing map for a negotiation question"><defs><marker id="arw" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 7 4 L 0 7 z" fill="#b0b8b3"/></marker></defs><path class="g-edge" d="M 450 60 V 80 H 450 V 100"/><path class="g-edge" d="M 450 142 V 163 H 265 V 184"/><path class="g-edge" d="M 450 142 V 163 H 635 V 184"/><path class="g-edge" d="M 265 226 V 247 H 450 V 268"/><path class="g-edge" d="M 635 226 V 247 H 450 V 268"/><path class="g-edge" d="M 450 310 V 331 H 450 V 352"/><path class="g-edge g-edge-loop" marker-end="url(#arw)" d="M 620 373 H 800 V 205 H 766"/><g class="g-req"><rect x="255" y="18" width="390" height="42" rx="5"/><text x="450" y="44" text-anchor="middle">&#8220;how do I push back on the rent increase&#8221;</text></g><g class="g-mod"><rect x="375" y="100" width="150" height="42" rx="5"/><text x="450" y="126" text-anchor="middle">negotiation</text></g><g class="g-file"><rect x="140" y="184" width="250" height="42" rx="5"/><text x="265" y="202" text-anchor="middle">rent.md</text><text class="g-sub" x="265" y="217" text-anchor="middle">what applies to a lease</text></g><g class="g-file"><rect x="510" y="184" width="250" height="42" rx="5"/><text x="635" y="202" text-anchor="middle">framework.md</text><text class="g-sub" x="635" y="217" text-anchor="middle">prepare, open, explore, propose</text></g><g class="g-file"><rect x="280" y="268" width="340" height="42" rx="5"/><text x="450" y="286" text-anchor="middle">books/</text><text class="g-sub" x="450" y="301" text-anchor="middle">the three sources the framework is built on</text></g><g class="g-rule"><rect x="280" y="352" width="340" height="42" rx="5"/><text x="450" y="370" text-anchor="middle">anti-patterns.md</text><text class="g-sub" x="450" y="385" text-anchor="middle">the draft is checked and rewritten until it passes</text></g></svg>
+                <figcaption class="map-caption">A negotiation question. The route ends in a check rather than an answer: the draft is tested against a list of known bad moves and rewritten until it passes.</figcaption>
+              </figure>
+
+              <p>
+                The negotiation module holds a four-phase sequence: work out my
+                walk-away position and what the other side is worried about, open
+                without anchoring myself, ask questions that surface what they
+                actually need, and only then put a number on the table. Below it
+                sit the three books the sequence is drawn from, so a specific
+                move can be looked up rather than paraphrased from memory.
+              </p>
+
+              <p>
+                The last step is the one that changes the output most. Before I
+                see a draft, it is checked against a list of moves that read as
+                weak: apologising for asking, justifying a number before it has
+                been questioned, offering a compromise nobody requested. If the
+                draft contains any of them, it gets rewritten. Only what survives
+                that check reaches me.
+              </p>
+
+              <p>
+                This is where the two rules earn something beyond consistency.
+                Everything I have learned about negotiating lives in one place,
+                so improving it improves every negotiation after that, and the
+                route into it is written down, so I get it without having to
+                remember that I own it.
               </p>
 
             </section>
