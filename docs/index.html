@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta
       name="description"
-      content="Field notes on a personal AI assistant in daily use: five ways general-purpose assistants fall short, the two memory rules that fix them, and a measured inventory of the deployed system."
+      content="Field notes on a personal AI assistant in daily use: five ways general-purpose assistants fall short, the two memory rules that fix them, and what the resulting system knows and can do."
     >
     <title>How to make a personal AI system that knows you well</title>
     <link rel="icon" href="data:,">
@@ -37,8 +37,8 @@
           <p class="dek">
             I used a general-purpose assistant every day and kept hitting the
             same five problems. This article explains the two memory rules that
-            made them go away, and what the system contains now: 72 modules,
-            nine domains, 3,080 files, and 33,788 bytes loaded on every turn.
+            made them go away, then shows what the system knows about me, what
+            it can do, and what it still cannot do on its own.
           </p>
           <div class="paper-meta">
             <span>Yuchen Zeng</span>
@@ -67,9 +67,9 @@
               <a class="toc-sub" href="#approach">2.5 An air fryer for my parents</a>
               <a class="toc-sub" href="#approach">2.6 A deadline that passed</a>
               <a class="toc-sub" href="#approach">2.7 Pushing back on a rent increase</a>
-              <a href="#system">3. The deployed system</a>
-              <a class="toc-sub" href="#system">3.1 Domain inventory</a>
-              <a class="toc-sub" href="#system">3.2 Module catalog</a>
+              <a href="#system">3. What the system looks like now</a>
+              <a class="toc-sub" href="#system">3.1 What it knows about me</a>
+              <a class="toc-sub" href="#system">3.2 What it can do</a>
               <a href="#future">4. Future directions</a>
             </nav>
             <div class="implementation-note">
@@ -657,28 +657,28 @@
             </section>
             <section id="system">
               <p class="section-number">03</p>
-              <h2>The deployed system</h2>
+              <h2>What the system looks like now</h2>
 
               <p>
-                This section lists the system as it exists today. It does not
-                say that every reader should build the same system. Many
-                architecture articles do not show how large the final system
-                became, so I include the full inventory here.
+                This is what the system looks like after being used across many
+                parts of my life. The first half shows the personal information
+                it maintains. The second shows the work it can do with that
+                information.
               </p>
 
-              <h3>3.1 Domain inventory</h3>
+              <h3>3.1 What it knows about me</h3>
 
               <p>
-                Nine domains store personal information that should last. I do
-                not show the contents. I show only the purpose and file count of
-                each domain.
+                Nine areas hold personal information that should last. I do not
+                show the contents, only what each area is for and how many files
+                it contains.
               </p>
 
               <div class="schema-table-wrap">
                 <table class="schema-table">
                   <thead>
                     <tr>
-                      <th>Domain</th>
+                      <th>Area</th>
                       <th>Files</th>
                       <th>What it holds</th>
                     </tr>
@@ -734,10 +734,11 @@
               </div>
 
               <p>
-                The domain sizes are very different.
+                The areas are very different in size.
                 <code>living/</code> is about one hundred times larger than
-                <code>education/</code>. That is acceptable because domains
-                define addresses, not equal storage sizes. Four flat files,
+                <code>education/</code>. That is fine because the folders give
+                information an address; they are not meant to be equal in size.
+                Four flat files,
                 <code>academic.md</code>, <code>career.md</code>,
                 <code>identity.md</code>, and <code>side-business.md</code>,
                 existed before the directory layout. They still sit next to the
@@ -745,12 +746,13 @@
                 creates an ambiguity I have not resolved yet.
               </p>
 
-              <h3>3.2 Module catalog</h3>
+              <h3>3.2 What it can do</h3>
 
               <p>
-                The list below shows 70 of the 72 modules. I hide two because
-                their names reveal private information. Four names marked with
-                &lowast; replace internal tool names with general names.
+                The system has 72 modules, each responsible for one kind of
+                task. I list 70 below. I hide two because their names reveal
+                private information. Four names marked with &lowast; replace
+                internal tool names with general names.
               </p>
 
               <h4>Running the system</h4>
@@ -770,7 +772,7 @@
                 <li><strong><code>teams-ops</code></strong>, <strong><code>slack-ops</code></strong>, <strong><code>loop-ops</code></strong>: handle work chat and shared documents.</li>
                 <li><strong><code>sms-ops</code></strong>, <strong><code>wechat-bot</code></strong>: handle personal messages.</li>
                 <li><strong><code>apple-notification</code></strong>: sends urgent alerts to a phone and watch.</li>
-                <li><strong><code>people-ops</code></strong>: writes to the <code>network/</code> domain, with one folder for each person.</li>
+                <li><strong><code>people-ops</code></strong>: writes to the <code>network/</code> area, with one folder for each person.</li>
                 <li><strong><code>workplace-communication</code></strong>: helps with difficult work conversations and replies.</li>
                 <li><strong><code>negotiation</code></strong>: handles rent, salary, offers, and contract terms; this is the module behind Scenario 7.</li>
                 <li><strong><code>social-scout</code></strong>: collects opinions from online communities when real experiences matter.</li>
@@ -845,57 +847,6 @@
                 <li><strong><code>social-media-development</code></strong>: plans how to grow public accounts.</li>
                 <li><strong><code>notion-ops</code></strong>: publishes content to a shared workspace.</li>
               </ul>
-
-              <h4>Scale, and how to measure it</h4>
-
-              <p>I measured every number in this article with one of these commands:</p>
-
-              <pre><code>$ ls -1d */ | wc -l                       # modules
-72
-$ cat */SKILL.md | wc -c                  # router bytes, all modules
-189028
-$ find . -type f | wc -l                  # files under modules
-3080
-$ find . -type f -exec cat {} + | wc -c   # bytes under modules
-139091825
-$ wc -c &lt; copilot-instructions.md         # always-resident charter
-6960</code></pre>
-
-              <div class="schema-table-wrap">
-                <table class="schema-table">
-                  <thead>
-                    <tr><th>Quantity</th><th>Value</th></tr>
-                  </thead>
-                  <tbody>
-                    <tr><td>Modules</td><td>72</td></tr>
-                    <tr><td>Router bytes, all modules</td><td>189,028 B (mean 2.6 KB)</td></tr>
-                    <tr><td>Files under modules</td><td>3,080</td></tr>
-                    <tr><td>Bytes under modules</td><td>139,091,825 B</td></tr>
-                    <tr><td>Resident per turn</td><td>33,788 B (charter + 72 descriptions)</td></tr>
-                    <tr><td>Router-to-content ratio</td><td>1 : 736</td></tr>
-                    <tr><td>Distilled books</td><td>14, held inside the modules that cite them</td></tr>
-                    <tr><td>Vector indexes, embeddings, frameworks</td><td>0</td></tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <p>
-                The zero in the last row needs an explanation. Similarity search
-                is useful for finding text about a topic. It is less suitable
-                for finding the current value of a fact. This system mostly
-                answers questions like &ldquo;what is true right now?&rdquo; It
-                therefore uses file paths instead of similarity distance. A
-                system for literature search would make a different choice.
-              </p>
-
-              <p>
-                The system still needs manual work. A person writes and updates
-                all of this text. Fourteen domains became nine because someone
-                moved the files. Five domains were retired because someone
-                noticed they were no longer correct. The design does not remove
-                maintenance. It makes the maintenance work easy to list and
-                inspect.
-              </p>
             </section>
 
             <section id="future">
