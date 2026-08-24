@@ -200,12 +200,12 @@ main {
 }
 
 .table-of-contents nav a {
-  border-left: 1px solid var(--line);
+  border-left: 0;
   color: var(--muted);
   font-size: 12.5px;
   font-weight: 650;
   line-height: 1.3;
-  padding: 7px 0 7px 13px;
+  padding: 7px 0;
   text-decoration: none;
 }
 
@@ -913,7 +913,9 @@ pre code {
 }
 
 .table-of-contents nav a.toc-sub {
-  padding-left: 14px;
+  margin-left: 10px;
+  border-left: 1px solid var(--line);
+  padding-left: 12px;
   font-size: 11px;
   color: var(--muted);
 }
