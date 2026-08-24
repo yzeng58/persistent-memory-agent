@@ -35,16 +35,17 @@
         '</div><div class="why">' + hop.getAttribute("data-why") + "</div>";
       tip.classList.add("show");
 
-      // The tooltip is allowed to spill past the figure's own edge into the page
-      // margin; it is only pushed to the other side when the viewport runs out.
+      // The tooltip sits to the right of the step number and is allowed to spill
+      // past the figure's own edge into the page margin. It is never flipped back
+      // over the tree; when the viewport runs out it stops at the right edge.
       var b = hop.querySelector(".tbadge").getBoundingClientRect();
       var c = fig.getBoundingClientRect();
       var t = tip.getBoundingClientRect();
       var PAD = 14;
       var edge = document.documentElement.clientWidth - 16;
       var x = b.right + PAD;
-      if (x + t.width > edge) x = b.left - PAD - t.width;
-      if (x < 16) x = Math.max(16, edge - t.width);
+      if (x + t.width > edge) x = edge - t.width;
+      if (x < 16) x = 16;
       var y = b.top + b.height / 2 - t.height / 2;
       y = Math.max(c.top + PAD, Math.min(y, c.bottom - PAD - t.height));
       tip.style.left = Math.round(x - c.left) + "px";
