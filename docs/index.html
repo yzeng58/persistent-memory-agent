@@ -917,19 +917,18 @@ $ wc -c &lt; copilot-instructions.md         # always-resident charter
               </p>
 
               <p>
-                The next step is to train models on the decisions that produce
-                an architecture, not only on repositories after those decisions
-                have been made. A training example should show the system before
-                a change, the new requirement, the alternatives that were
-                considered, and what happened after one was chosen. The training
-                objective would score three things:
+                The next question is whether a model can learn to make these
+                decisions on its own. Training can start with an existing system
+                and one new requirement, such as a feature to implement or a new
+                kind of information to store. The model has to decide what to
+                reuse, what to split, and where the new code or information
+                belongs, then update any routes and callers affected by that
+                choice. The result can be judged by the same two rules from
+                Section 2: each piece of information or behavior has one place,
+                and every task that needs it has a path to that place. The goal
+                is to make those two rules hold not just after one change, but
+                across a long sequence of them.
               </p>
-
-              <ol>
-                <li>whether the model reuses, extends, splits, moves, or creates the right component;</li>
-                <li>whether it updates every route, caller, cross-link, and record affected by that decision;</li>
-                <li>whether the resulting structure remains consistent when later changes arrive.</li>
-              </ol>
             </section>
 
             <footer class="paper-footer">
