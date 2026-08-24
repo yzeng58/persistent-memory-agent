@@ -1043,3 +1043,169 @@ pre code {
   color: inherit;
   white-space: nowrap;
 }
+
+/* ---------------------------------------------------------------- trace map */
+.trace-figure {
+  background: #fff;
+}
+
+.trace {
+  position: relative;
+}
+
+.trace-map {
+  display: block;
+  width: 100%;
+  height: auto;
+  font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 13px;
+}
+
+.trace-map .trace-prompt {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 14px;
+  font-style: italic;
+  fill: #3d4a44;
+}
+
+.trace-map marker path {
+  fill: #4a7c59;
+}
+
+.trace-map marker#tr-email-on path,
+.trace-map marker[id$="-on"] path {
+  fill: #2f5d43;
+}
+
+.trace-map .trow text {
+  fill: #1f2937;
+}
+
+.trace-map .trow.tell text {
+  fill: #b6bcb8;
+}
+
+.trace-map .thl {
+  fill: #4a7c59;
+  fill-opacity: 0;
+  transition: fill-opacity 0.12s;
+}
+
+.trace-map .trow.on .thl {
+  fill-opacity: 0.16;
+}
+
+.trace-map .trow.on text {
+  font-weight: 600;
+}
+
+.trace-map .tbox {
+  fill: none;
+  stroke: #2f5d43;
+  stroke-width: 0;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.trace-map .trow.end .tbox {
+  stroke-width: 1.4;
+  opacity: 1;
+}
+
+.trace-map .twire {
+  stroke: #4a7c59;
+  stroke-width: 1.3;
+  stroke-opacity: 0.65;
+}
+
+.trace-map .thit {
+  stroke: transparent;
+  stroke-width: 15;
+}
+
+.trace-map .tbadge {
+  fill: #4a7c59;
+}
+
+.trace-map .tnum {
+  fill: #fff;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.trace-map .thop.on .twire {
+  stroke: #2f5d43;
+  stroke-opacity: 1;
+  stroke-width: 2.1;
+}
+
+.trace-map .thop.on .tbadge {
+  fill: #2f5d43;
+}
+
+.trace-map .thop.dim .twire {
+  stroke-opacity: 0.16;
+}
+
+.trace-map .thop.dim .tbadge {
+  fill-opacity: 0.28;
+}
+
+.trace-map .thop.dim .tnum {
+  fill-opacity: 0.55;
+}
+
+.trace-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 300px;
+  padding: 12px 14px;
+  border: 1px solid #4a7c59;
+  border-left: 3px solid #4a7c59;
+  border-radius: 5px;
+  background: #fff;
+  box-shadow: 0 3px 14px rgba(31, 41, 55, 0.1);
+  opacity: 0;
+  transition: opacity 0.12s;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.trace-tip.show {
+  opacity: 1;
+}
+
+.trace-tip .hd {
+  margin-bottom: 7px;
+  font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: #1f2937;
+}
+
+.trace-tip .hd .n {
+  display: inline-block;
+  width: 17px;
+  height: 17px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: #4a7c59;
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 17px;
+  text-align: center;
+  vertical-align: 1px;
+}
+
+.trace-tip .hd .ar {
+  color: #4a7c59;
+}
+
+.trace-tip .why {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #5a635e;
+}
