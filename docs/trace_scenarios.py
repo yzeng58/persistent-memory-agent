@@ -179,12 +179,11 @@ FLIGHT = {
  ],
  "steps": [
   ("instr", "tops",
-   "The instruction file is read first every time. Its routing table has named rows for "
-   "email, calendar, code and a few other things &#8212; but there is no row for travel. "
-   "What catches this request is the very first row, which says that if any module "
-   "declares it handles this kind of request, that module is opened and followed, and "
-   "working from memory instead is not allowed. travel-ops declares flights, airfare and "
-   "booking as its own."),
+   "The instruction file says that if a skill matches the request, the agent must open "
+   "it before doing anything else. The agent also starts with an attached skill table. "
+   "That table lists travel-ops for flights, airfare and booking, so this request routes "
+   "straight to travel-ops/SKILL.md. The agent is not allowed to work from memory "
+   "instead."),
   ("tops", "fread",
    "travel-ops/SKILL.md is twenty-six lines and holds no facts at all. It opens by "
    "stating that anything specific to me &#8212; my accounts, my documents, my money "
@@ -269,11 +268,11 @@ EXPERIMENT = {
  ],
  "steps": [
   ("instr", "exp",
-   "Same first row as always: a module that declares this kind of work gets opened and "
-   "followed. experiment-ops declares running experiments, submitting jobs and "
-   "evaluation. The instruction file also carries a hard rule a few lines below &#8212; "
-   "experiments never run on this laptop &#8212; which is why the module, not the model, "
-   "decides what happens next."),
+   "The instruction file says that a matching skill must be opened before any work "
+   "begins. The attached skill table lists experiment-ops for running experiments, "
+   "submitting jobs and evaluation, so this request routes there. The instruction file "
+   "also carries a hard rule a few lines below &#8212; experiments never run on this "
+   "laptop &#8212; which is why the module, not the model, decides what happens next."),
   ("exp", "cw",
    "experiment-ops/SKILL.md is a seven-step pipeline, and the interesting part is what "
    "it refuses to do. Its very first step says that if the request is really a code "
@@ -416,11 +415,11 @@ GIFT = {
  ],
  "steps": [
   ("instr", "purch",
-   "Buying something has no named row either, so it is the general rule that fires: the "
-   "purchases module declares checkout and ordering as its own, so it gets opened. That "
-   "module turns out to be purely transactional &#8212; classify the transaction, set up "
-   "the account and payment, confirm the exact total before submitting, verify "
-   "afterwards. It never asks who the thing is for."),
+   "The instruction file says that every matching skill must be opened before work "
+   "begins. In the attached skill table, purchase-ops covers checkout and ordering, so "
+   "it is opened for this request. That module turns out to be purely transactional "
+   "&#8212; classify the transaction, set up the account and payment, confirm the exact "
+   "total before submitting, verify afterwards. It never asks who the thing is for."),
   ("instr", "pops",
    "A second row in the same table fires at the same time, and this is the one that "
    "matters here. It says that if a human being is mentioned at all &#8212; even in "
@@ -569,11 +568,10 @@ RENT = {
  ],
  "steps": [
   ("instr", "neg",
-   "No named row for this one either &#8212; the general rule catches it, because the "
-   "negotiation module declares haggling, counter-offers, lease renewals and salary "
-   "talks as its own. The same rule adds that having a module for something means it "
-   "gets read, not recalled: the assistant is not allowed to answer from a general sense "
-   "of how negotiation works."),
+   "The instruction file says that a matching skill must be opened rather than recalled "
+   "from memory. The attached skill table lists negotiation for haggling, counter-offers, "
+   "lease renewals and salary talks, so this request routes straight to "
+   "negotiation/SKILL.md."),
   ("neg", "rent",
    "negotiation/SKILL.md is about twenty-five lines. It sorts the request into a "
    "situation &#8212; a lease, a salary, or something else &#8212; and a lease sends it "
