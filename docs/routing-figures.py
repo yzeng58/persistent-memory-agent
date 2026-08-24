@@ -1,118 +1,205 @@
 # -*- coding: utf-8 -*-
-H = 42
+"""Routing figures for the write-up. Paths are relative to ~/.copilot/."""
 
-def box(x, y, w, label, kind, sub=None):
-    cls = {"mod": "g-mod", "file": "g-file", "req": "g-req",
-           "rule": "g-rule", "off": "g-off"}[kind]
-    t = f'<g class="{cls}"><rect x="{x}" y="{y}" width="{w}" height="{H}" rx="5"/>'
-    cx = x + w / 2
-    if sub is None:
-        t += f'<text x="{cx:.0f}" y="{y+26}" text-anchor="middle">{label}</text>'
-    else:
-        t += f'<text x="{cx:.0f}" y="{y+18}" text-anchor="middle">{label}</text>'
-        t += f'<text class="g-sub" x="{cx:.0f}" y="{y+33}" text-anchor="middle">{sub}</text>'
-    return t + '</g>'
-
-def elbow(x1, ybot, x2, ytop, off=False):
-    ym = (ybot + ytop) / 2
-    c = "g-edge g-edge-off" if off else "g-edge"
-    return f'<path class="{c}" d="M {x1} {ybot} V {ym:.0f} H {x2} V {ytop}"/>'
+W = 1000
+ROW_H = 58
+ROW_GAP = 42
+CHAR_DIR = 6.35   # 10.5px monospace
+CHAR_BASE = 7.85  # 13px monospace
+CHAR_SUB = 6.2    # 10.5px sans
+PAD = 26
 
 DEFS = ('<defs><marker id="arw" viewBox="0 0 8 8" refX="7" refY="4" '
         'markerWidth="7" markerHeight="7" orient="auto-start-reverse">'
         '<path d="M 0 1 L 7 4 L 0 7 z" fill="#b0b8b3"/></marker></defs>')
 
-def svg(w, h, parts, label):
-    return (f'<svg class="routing-map" viewBox="0 0 {w} {h}" role="img" '
-            f'aria-label="{label}">' + DEFS + "".join(parts) + '</svg>')
 
-# ---------- Figure: booking a flight ----------
+class Node:
+    def __init__(self, path, kind, sub=None, plain=None):
+        self.path, self.kind, self.sub, self.plain = path, kind, sub, plain
+        if plain is not None:
+            self.dir, self.base = "", plain
+        elif path.endswith("/"):
+            i = path.rfind("/", 0, len(path) - 1)
+            self.dir, self.base = path[:i + 1], path[i + 1:]
+        elif "/" in path:
+            i = path.rfind("/")
+            self.dir, self.base = path[:i + 1], path[i + 1:]
+        else:
+            self.dir, self.base = "", path
+        w = max(len(self.dir) * CHAR_DIR, len(self.base) * CHAR_BASE,
+                len(sub or "") * CHAR_SUB) + 2 * PAD
+        self.w = max(150, round(w))
+        self.x = self.y = 0
+
+    def svg(self):
+        cls = {"mod": "g-mod", "file": "g-file", "req": "g-req",
+               "rule": "g-rule", "off": "g-off"}[self.kind]
+        cx, x, y, w = self.x + self.w / 2, self.x, self.y, self.w
+        lines = [l for l in (self.dir, self.base, self.sub) if l]
+        t = f'<g class="{cls}"><rect x="{x}" y="{y}" width="{w}" height="{ROW_H}" rx="5"/>'
+        if len(lines) == 1:
+            t += f'<text class="g-base" x="{cx:.0f}" y="{y+34}" text-anchor="middle">{self.base}</text>'
+        elif len(lines) == 2 and not self.dir:
+            t += f'<text class="g-base" x="{cx:.0f}" y="{y+26}" text-anchor="middle">{self.base}</text>'
+            t += f'<text class="g-sub" x="{cx:.0f}" y="{y+43}" text-anchor="middle">{self.sub}</text>'
+        elif len(lines) == 2:
+            t += f'<text class="g-dir" x="{cx:.0f}" y="{y+24}" text-anchor="middle">{self.dir}</text>'
+            t += f'<text class="g-base" x="{cx:.0f}" y="{y+41}" text-anchor="middle">{self.base}</text>'
+        else:
+            t += f'<text class="g-dir" x="{cx:.0f}" y="{y+19}" text-anchor="middle">{self.dir}</text>'
+            t += f'<text class="g-base" x="{cx:.0f}" y="{y+35}" text-anchor="middle">{self.base}</text>'
+            t += f'<text class="g-sub" x="{cx:.0f}" y="{y+49}" text-anchor="middle">{self.sub}</text>'
+        return t + '</g>'
+
+    @property
+    def cx(self): return self.x + self.w / 2
+    @property
+    def top(self): return self.y
+    @property
+    def bot(self): return self.y + ROW_H
+
+
+def mod(p, sub=None): return Node(p, "mod", sub)
+def fil(p, sub=None): return Node(p, "file", sub)
+def off(p, sub=None): return Node(p, "off", sub)
+def req(text): return Node("", "req", plain=text)
+def rule(text, sub=None): return Node("", "rule", sub, plain=text)
+def rulep(path, sub=None): return Node(path, "rule", sub)
+
+
+def lay(rows, gaps=None):
+    """Centre each row horizontally; return total height."""
+    y = 18
+    for r, row in enumerate(rows):
+        gap = (gaps or {}).get(r, 30)
+        total = sum(n.w for n in row) + gap * (len(row) - 1)
+        x = (W - total) / 2
+        for n in row:
+            n.x, n.y = round(x), y
+            x += n.w + gap
+        y += ROW_H + ROW_GAP
+    return y - ROW_GAP + 12
+
+
+def edge(a, b, off_=False):
+    ym = (a.bot + b.top) / 2
+    c = "g-edge g-edge-off" if off_ else "g-edge"
+    return f'<path class="{c}" d="M {a.cx:.0f} {a.bot} V {ym:.0f} H {b.cx:.0f} V {b.top}"/>'
+
+
+def render(rows, edges, h, label):
+    nodes = [n for row in rows for n in row]
+    return (f'<svg class="routing-map" viewBox="0 0 {W} {h}" role="img" '
+            f'aria-label="{label}">' + DEFS + "".join(edges)
+            + "".join(n.svg() for n in nodes) + '</svg>')
+
+
+# ---------------- figures ----------------
+
+def fig_email():
+    q = req('&#8220;email my collaborator about the draft&#8221;')
+    root = mod('copilot-instructions.md', 'top-level routing table')
+    po = mod('skills/people-ops/SKILL.md')
+    eo = mod('skills/email-ops/SKILL.md')
+    net = fil('references/personal/network/README.md', 'lookup table')
+    snd = fil('skills/email-ops/references/sender-routing.md', 'which account')
+    wg = fil('skills/email-ops/references/writing-guide.md', 'tone and register')
+    ao = mod('skills/account-ops/SKILL.md')
+    person = fil('references/personal/network/work/&lt;name&gt;/README.md', 'address, history')
+    vault = fil('vault.json', 'encrypted')
+    rows = [[q], [root], [po, eo], [net, snd, wg, ao], [person, vault]]
+    h = lay(rows, {2: 300, 3: 16, 4: 300})
+    e = [edge(q, root), edge(root, po), edge(root, eo), edge(po, net),
+         edge(eo, snd), edge(eo, wg), edge(eo, ao),
+         edge(net, person), edge(ao, vault)]
+    return render(rows, e, h, 'Routing map for a single email request')
+
+
 def fig_flight():
-    e, n = [], []
-    n.append(box(255, 18, 390, '&#8220;book me a flight to the conference&#8221;', 'req'))
-    n.append(box(370, 100, 160, 'travel-ops', 'mod'))
-    n.append(box(120, 184, 250, 'flights/money-saving.md', 'file', 'points vs cash, nearby airports'))
-    n.append(box(510, 184, 250, 'travel/README.md', 'file', 'preferences + source table'))
-    n.append(box(44, 268, 186, 'finance/', 'file', 'card benefits'))
-    n.append(box(250, 268, 180, 'account-ops', 'mod', 'airline numbers'))
-    n.append(box(450, 268, 220, 'identity_documents/', 'file', 'passport'))
-    n.append(box(690, 268, 180, 'network/&hellip;/', 'file', 'other travellers'))
-    n.append(box(330, 352, 240, 'travel/trips/&lt;trip&gt;/', 'file', 'the booking, written back'))
-    e.append(elbow(450, 60, 450, 100))
-    e.append(elbow(450, 142, 245, 184)); e.append(elbow(450, 142, 635, 184))
-    for cx in (137, 340, 560, 780):
-        e.append(elbow(635, 226, cx, 268))
-    e.append('<path class="g-edge g-edge-loop" marker-end="url(#arw)" d="M 370 121 H 16 V 373 H 326"/>')
-    return svg(900, 410, e + n, 'Routing map for booking a flight')
+    q = req('&#8220;book me a flight to the conference&#8221;')
+    to = mod('skills/travel-ops/SKILL.md')
+    ms = fil('skills/travel-ops/flights/money-saving.md', 'points vs cash, nearby airports')
+    pref = fil('references/personal/travel/README.md', 'preferences + source table')
+    fin = fil('references/personal/finance/', 'card benefits')
+    ao = mod('skills/account-ops/SKILL.md', 'airline numbers')
+    ids = fil('references/personal/identity_documents/', 'passport')
+    ppl = fil('references/personal/network/', 'other travellers')
+    trip = fil('references/personal/travel/trips/&lt;trip&gt;/', 'the booking, written back')
+    rows = [[q], [to], [ms, pref], [fin, ao, ids, ppl], [trip]]
+    h = lay(rows, {2: 60, 3: 14})
+    e = [edge(q, to), edge(to, ms), edge(to, pref)] \
+        + [edge(pref, n) for n in (fin, ao, ids, ppl)]
+    e.append(f'<path class="g-edge g-edge-loop" marker-end="url(#arw)" '
+             f'd="M {to.x} {to.y+29:.0f} H 14 V {trip.y+29:.0f} H {trip.x-4}"/>')
+    return render(rows, e, h, 'Routing map for booking a flight')
 
-# ---------- Figure: the second experiment ----------
+
 def fig_experiment():
-    e, n = [], []
-    n.append(box(265, 18, 370, '&#8220;now implement the second experiment&#8221;', 'req'))
-    n.append(box(360, 100, 180, 'experiment-ops', 'mod'))
-    n.append(box(250, 184, 400, 'search for an existing metric before writing one', 'rule', 'step 2, run before any code is written'))
-    n.append(box(110, 268, 300, 'the evaluation already written', 'file', 'imported, not rewritten'))
-    n.append(box(490, 268, 300, 'written once, in one file', 'file', 'every later experiment calls it'))
-    e.append(elbow(450, 60, 450, 100))
-    e.append(elbow(450, 142, 450, 184))
-    e.append(elbow(450, 226, 260, 268)); e.append(elbow(450, 226, 640, 268))
-    return svg(900, 326, e + n, 'Routing map for reusing an evaluation')
+    q = req('&#8220;now implement the second experiment&#8221;')
+    eo = mod('skills/experiment-ops/SKILL.md')
+    r = rule('search for an existing metric before writing one',
+             'a step in the module, run before any code is written')
+    a = fil('the evaluation already written', 'imported, not rewritten')
+    b = fil('written once, in one file', 'every later experiment calls it')
+    rows = [[q], [eo], [r], [a, b]]
+    h = lay(rows, {3: 90})
+    return render(rows, [edge(q, eo), edge(eo, r), edge(r, a), edge(r, b)], h,
+                  'Routing map for reusing an evaluation')
 
-# ---------- Figure: saving an idea ----------
+
 def fig_idea():
-    e, n = [], []
-    n.append(box(285, 18, 330, '&#8220;save this idea for later&#8221;', 'req'))
-    n.append(box(330, 100, 240, 'system-maintenance', 'mod', 'the only module that creates files'))
-    n.append(box(330, 184, 240, 'file-directory.md', 'file', 'where things go'))
-    n.append(box(110, 268, 290, 'the file that holds the idea', 'file', 'one location, decided by the tree'))
-    n.append(box(500, 268, 290, 'a pointer from the project', 'file', 'so the file is named somewhere'))
-    e.append(elbow(450, 60, 450, 100))
-    e.append(elbow(450, 142, 450, 184))
-    e.append(elbow(450, 226, 255, 268)); e.append(elbow(450, 226, 645, 268))
-    return svg(900, 326, e + n, 'Routing map for saving an idea')
+    q = req('&#8220;save this idea for later&#8221;')
+    sm = mod('skills/system-maintenance/SKILL.md', 'the only module that creates files')
+    fd = mod('skills/system-maintenance/file-directory.md', 'where things go')
+    a = fil('the file that holds the idea', 'one location, decided by the tree')
+    b = fil('a pointer from the project', 'so the file is named somewhere')
+    rows = [[q], [sm], [fd], [a, b]]
+    h = lay(rows, {3: 90})
+    return render(rows, [edge(q, sm), edge(sm, fd), edge(fd, a), edge(fd, b)], h,
+                  'Routing map for saving an idea')
 
-# ---------- Figure: air fryer ----------
+
 def fig_fryer():
-    e, n = [], []
-    n.append(box(255, 18, 390, '&#8220;which air fryer should I get my parents&#8221;', 'req'))
-    n.append(box(370, 100, 160, 'purchase-ops', 'mod'))
-    n.append(box(90, 184, 300, 'network/family/parents/', 'file', 'whose kitchen this is for'))
-    n.append(box(510, 184, 300, 'living/', 'off', 'my apartment &mdash; no edge leads here'))
-    e.append(elbow(450, 60, 450, 100))
-    e.append(elbow(450, 142, 240, 184))
-    e.append(elbow(450, 142, 660, 184, off=True))
-    return svg(900, 242, e + n, 'Routing map for a purchase made for someone else')
+    q = req('&#8220;which air fryer should I get my parents&#8221;')
+    po = mod('skills/purchase-ops/SKILL.md')
+    par = fil('references/personal/network/family/parents/', 'whose kitchen this is for')
+    liv = off('references/personal/living/', 'my apartment &mdash; no edge leads here')
+    rows = [[q], [po], [par, liv]]
+    h = lay(rows, {2: 70})
+    return render(rows, [edge(q, po), edge(po, par), edge(po, liv, True)], h,
+                  'Routing map for a purchase made for someone else')
 
-# ---------- Figure: what gets stored ----------
+
 def fig_storage():
-    e, n = [], []
-    n.append(box(310, 18, 280, 'something I tell the assistant', 'req'))
-    n.append(box(330, 100, 240, 'file-directory.md', 'file', 'decides where it goes'))
-    n.append(box(15, 184, 270, 'references/personal/&hellip;', 'file', 'true until I change it'))
-    n.append(box(310, 184, 280, 'reminders.json', 'file', 'carries its own end date'))
-    n.append(box(615, 184, 275, 'not stored at all', 'off', 'fetched from the source when needed'))
-    e.append(elbow(450, 60, 450, 100))
-    for cx in (150, 450, 752):
-        e.append(elbow(450, 142, cx, 184))
-    return svg(900, 242, e + n, 'Where an incoming fact is stored')
+    q = req('something I tell the assistant')
+    fd = mod('skills/system-maintenance/file-directory.md', 'decides where it goes')
+    a = fil('references/personal/', 'true until I change it')
+    b = fil('references/personal/reminders.json', 'carries its own end date')
+    c = off('not stored at all', 'fetched from the source when needed')
+    rows = [[q], [fd], [a, b, c]]
+    h = lay(rows, {2: 22})
+    return render(rows, [edge(q, fd), edge(fd, a), edge(fd, b), edge(fd, c)], h,
+                  'Where an incoming fact is stored')
 
-# ---------- Figure: negotiation ----------
+
 def fig_negotiation():
-    e, n = [], []
-    n.append(box(255, 18, 390, '&#8220;how do I push back on the rent increase&#8221;', 'req'))
-    n.append(box(375, 100, 150, 'negotiation', 'mod'))
-    n.append(box(140, 184, 250, 'rent.md', 'file', 'what applies to a lease'))
-    n.append(box(510, 184, 250, 'framework.md', 'file', 'prepare, open, explore, propose'))
-    n.append(box(280, 268, 340, 'books/', 'file', 'the three sources the framework is built on'))
-    n.append(box(280, 352, 340, 'anti-patterns.md', 'rule', 'the draft is checked and rewritten until it passes'))
-    e.append(elbow(450, 60, 450, 100))
-    e.append(elbow(450, 142, 265, 184)); e.append(elbow(450, 142, 635, 184))
-    e.append(elbow(265, 226, 450, 268)); e.append(elbow(635, 226, 450, 268))
-    e.append(elbow(450, 310, 450, 352))
-    e.append('<path class="g-edge g-edge-loop" marker-end="url(#arw)" d="M 620 373 H 800 V 205 H 766"/>')
-    return svg(900, 410, e + n, 'Routing map for a negotiation question')
+    q = req('&#8220;how do I push back on the rent increase&#8221;')
+    ng = mod('skills/negotiation/SKILL.md')
+    rent = fil('skills/negotiation/references/rent.md', 'what applies to a lease')
+    fw = fil('skills/negotiation/references/framework.md', 'prepare, open, explore, propose')
+    bk = fil('skills/negotiation/references/books/', 'the three sources it is built on')
+    ap = rulep('skills/negotiation/references/anti-patterns.md',
+                'the draft is checked and rewritten until it passes')
+    rows = [[q], [ng], [rent, fw], [bk], [ap]]
+    h = lay(rows, {2: 60})
+    e = [edge(q, ng), edge(ng, rent), edge(ng, fw), edge(rent, bk), edge(fw, bk),
+         edge(bk, ap)]
+    e.append(f'<path class="g-edge g-edge-loop" marker-end="url(#arw)" '
+             f'd="M {ap.x+ap.w} {ap.y+29:.0f} H {W-14} V {fw.y+29:.0f} H {fw.x+fw.w+4}"/>')
+    return render(rows, e, h, 'Routing map for a negotiation question')
 
-FIGS = {
-    "flight": fig_flight(), "experiment": fig_experiment(), "idea": fig_idea(),
-    "fryer": fig_fryer(), "storage": fig_storage(), "negotiation": fig_negotiation(),
-}
+
+FIGS = {"email": fig_email(), "flight": fig_flight(), "experiment": fig_experiment(),
+        "idea": fig_idea(), "fryer": fig_fryer(), "storage": fig_storage(),
+        "negotiation": fig_negotiation()}

@@ -953,9 +953,14 @@ pre code {
   fill: var(--ink);
 }
 
+.routing-map .g-dir {
+  font-size: 10.5px;
+  fill: var(--faint);
+}
+
 .routing-map .g-sub {
-  font-family: inherit;
-  font-size: 11px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 10.5px;
   fill: var(--faint);
 }
 
