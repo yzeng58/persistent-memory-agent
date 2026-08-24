@@ -385,12 +385,11 @@
               <h3>2.1 Case 1: Sending one email</h3>
 
               <p>
-                In the last section, the assistant could not send the email
-                because it did not know the recipient&rsquo;s address, which
-                account to use, or how I write to that person. The trace below
-                shows how the same request runs now.
+                In the last section the assistant could not send this email:
+                it did not know the address, which of my accounts to send
+                from, or how I write to this person. Here is the same request
+                now.
               </p>
-
               <!--TRACE:email-->
 <figure class="system-figure trace-figure">
 <div class="trace" data-trace="email"><div class="trace-tip" role="status"></div>
@@ -467,36 +466,18 @@
 <!--/TRACE:email-->
 
               <p>
-                When I say <em>email my collaborator about the paper draft</em>,
-                the assistant does not go searching through the file tree. The
-                top-level instruction file has a routing table, and two lines in
-                it apply here. Anything involving email goes to
-                <code>email-ops</code>. Anything that mentions a person goes to
-                <code>people-ops</code>, which opens the lookup table in
-                <code>network/</code> and from there the folder for that person.
-                <code>email-ops</code> then names the two files it needs, the
-                account table and the writing guide. Each file names the next
-                one.
-              </p>
-
-              <p>
-                By the time there is a draft, the assistant has opened the
-                person&rsquo;s folder, the account table, and the writing guide,
-                in that order. It did not search for any of them. Each one was
-                named by the step before it.
+                It works because each of those files says, in writing, which
+                file comes next.
               </p>
 
               <h3>2.2 Case 2: Booking a flight</h3>
 
               <p>
-                A flight needs more than one kind of fact, and they belong to
-                completely different parts of my life. Which airport I fly out
-                of. Which card earns what on airfare. My frequent flyer numbers.
-                My passport number. Whether anyone is travelling with me. Every
-                one of those has exactly one home, and none of those homes is
-                inside the travel module.
+                Earlier it came back with flights I would not have picked,
+                because it did not know which card to pay with or which
+                airline I collect miles on. Those facts exist now, and none of
+                them live in the travel module.
               </p>
-
               <!--TRACE:flight-->
 <figure class="system-figure trace-figure">
 <div class="trace" data-trace="flight"><div class="trace-tip" role="status"></div>
@@ -551,7 +532,7 @@
 <g class="trow tell" data-row="45"><rect class="thl" x="21" y="1005" width="88" height="19" rx="3"/><rect class="tbox" x="86" y="1005" width="22" height="19" rx="3"/><text x="30" y="1019" xml:space="preserve">│   └── …</text></g>
 <g class="trow" data-row="46"><rect class="thl" x="21" y="1026" width="128" height="19" rx="3"/><rect class="tbox" x="54" y="1026" width="92" height="19" rx="3"/><text x="30" y="1040" xml:space="preserve">├── vault.json</text></g>
 <g class="trow tell" data-row="47"><rect class="thl" x="21" y="1047" width="57" height="19" rx="3"/><rect class="tbox" x="54" y="1047" width="22" height="19" rx="3"/><text x="30" y="1061" xml:space="preserve">└── …</text></g>
-<g class="thop" data-step="1" data-rows="0,1,0,27,36,44" data-ends="1,44" data-src="copilot-instructions.md" data-dst="skills/travel-ops/SKILL.md" data-why="The instruction file is read first every time. Its routing table has named rows for email, calendar, code and a few other things &#8212; but there is no row for travel. What catches this request is the very first row, which says that if any module declares it handles this kind of request, that module is opened and followed, and working from memory instead is not allowed. travel-ops declares flights, airfare and booking as its own."><path class="twire" d="M 255 87 H 326 V 995 H 201" fill="none" marker-end="url(#tr-flight)"/><path class="thit" d="M 255 87 H 326 V 995 H 201" fill="none"/><circle class="tbadge" cx="326" cy="541" r="8.5"/><text class="tnum" x="326" y="545" text-anchor="middle">1</text></g>
+<g class="thop" data-step="1" data-rows="0,1,0,27,36,44" data-ends="1,44" data-src="copilot-instructions.md" data-dst="skills/travel-ops/SKILL.md" data-why="The instruction file says that if a skill matches the request, the agent must open it before doing anything else. The agent also starts with an attached skill table. That table lists travel-ops for flights, airfare and booking, so this request routes straight to travel-ops/SKILL.md. The agent is not allowed to work from memory instead."><path class="twire" d="M 255 87 H 326 V 995 H 201" fill="none" marker-end="url(#tr-flight)"/><path class="thit" d="M 255 87 H 326 V 995 H 201" fill="none"/><circle class="tbadge" cx="326" cy="541" r="8.5"/><text class="tnum" x="326" y="545" text-anchor="middle">1</text></g>
 <g class="thop" data-step="2" data-rows="0,27,36,44,0,27,36,37,40" data-ends="44,40" data-src="skills/travel-ops/SKILL.md" data-dst="travel-ops/flights/README.md" data-why="travel-ops/SKILL.md is twenty-six lines and holds no facts at all. It opens by stating that anything specific to me &#8212; my accounts, my documents, my money &#8212; belongs in my personal files and must never be written into this module. The rest is five branches by request type. Flight search, award tickets and booking all go to one procedure file."><path class="twire" d="M 201 990 H 346 V 911 H 240" fill="none" marker-end="url(#tr-flight)"/><path class="thit" d="M 201 990 H 346 V 911 H 240" fill="none"/><circle class="tbadge" cx="346" cy="950" r="8.5"/><text class="tnum" x="346" y="954" text-anchor="middle">2</text></g>
 <g class="thop" data-step="3" data-rows="0,27,36,37,40,0,27,36,37,38" data-ends="40,38" data-src="travel-ops/flights/README.md" data-dst="travel-ops/flights/money-saving.md" data-why="flights/README.md is the actual search procedure, in five numbered steps: work out the search parameters, search live inventory, compare, gate on confirmation, write the result down. It also carries an odd-looking rule &#8212; if the destination is not a hub, check airports within a hundred and fifty miles too. Step two says to run the points side of the search at the same time as the cash side."><path class="twire" d="M 240 906 H 366 V 869 H 287" fill="none" marker-end="url(#tr-flight)"/><path class="thit" d="M 240 906 H 366 V 869 H 287" fill="none"/><circle class="tbadge" cx="366" cy="888" r="8.5"/><text class="tnum" x="366" y="892" text-anchor="middle">3</text></g>
 <g class="thop" data-step="4" data-rows="0,27,36,37,38,0,2,5,18,20" data-ends="38,20" data-src="travel-ops/flights/money-saving.md" data-dst="personal/travel/README.md" data-why="money-saving.md is the points-versus-cash comparison, and it has an actual formula in it: what a point is worth in this particular redemption, with thresholds for when paying with points is clearly worth it and when it is not. Its first step is to load the facts it needs, and it is explicit that those facts are not stored here &#8212; it also forbids guessing a balance from an old snapshot."><path class="twire" d="M 287 864 H 386 V 491 H 240" fill="none" marker-end="url(#tr-flight)"/><path class="thit" d="M 287 864 H 386 V 491 H 240" fill="none"/><circle class="tbadge" cx="386" cy="678" r="8.5"/><text class="tnum" x="386" y="682" text-anchor="middle">4</text></g>
@@ -566,38 +547,17 @@
 <!--/TRACE:flight-->
 
               <p>
-                <code>travel-ops</code> holds how to book a flight: how to
-                compare points against cash, when a nearby airport is worth the
-                drive, what to check before paying. It stores no passport
-                number, no card number, and no airline account. Those sit in
-                the identity, finance, and credential stores, where everything
-                else that needs them also looks.
-              </p>
-
-              <p>
-                The preferences file does the joining. It carries a small table
-                that says, for each kind of travel fact, which file owns it. The
-                assistant does not guess where a passport number might be. It
-                reads the row.
-              </p>
-
-              <p>
-                When the booking is done, the result goes back to one place: a
-                folder for that trip, holding the reservation number, the seats,
-                the total, and which card paid. My calendar entry is generated
-                from that folder. If the flight changes, I change the folder, and
-                the calendar entry follows. The calendar never becomes a second
-                version of the truth.
+                It works because the travel module holds only the procedure,
+                and a table inside it says which other file owns each fact the
+                procedure needs.
               </p>
 
               <h3>2.3 Case 3: The second experiment</h3>
 
               <p>
-                This one is not about finding a fact. Nothing was missing when
-                the assistant rewrote my evaluation. It just did not look for
-                what was already there.
+                Earlier it wrote a second copy of an evaluation that already
+                existed. Nothing was missing here. It just did not look.
               </p>
-
               <!--TRACE:experiment-->
 <figure class="system-figure trace-figure">
 <div class="trace" data-trace="experiment"><div class="trace-tip" role="status"></div>
@@ -628,7 +588,7 @@
 <g class="trow tell" data-row="21"><rect class="thl" x="21" y="501" width="88" height="19" rx="3"/><rect class="tbox" x="86" y="501" width="22" height="19" rx="3"/><text x="30" y="515" xml:space="preserve">│   └── …</text></g>
 <g class="trow" data-row="22"><rect class="thl" x="21" y="522" width="128" height="19" rx="3"/><rect class="tbox" x="54" y="522" width="92" height="19" rx="3"/><text x="30" y="536" xml:space="preserve">├── vault.json</text></g>
 <g class="trow tell" data-row="23"><rect class="thl" x="21" y="543" width="57" height="19" rx="3"/><rect class="tbox" x="54" y="543" width="22" height="19" rx="3"/><text x="30" y="557" xml:space="preserve">└── …</text></g>
-<g class="thop" data-step="1" data-rows="0,2,0,6,15,20" data-ends="2,20" data-src="copilot-instructions.md" data-dst="skills/experiment-ops/SKILL.md" data-why="Same first row as always: a module that declares this kind of work gets opened and followed. experiment-ops declares running experiments, submitting jobs and evaluation. The instruction file also carries a hard rule a few lines below &#8212; experiments never run on this laptop &#8212; which is why the module, not the model, decides what happens next."><path class="twire" d="M 255 108 H 342 V 491 H 201" fill="none" marker-end="url(#tr-experiment)"/><path class="thit" d="M 255 108 H 342 V 491 H 201" fill="none"/><circle class="tbadge" cx="342" cy="300" r="8.5"/><text class="tnum" x="342" y="304" text-anchor="middle">1</text></g>
+<g class="thop" data-step="1" data-rows="0,2,0,6,15,20" data-ends="2,20" data-src="copilot-instructions.md" data-dst="skills/experiment-ops/SKILL.md" data-why="The instruction file says that a matching skill must be opened before any work begins. The attached skill table lists experiment-ops for running experiments, submitting jobs and evaluation, so this request routes there. The instruction file also carries a hard rule a few lines below &#8212; experiments never run on this laptop &#8212; which is why the module, not the model, decides what happens next."><path class="twire" d="M 255 108 H 342 V 491 H 201" fill="none" marker-end="url(#tr-experiment)"/><path class="thit" d="M 255 108 H 342 V 491 H 201" fill="none"/><circle class="tbadge" cx="342" cy="300" r="8.5"/><text class="tnum" x="342" y="304" text-anchor="middle">1</text></g>
 <g class="thop" data-step="2" data-rows="0,6,15,20,0,6,8,12" data-ends="20,12" data-src="skills/experiment-ops/SKILL.md" data-dst="skills/code-writing/SKILL.md" data-why="experiment-ops/SKILL.md is a seven-step pipeline, and the interesting part is what it refuses to do. Its very first step says that if the request is really a code change, placement question or bug, hand over to the code module and stop. Writing the second experiment is a code change, so it hands over &#8212; and says to come back here to actually run it."><path class="twire" d="M 201 486 H 362 V 323 H 201" fill="none" marker-end="url(#tr-experiment)"/><path class="thit" d="M 201 486 H 362 V 323 H 201" fill="none"/><circle class="tbadge" cx="362" cy="404" r="8.5"/><text class="tnum" x="362" y="408" text-anchor="middle">2</text></g>
 <g class="thop" data-step="3" data-rows="0,6,8,12,0,6,8,9,11" data-ends="12,11" data-src="skills/code-writing/SKILL.md" data-dst="code-writing/references/code-architecture.md" data-why="code-writing/SKILL.md is the rulebook for touching any code at all. It insists on settling what a function is for before editing it, and it defaults to writing code inline &#8212; no new helper, class or file unless there are genuinely two callers already. For where the code should live, it points at its architecture file."><path class="twire" d="M 201 318 H 382 V 302 H 326" fill="none" marker-end="url(#tr-experiment)"/><path class="thit" d="M 201 318 H 382 V 302 H 326" fill="none"/><circle class="tbadge" cx="382" cy="310" r="8.5"/><text class="tnum" x="382" y="314" text-anchor="middle">3</text></g>
 <g class="thop" data-step="4" data-rows="0,6,8,9,11,0,6,15,20" data-ends="11,20" data-src="code-writing/references/code-architecture.md" data-dst="skills/experiment-ops/SKILL.md" data-why="The architecture file is the one that prevents the rewrite. Behaviour belongs to whichever component already owns that meaning; tests import the real implementation rather than carrying their own copy; a typo gets fixed at the source instead of getting a compatibility shim. So the metric from the first experiment is imported, not written again. Then control returns to the experiment module to run it."><path class="twire" d="M 326 297 H 402 V 491 H 201" fill="none" marker-end="url(#tr-experiment)"/><path class="thit" d="M 326 297 H 402 V 491 H 201" fill="none"/><circle class="tbadge" cx="402" cy="394" r="8.5"/><text class="tnum" x="402" y="398" text-anchor="middle">4</text></g>
@@ -640,28 +600,16 @@
 <!--/TRACE:experiment-->
 
               <p>
-                So the rule is written into the experiment procedure itself:
-                before writing any measurement, search the project for one that
-                already exists, and if it exists, call it. That check is a step
-                in the module, not a preference I have to state each time.
-              </p>
-
-              <p>
-                If nothing is found, the evaluation gets written once, in a file
-                whose job is to hold it. The next experiment finds it and calls
-                it. That is the same shape as the figure rules: the second copy
-                is what causes the damage, so the procedure stops the second copy
-                from being created at all.
+                It works because the rule that makes it look is in the coding
+                module, which is opened before any code gets written.
               </p>
 
               <h3>2.4 Case 4: Saving an idea</h3>
 
               <p>
-                Earlier, the assistant saved an idea to a file and then never
-                read that file again. The file was real. The problem was that
-                nothing pointed at it, so no later task had a reason to open it.
+                Earlier it saved an idea to a file and never opened that file
+                again. The file was real; nothing pointed at it.
               </p>
-
               <!--TRACE:idea-->
 <figure class="system-figure trace-figure">
 <div class="trace" data-trace="idea"><div class="trace-tip" role="status"></div>
@@ -699,38 +647,18 @@
 <!--/TRACE:idea-->
 
               <p>
-                Now only one module is allowed to create, move, or delete
-                anything in the system. When it saves something, it consults the
-                storage tree for where that kind of thing goes, so the location
-                is decided by a rule rather than by whatever folder happens to be
-                open. Then it writes the pointer.
-              </p>
-
-              <p>
-                The pointer is not optional, and it is not a separate task I
-                might forget. Saving means both: the file, and a line somewhere
-                that names it. A file with no pointer is exactly the failure from
-                the last section, and it is the same thing that would happen if I
-                moved the figure rules into their own file and stopped there.
+                It works because saving is two writes rather than one: the
+                file, and a line naming it in some file that will be opened
+                later.
               </p>
 
               <h3>2.5 Case 5: An air fryer for my parents</h3>
 
               <p>
-                The air fryer answer went wrong because a true fact about my
-                kitchen was applied to somebody else&rsquo;s kitchen. So the
-                question is what decides that a fact about my apartment is not
-                relevant here.
+                Earlier it ruled out the large air fryers because my counter
+                space is tight, even though the air fryer was for my parents.
+                Here is the same question now.
               </p>
-
-              <p>
-                The storage tree answers it. Information is filed by who or what
-                it is about, not by which task might use it. My counter space is
-                a fact about my apartment, so it lives with the apartment. My
-                parents&rsquo; kitchen is a fact about my parents, so it lives in
-                their folder.
-              </p>
-
               <!--TRACE:gift-->
 <figure class="system-figure trace-figure">
 <div class="trace" data-trace="gift"><div class="trace-tip" role="status"></div>
@@ -771,7 +699,7 @@
 <g class="trow tell" data-row="31"><rect class="thl" x="21" y="711" width="88" height="19" rx="3"/><rect class="tbox" x="86" y="711" width="22" height="19" rx="3"/><text x="30" y="725" xml:space="preserve">│   └── …</text></g>
 <g class="trow" data-row="32"><rect class="thl" x="21" y="732" width="128" height="19" rx="3"/><rect class="tbox" x="54" y="732" width="92" height="19" rx="3"/><text x="30" y="746" xml:space="preserve">├── vault.json</text></g>
 <g class="trow tell" data-row="33"><rect class="thl" x="21" y="753" width="57" height="19" rx="3"/><rect class="tbox" x="54" y="753" width="22" height="19" rx="3"/><text x="30" y="767" xml:space="preserve">└── …</text></g>
-<g class="thop" data-step="1" data-rows="0,1,0,23,28,29" data-ends="1,29" data-src="copilot-instructions.md" data-dst="skills/purchase-ops/SKILL.md" data-why="Buying something has no named row either, so it is the general rule that fires: the purchases module declares checkout and ordering as its own, so it gets opened. That module turns out to be purely transactional &#8212; classify the transaction, set up the account and payment, confirm the exact total before submitting, verify afterwards. It never asks who the thing is for."><path class="twire" d="M 255 87 H 326 V 680 H 201" fill="none" marker-end="url(#tr-gift)"/><path class="thit" d="M 255 87 H 326 V 680 H 201" fill="none"/><circle class="tbadge" cx="326" cy="384" r="8.5"/><text class="tnum" x="326" y="388" text-anchor="middle">1</text></g>
+<g class="thop" data-step="1" data-rows="0,1,0,23,28,29" data-ends="1,29" data-src="copilot-instructions.md" data-dst="skills/purchase-ops/SKILL.md" data-why="The instruction file says that every matching skill must be opened before work begins. In the attached skill table, purchase-ops covers checkout and ordering, so it is opened for this request. That module turns out to be purely transactional &#8212; classify the transaction, set up the account and payment, confirm the exact total before submitting, verify afterwards. It never asks who the thing is for."><path class="twire" d="M 255 87 H 326 V 680 H 201" fill="none" marker-end="url(#tr-gift)"/><path class="thit" d="M 255 87 H 326 V 680 H 201" fill="none"/><circle class="tbadge" cx="326" cy="384" r="8.5"/><text class="tnum" x="326" y="388" text-anchor="middle">1</text></g>
 <g class="thop" data-step="2" data-rows="0,1,0,23,26,27" data-ends="1,27" data-src="copilot-instructions.md" data-dst="skills/people-ops/SKILL.md" data-why="A second row in the same table fires at the same time, and this is the one that matters here. It says that if a human being is mentioned at all &#8212; even in passing, even as one word in a longer sentence &#8212; the people module is consulted before anything is answered, so that a familiar name is never handled as though it were a stranger. &#8220;My parents&#8221; is enough to trigger it."><path class="twire" d="M 255 87 H 346 V 638 H 201" fill="none" marker-end="url(#tr-gift)"/><path class="thit" d="M 255 87 H 346 V 638 H 201" fill="none"/><circle class="tbadge" cx="346" cy="362" r="8.5"/><text class="tnum" x="346" y="366" text-anchor="middle">2</text></g>
 <g class="thop" data-step="3" data-rows="0,23,26,27,0,2,5,8,17" data-ends="27,17" data-src="skills/people-ops/SKILL.md" data-dst="personal/network/README.md" data-why="people-ops/SKILL.md holds no information about anybody. It is the rulebook: does this person already have a file, where to look them up, what to write down afterwards, where their attachments go. Its lookup rule names the index of everyone I know."><path class="twire" d="M 201 633 H 366 V 428 H 240" fill="none" marker-end="url(#tr-gift)"/><path class="thit" d="M 201 633 H 366 V 428 H 240" fill="none"/><circle class="tbadge" cx="366" cy="530" r="8.5"/><text class="tnum" x="366" y="534" text-anchor="middle">3</text></g>
 <g class="thop" data-step="4" data-rows="0,2,5,8,17,0,2,5,8,9,13,15" data-ends="17,15" data-src="personal/network/README.md" data-dst="family/mom/README.md" data-why="network/README.md is that index, and the structure it enforces is that everybody gets their own folder, grouped by how I know them. It also has a rule about growth: a new name mentioned in conversation gets a row immediately, and once there are two or more facts about them, the row is promoted to a folder. Nothing here is entered by hand as a chore."><path class="twire" d="M 240 423 H 386 V 386 H 302" fill="none" marker-end="url(#tr-gift)"/><path class="thit" d="M 240 423 H 386 V 386 H 302" fill="none"/><circle class="tbadge" cx="386" cy="404" r="8.5"/><text class="tnum" x="386" y="408" text-anchor="middle">4</text></g>
@@ -782,33 +710,17 @@
 <!--/TRACE:gift-->
 
               <p>
-                When the purchase is for my parents, the chain runs through their
-                folder. Nothing in that chain names the apartment file, so the
-                apartment file is never opened. It is not retrieved and then
-                discarded, and it is not outranked by something more relevant.
-                There is simply no path to it from this question.
-              </p>
-
-              <p>
-                That is the second rule read backwards. A path that leads to the
-                right file is also, by construction, a path that does not lead
-                anywhere else. Relevance stops being a scoring problem and
-                becomes a question of which files this task is allowed to reach.
+                It works because facts are filed under whoever they are about,
+                so nothing on this path leads to my apartment.
               </p>
 
               <h3>2.6 Case 6: A deadline that passed</h3>
 
               <p>
-                The stale deadline is different again. It was filed correctly and
-                retrieved correctly. It had just stopped being true, and nothing
-                in the system was watching for that.
+                Earlier a deadline I mentioned once was still shaping answers
+                months after it had passed, and I was never going to go back
+                and take it out.
               </p>
-
-              <p>
-                The fix is to sort things by how long they stay true before
-                deciding where to put them.
-              </p>
-
               <!--TRACE:deadline-->
 <figure class="system-figure trace-figure">
 <div class="trace" data-trace="deadline"><div class="trace-tip" role="status"></div>
@@ -862,47 +774,18 @@
 <!--/TRACE:deadline-->
 
               <p>
-                Some facts stay true until I change them: where I live, which
-                cards I hold, how I like figures to look. Those go into the
-                personal record, and because each one sits in exactly one file, I
-                change it in one place when it changes. That is the whole update
-                story. There is no second copy left behind to contradict the
-                first.
-              </p>
-
-              <p>
-                Other facts have an end date built in. A deadline is one of
-                those. It does not go into the personal record at all. It goes
-                into the reminder file, where every entry carries the date it
-                becomes relevant and a status. Once the date passes, it stops
-                being shown. I do not have to remember to take it back, which is
-                the part I was never going to do.
-              </p>
-
-              <p>
-                The third case is the one that surprised me. Some facts are not
-                mine to hold. My immigration entry record and my account balances
-                are true right up until someone else changes them, and nobody
-                tells me when they do. Storing those is worse than not storing
-                them, because a stored copy looks current and is not. So the
-                system stores the address of the source instead of the value, and
-                fetches it at the moment it is needed.
+                It works because a deadline is not stored alongside the facts
+                about me: it goes in the reminder file, where every entry
+                carries a date and a status.
               </p>
 
               <h3>2.7 Case 7: Pushing back on a rent increase</h3>
 
               <p>
-                The last gap is not a memory problem. When I asked how to push
-                back on a rent increase, nothing about me was missing. What was
-                missing was a way of answering that question that is better than
-                the average one.
+                Earlier the answer was the advice anyone would give: be
+                polite, explain the situation, ask whether there is any
+                flexibility. What was missing was not a fact about me.
               </p>
-
-              <p>
-                So that had to be written down too. Not facts about me this time,
-                but a way of working through a negotiation.
-              </p>
-
               <!--TRACE:rent-->
 <figure class="system-figure trace-figure">
 <div class="trace" data-trace="rent"><div class="trace-tip" role="status"></div>
@@ -936,7 +819,7 @@
 <g class="trow tell" data-row="24"><rect class="thl" x="21" y="564" width="88" height="19" rx="3"/><rect class="tbox" x="86" y="564" width="22" height="19" rx="3"/><text x="30" y="578" xml:space="preserve">│   └── …</text></g>
 <g class="trow" data-row="25"><rect class="thl" x="21" y="585" width="128" height="19" rx="3"/><rect class="tbox" x="54" y="585" width="92" height="19" rx="3"/><text x="30" y="599" xml:space="preserve">├── vault.json</text></g>
 <g class="trow tell" data-row="26"><rect class="thl" x="21" y="606" width="57" height="19" rx="3"/><rect class="tbox" x="54" y="606" width="22" height="19" rx="3"/><text x="30" y="620" xml:space="preserve">└── …</text></g>
-<g class="thop" data-step="1" data-rows="0,2,0,6,8,21" data-ends="2,21" data-src="copilot-instructions.md" data-dst="skills/negotiation/SKILL.md" data-why="No named row for this one either &#8212; the general rule catches it, because the negotiation module declares haggling, counter-offers, lease renewals and salary talks as its own. The same rule adds that having a module for something means it gets read, not recalled: the assistant is not allowed to answer from a general sense of how negotiation works."><path class="twire" d="M 255 108 H 428 V 512 H 201" fill="none" marker-end="url(#tr-rent)"/><path class="thit" d="M 255 108 H 428 V 512 H 201" fill="none"/><circle class="tbadge" cx="428" cy="310" r="8.5"/><text class="tnum" x="428" y="314" text-anchor="middle">1</text></g>
+<g class="thop" data-step="1" data-rows="0,2,0,6,8,21" data-ends="2,21" data-src="copilot-instructions.md" data-dst="skills/negotiation/SKILL.md" data-why="The instruction file says that a matching skill must be opened rather than recalled from memory. The attached skill table lists negotiation for haggling, counter-offers, lease renewals and salary talks, so this request routes straight to negotiation/SKILL.md."><path class="twire" d="M 255 108 H 428 V 512 H 201" fill="none" marker-end="url(#tr-rent)"/><path class="thit" d="M 255 108 H 428 V 512 H 201" fill="none"/><circle class="tbadge" cx="428" cy="310" r="8.5"/><text class="tnum" x="428" y="314" text-anchor="middle">1</text></g>
 <g class="thop" data-step="2" data-rows="0,6,8,21,0,6,8,9,19" data-ends="21,19" data-src="skills/negotiation/SKILL.md" data-dst="negotiation/references/rent.md" data-why="negotiation/SKILL.md is about twenty-five lines. It sorts the request into a situation &#8212; a lease, a salary, or something else &#8212; and a lease sends it to rent.md. Note the word it uses: supplementary. The situation file adds to the process, it does not replace it."><path class="twire" d="M 201 507 H 448 V 470 H 224" fill="none" marker-end="url(#tr-rent)"/><path class="thit" d="M 201 507 H 448 V 470 H 224" fill="none"/><circle class="tbadge" cx="448" cy="488" r="8.5"/><text class="tnum" x="448" y="492" text-anchor="middle">2</text></g>
 <g class="thop" data-step="3" data-rows="0,6,8,9,19,0,6,8,9,18" data-ends="19,18" data-src="negotiation/references/rent.md" data-dst="negotiation/references/framework.md" data-why="rent.md is specific in a way general advice never is: pull comparable listings and the vacancy rate in this building&#8217;s area, then take inventory of the leverage I actually have &#8212; payment history, flexibility on dates, what it would cost them to turn the unit over. Then write to the property manager, not a general inbox, in under a hundred and twenty words. It has a template with blanks, and a rule that the blanks must be filled with real numbers before anything is sent."><path class="twire" d="M 224 465 H 468 V 449 H 263" fill="none" marker-end="url(#tr-rent)"/><path class="thit" d="M 224 465 H 468 V 449 H 263" fill="none"/><circle class="tbadge" cx="468" cy="457" r="8.5"/><text class="tnum" x="468" y="461" text-anchor="middle">3</text></g>
 <g class="thop" data-step="4" data-rows="0,6,8,9,18,0,6,8,9,11,14,15" data-ends="18,15" data-src="negotiation/references/framework.md" data-dst="books/never-split-the-difference/chapters/" data-why="framework.md is the part every negotiation goes through regardless of what is being negotiated: prepare, open, explore, propose, close. What makes it more than a list of slogans is that each tactic carries a citation to a specific chapter of a specific book sitting in this folder, split into chapters. So a tactic can be opened and checked instead of taken on faith, and only the cited chapter gets read."><path class="twire" d="M 263 444 H 488 V 386 H 302" fill="none" marker-end="url(#tr-rent)"/><path class="thit" d="M 263 444 H 488 V 386 H 302" fill="none"/><circle class="tbadge" cx="488" cy="415" r="8.5"/><text class="tnum" x="488" y="419" text-anchor="middle">4</text></g>
@@ -947,29 +830,8 @@
 <!--/TRACE:rent-->
 
               <p>
-                The negotiation module holds a four-phase sequence: work out my
-                walk-away position and what the other side is worried about, open
-                without anchoring myself, ask questions that surface what they
-                actually need, and only then put a number on the table. Below it
-                sit the three books the sequence is drawn from, so a specific
-                move can be looked up rather than paraphrased from memory.
-              </p>
-
-              <p>
-                The last step is the one that changes the output most. Before I
-                see a draft, it is checked against a list of moves that read as
-                weak: apologising for asking, justifying a number before it has
-                been questioned, offering a compromise nobody requested. If the
-                draft contains any of them, it gets rewritten. Only what survives
-                that check reaches me.
-              </p>
-
-              <p>
-                This is where the two rules earn something beyond consistency.
-                Everything I have learned about negotiating lives in one place,
-                so improving it improves every negotiation after that, and the
-                route into it is written down, so I get it without having to
-                remember that I own it.
+                It works because the draft has to survive a list of moves that
+                read as weak before it ever reaches me.
               </p>
 
             </section>
