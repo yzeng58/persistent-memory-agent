@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta
       name="description"
-      content="Field notes on a personal AI assistant in daily use: five ways general-purpose assistants fall short, the two memory rules that fix them, and what the resulting system knows and can do."
+      content="Most failures of general-purpose assistants can be addressed by a memory system with one canonical place for each piece and a written path from every task that needs it."
     >
-    <title>How to make a personal AI system that knows you well</title>
+    <title>Personal AI Is a Memory Architecture Problem</title>
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="doc.css?v=14">
   </head>
@@ -33,12 +33,22 @@
       <article class="paper">
         <header class="paper-header">
           <p class="eyebrow">FIELD NOTES &middot; AUGUST 2026</p>
-          <h1>How to make a personal AI system that knows you well</h1>
+          <h1>Personal AI Is a Memory Architecture Problem</h1>
           <p class="dek">
-            I used a general-purpose assistant every day and kept hitting the
-            same five problems. This article explains the two memory rules that
-            made them go away, then shows what the system knows about me, what
-            it can do, and what it still cannot do on its own.
+            Most of the problems I encountered with general-purpose assistants
+            looked unrelated: they forgot facts about me, failed to maintain
+            what they wrote, surfaced irrelevant context, kept facts that were
+            no longer true, and gave generic advice. But all five came down to
+            the same issue: what the system stores and how a task reaches it. I
+            found that they can be addressed by a carefully designed memory
+            system that satisfies two criteria: (1) every piece of information
+            or behavior has one canonical place; and (2) every task that needs
+            it has a written path to that place. I built such a system and now
+            use it across work and daily life. The remaining problem is
+            architectural. A model can follow a structure once it exists, but
+            it still cannot decide reliably when to reuse, split, move, or
+            create components. The next step is to train models to make those
+            decisions themselves.
           </p>
           <div class="paper-meta">
             <span>Yuchen Zeng</span>
