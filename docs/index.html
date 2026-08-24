@@ -367,44 +367,24 @@
               </ol>
 
               <p>
-                I go back through those failures one at a time below. Someone
-                still has to design the layout. Models cannot do that part yet,
-                so I decided the structure myself and had the assistant fill it
-                in. What that limits is who can build such a system today, not
-                whether it works once built. I come back to it at the end.
+                Each case study follows the same pattern. The system starts with
+                a router, a small decision tree that tells it which file to open
+                next. That file can point to another, so the request moves
+                through a clear chain of decisions.
+              </p>
+
+              <p>
+                Someone still has to design this structure. I return to that
+                limitation at the end.
               </p>
 
               <h3>2.1 Case 1: Sending one email</h3>
 
               <p>
-                In the last section the assistant could not send an email for me.
-                It did not have the address, and the draft it wrote sounded like
-                a message to a stranger. Here is how that same request runs now.
-              </p>
-
-              <p>
-                Four separate things are needed, and each one is stored in
-                exactly one place. Who the person is, how I know them, and what
-                their address is: one folder per person, under
-                <code>network/</code>. Which of my four accounts to send from:
-                one decision table, inside <code>email-ops</code>. How I write to
-                a collaborator as opposed to someone I have never met: one
-                writing guide, also inside <code>email-ops</code>. The login for
-                each account: one encrypted file, reached through
-                <code>account-ops</code>.
-              </p>
-
-              <p>
-                None of these are copied anywhere else. The folder for a person
-                says nothing about tone. <code>email-ops</code> does not store a
-                single email address. When a collaborator moves to a new job, I
-                change one line in one folder, and every email after that is
-                correct.
-              </p>
-
-              <p>
-                That is the first rule doing its work. The second rule is what
-                makes any of these files get opened.
+                In the last section, the assistant could not send the email
+                because it did not know the recipient&rsquo;s address, which
+                account to use, or how I write to that person. The trace below
+                shows how the same request runs now.
               </p>
 
               <!--TRACE:email-->
