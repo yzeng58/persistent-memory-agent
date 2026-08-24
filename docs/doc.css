@@ -917,3 +917,75 @@ pre code {
   font-size: 12.5px;
   color: var(--muted);
 }
+
+.scenario-box {
+  margin: 26px 0;
+  padding: 16px 20px 4px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--green);
+  border-radius: 4px;
+  background: var(--paper);
+}
+
+.scenario-box .scenario-title {
+  margin: 0 0 8px;
+  font-size: 13px !important;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--green);
+}
+
+.scenario-box p {
+  font-size: 17px !important;
+  color: var(--muted);
+}
+
+.routing-map {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.routing-map text {
+  font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 13px;
+  fill: var(--ink);
+}
+
+.routing-map .g-sub {
+  font-family: inherit;
+  font-size: 11px;
+  fill: var(--faint);
+}
+
+.routing-map .g-edge {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 1.4;
+}
+
+.routing-map .g-mod rect {
+  fill: var(--green-soft);
+  stroke: var(--green);
+  stroke-width: 1.2;
+}
+
+.routing-map .g-file rect {
+  fill: var(--blue-soft);
+  stroke: #7d93b0;
+  stroke-width: 1.2;
+}
+
+.routing-map .g-req rect {
+  fill: var(--paper);
+  stroke: var(--faint);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 3;
+}
+
+.routing-map .g-req text {
+  font-family: Georgia, serif;
+  font-style: italic;
+  fill: var(--muted);
+}

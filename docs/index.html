@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta
       name="description"
-      content="Field notes on a personal AI assistant in daily use: three failure modes of general-purpose assistants, the addressing rule used to fix them, and a measured inventory of the deployed system."
+      content="Field notes on a personal AI assistant in daily use: five ways general-purpose assistants fall short, the two memory rules that fix them, and a measured inventory of the deployed system."
     >
     <title>How to make a personal AI system that knows you well</title>
     <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="doc.css?v=6">
+    <link rel="stylesheet" href="doc.css?v=7">
   </head>
   <body>
     <header class="site-header">
@@ -35,10 +35,10 @@
           <p class="eyebrow">FIELD NOTES &middot; AUGUST 2026</p>
           <h1>How to make a personal AI system that knows you well</h1>
           <p class="dek">
-            I used a general-purpose assistant every day and kept seeing the
-            same three problems. This article explains how I fixed them and
-            what the system contains now: 72 modules, nine domains, 3,080
-            files, and 33,788 bytes loaded on every turn.
+            I used a general-purpose assistant every day and kept hitting the
+            same five problems. This article explains the two memory rules that
+            made them go away, and what the system contains now: 72 modules,
+            nine domains, 3,080 files, and 33,788 bytes loaded on every turn.
           </p>
           <div class="paper-meta">
             <span>Yuchen Zeng</span>
@@ -53,14 +53,14 @@
           <aside class="table-of-contents">
             <p>CONTENTS</p>
             <nav aria-label="Article sections">
-              <a href="#shortfalls">1. Where it fell short</a>
-              <a class="toc-sub" href="#shortfalls">1.1 It remembers the wrong things</a>
-              <a class="toc-sub" href="#shortfalls">1.2 It answers like the median person</a>
-              <a class="toc-sub" href="#shortfalls">1.3 It never gets better</a>
-              <a href="#approach">2. Approach</a>
-              <a class="toc-sub" href="#approach">2.1 Address space and assignment rules</a>
-              <a class="toc-sub" href="#approach">2.2 Domain modules</a>
-              <a class="toc-sub" href="#approach">2.3 Schema evolution</a>
+              <a href="#shortfalls">1. Why I built my own personal assistant</a>
+              <a class="toc-sub" href="#shortfalls">1.1 It does not know me</a>
+              <a class="toc-sub" href="#shortfalls">1.2 It does not maintain what it writes</a>
+              <a class="toc-sub" href="#shortfalls">1.3 It brings up what I did not ask about</a>
+              <a class="toc-sub" href="#shortfalls">1.4 It holds on to what is no longer true</a>
+              <a class="toc-sub" href="#shortfalls">1.5 It answers like anyone else</a>
+              <a href="#approach">2. Organized memory is all you need</a>
+              <a class="toc-sub" href="#approach">2.1 Sending one email</a>
               <a href="#system">3. The deployed system</a>
               <a class="toc-sub" href="#system">3.1 Domain inventory</a>
               <a class="toc-sub" href="#system">3.2 Module catalog</a>
@@ -77,1110 +77,355 @@
           <div class="paper-body">
             <section id="shortfalls">
               <p class="section-number">01</p>
-              <h2>Where it fell short</h2>
+              <h2>Why I built my own personal assistant</h2>
 
               <p>
-                I did not plan to build a system. I built it because the same
-                problems kept coming back. For about a year, I used a
-                general-purpose assistant every day for work, money, health,
-                and immigration paperwork. The model was often smart enough to
-                answer well. The problems came from the system around the
-                model: how it found information, chose an approach, and saved
-                new lessons. I could change all three without changing the
-                model itself.
+                I use Codex, Claude Code, and Copilot CLI every day. Each of
+                them will hold on to a rough picture of who I am. Without a
+                carefully designed harness, none of them keeps the rules and
+                the details across the many different things I need help with.
+                That is what stops them from being a real personal assistant. A
+                real one, in my view, should be in charge of everything about
+                me.
               </p>
 
-              <h3>1.1 It remembers the wrong things</h3>
+              <h3>1.1 It does not know me</h3>
 
               <p>
-                I saw two opposite problems:
+                It is worth starting with what the phrase means. Booking a
+                flight? Sending an email? By that description, plenty of
+                assistants already qualify. But do you actually use Codex,
+                Claude Code, or Copilot CLI to book a flight or send an email?
               </p>
 
-              <ul>
-                <li>
-                  <strong>It brought up old facts that did not matter.</strong>
-                  Some details were true but unrelated to my question. They then
-                  pulled the answer in the wrong direction.
-                </li>
-                <li>
-                  <strong>It left out the fact that should control the answer.</strong>
-                  It missed a hard constraint that should have changed the
-                  answer. It also gave no sign that it had searched for that
-                  constraint and failed to find it.
-                </li>
-              </ul>
+              <p>No.</p>
+
+              <div class="scenario-box">
+                <p class="scenario-title">Scenario 1. Booking a flight</p>
+                <p>
+                  I ask it to book a flight. To do that it needs to know which
+                  cards I hold and which one to pay with, which airline I
+                  collect miles on, and what I am optimising for. It knows none
+                  of that, so it comes back with flights I would not have
+                  picked, and I go and book it myself.
+                </p>
+              </div>
+
+              <div class="scenario-box">
+                <p class="scenario-title">Scenario 2. Sending an email</p>
+                <p>
+                  I ask it to email someone. It does not know which of my
+                  accounts to send from, and I keep several for different
+                  purposes. It cannot find the recipient&rsquo;s address without
+                  being told. The draft comes back in the wrong register, so I
+                  specify the tone as well. By the time I have specified all of
+                  it, I have written the email.
+                </p>
+              </div>
 
               <p>
-                The two problems often appeared in the same answer. Neither came
-                with a warning. A fixed-size retrieval step can create this
-                pattern. If the important fact does not rank high enough, the
-                system leaves it out and fills the available slots with other
-                facts. This does not prove that any product works this way. It
-                only describes the pattern I needed my own system to prevent.
-              </p>
-
-              <p>
-                I did not need to know how a vendor built its product. I needed
-                to build a system where this failure could not happen.
-                Similarity retrieval has three limits that matter here. Better
-                tuning does not remove them.
-              </p>
-
-              <ul>
-                <li>
-                  <strong>The system does not give a fact one stable key across updates.</strong>
-                  A vector store can give each record an ID and overwrite a
-                  record with the same ID. But it does not know that &ldquo;I
-                  moved to B&rdquo; should replace &ldquo;I live at A.&rdquo;
-                  Without another rule, both records stay in the store. At read
-                  time, the record closer to the query wins. You can add recency
-                  to the ranking, but that is still a ranking rule. It is not a
-                  true update of one value.
-                </li>
-                <li>
-                  <strong>Similarity does not show which fact is a rule.</strong>
-                  &ldquo;This position is locked and cannot be sold&rdquo; and
-                  &ldquo;I like this stock&rdquo; may be close in embedding
-                  space. But the first sentence is a hard rule, while the second
-                  is only a preference. Similarity does not tell the system
-                  which fact must control the answer.
-                </li>
-                <li>
-                  <strong>A text collection does not store current state.</strong>
-                  Retrieval finds text about a topic. A personal assistant often
-                  needs the current value of something: where I live, what I
-                  owe, or which document I filed. These questions have exact
-                  answers. An approximate answer is still a wrong answer.
-                </li>
-              </ul>
-
-              <p>
-                The assistant did not need more facts about me. It needed a way
-                to decide which facts controlled the answer.
-              </p>
-
-              <h3>1.2 It answers like the median person</h3>
-
-              <p>
-                I would ask for help with a workplace problem and receive
-                emotional support. The response was not always bad, but it was
-                often not what I needed. The model already knew about
-                negotiation, organisational behaviour, and difficult messages.
-                The system had no step that chose which area of knowledge to
-                use.
+                Both times the work came back to me, and for the same reason.
+                Nothing it needed was written down anywhere it could reach.
               </p>
 
               <p>
-                I do not think this is a model defect. A model learns from what
-                many people write and what many people rate highly. It will
-                often give the answer that works for the average person. Many
-                people who say &ldquo;my manager did X and I feel Y&rdquo; want
-                comfort. I may want a negotiation plan instead. The default can
-                be reasonable for most users and still be wrong for me.
+                What I set out to build is an assistant that is close to a human
+                one. Getting from an agent that knows nothing about you to one
+                that can decide and act on your behalf takes more than one fix.
+                Part of it is easy enough to picture: a decision path, written
+                down as harness, for each kind of task it has to handle. The
+                hard part is memory.
+              </p>
+
+              <h3>1.2 It does not maintain what it writes</h3>
+
+              <p>
+                Now take a task that would take a person months rather than an
+                afternoon. Over that length, most of the work is not writing new
+                code. It is staying consistent with the code that is already
+                there. That is the part it does not do. A program that should
+                have been a thousand lines comes back as fifty thousand, because
+                every step writes its own version of what the step before it
+                already had.
+              </p>
+
+              <p>I run into this whenever I write a paper.</p>
+
+              <div class="scenario-box">
+                <p class="scenario-title">Scenario 3. The second experiment</p>
+                <p>
+                  I write down the experiment design and ask it to implement the
+                  code. The first experiment comes out fine. The second one is
+                  supposed to run the same evaluation. Instead of calling what is
+                  already there, it writes its own, and some detail never lines
+                  up with the first. The two sets of numbers then cannot go in
+                  the same table.
+                </p>
+              </div>
+
+              <p>
+                A person would write the evaluation once and call it from every
+                experiment after that. An agent does not, unless it is told, and
+                it has to be told every time.
+              </p>
+
+              <p>The same thing happens when I ask it to save something for later.</p>
+
+              <div class="scenario-box">
+                <p class="scenario-title">Scenario 4. Saving a project idea</p>
+                <p>
+                  While working on a project, I find an idea that will matter
+                  later and ask the agent to save it. It creates
+                  <code>idea.md</code> in the project and writes the idea there.
+                  But it does not add a pointer from the project instructions to
+                  the new file. The file is on disk, but the agent never reads it
+                  again. It saved the idea without maintaining the path that
+                  would make the idea useful later.
+                </p>
+              </div>
+
+              <p>
+                After a few rounds of this, the project fills with files that
+                exist but are never read.
               </p>
 
               <p>
-                This is separate from 1.1:
+                In both cases, what it wrote was fine on its own. What it failed
+                to maintain was the project around it.
               </p>
 
-              <ul>
-                <li>
-                  <strong>Problem 1.1 is a fact-selection problem.</strong> The system had the right
-                  information but did not select it.
-                </li>
-                <li>
-                  <strong>Problem 1.2 is an expertise-selection problem.</strong> The system had the
-                  right knowledge but chose the wrong field or method.
-                </li>
-              </ul>
+              <h3>1.3 It brings up what I did not ask about</h3>
+
+              <p>You have probably seen this one too.</p>
+
+              <div class="scenario-box">
+                <p class="scenario-title">Scenario 5. An air fryer for my parents</p>
+                <p>
+                  I ask it which air fryer to buy. It comes back with the small
+                  ones, because I live in an apartment and I told it once that my
+                  counter space is tight. That is true, and it is not the point.
+                  The air fryer is for my parents, and their kitchen is nothing
+                  like mine. The ones I would have picked are already off the
+                  list, ruled out for the wrong kitchen.
+                </p>
+              </div>
 
               <p>
-                More personal context does not fix 1.2. Even with a perfect
-                profile, the assistant can still give the average answer with
-                more personal details. The system must choose an approach before
-                it writes the answer. It also needs a set of clear approaches
-                to choose from.
+                Nothing it says here is false, which is what makes it awkward to
+                push back on. What comes back is true and it is simply not what I
+                asked about. Most of the time this is noise and I read past it.
               </p>
 
-              <h3>1.3 It never gets better</h3>
+              <h3>1.4 It holds on to what is no longer true</h3>
 
               <p>
-                My corrections did not last. I could explain a preference,
-                point out a repeated mistake, or find a better process. A few
-                weeks later, the assistant would make the same mistake again.
+                Sometimes the thing it brings back is not just beside the point.
+                It stopped being true a while ago.
+              </p>
+
+              <div class="scenario-box">
+                <p class="scenario-title">Scenario 6. A deadline that passed months ago</p>
+                <p>
+                  One week I was up against a deadline and I told it so. That
+                  went into memory. Months later the deadline is long gone, and
+                  it is still answering as though I am short on time. Cut the
+                  scope, ship something that works for now, leave the rest. I
+                  never told it the deadline had passed, because it never
+                  occurred to me that I would have to.
+                </p>
+              </div>
+
+              <p>
+                Saving something takes one sentence. Taking it back takes me
+                noticing that it is still in there, which is the part I never do.
+                So the answer gets built on top of it, and I have to catch the
+                old fact before I can use any of what it said.
               </p>
 
               <p>
-                Two separate problems caused this:
+                These two are the first gap seen from the other side. Nothing
+                decides what belongs to the question being asked, so the thing I
+                need can be missing and the thing I do not need can arrive, in
+                the same answer.
               </p>
 
-              <ul>
-                <li>
-                  <strong>The system did not start reflection by itself.</strong>
-                  The system never stopped to ask, &ldquo;What should change
-                  after this task?&rdquo; It reflected only when I asked. That
-                  happened rarely, and only after I noticed the problem myself.
-                </li>
-                <li>
-                  <strong>The system had no clear place to save a lesson.</strong>
-                  A lesson saved in one large memory pool is useful only if a
-                  later query retrieves it. That returns us to the problem in
-                  1.1. Saving text is not the same as learning. If the system
-                  cannot make sure it reads the lesson later, the lesson has not
-                  changed its behaviour.
-                </li>
-              </ul>
+              <h3>1.5 It answers like anyone else</h3>
 
               <p>
-                A deeper problem took me longer to see:
-                <strong>the system usually needs to change a procedure, not save
-                a fact.</strong> &ldquo;Check the account
-                balance before proposing a purchase&rdquo; is not a memory. It
-                is a checklist step. If the checklist does not exist, there is
-                no clear place to add the lesson. The system can only save a note
-                and hope it finds that note later.
+                The gaps above are all about what it holds on to and where. This
+                one points the other way. Sometimes I want an answer I could not
+                have taught it, because I do not have it myself. What I get
+                instead is the answer of a median person. When I bring it a
+                career question while I am upset, it tells me it will be fine.
+                That is not what I want to hear. I want it to answer like someone
+                who knows the field.
+              </p>
+
+              <p>Negotiation is the clearest case.</p>
+
+              <div class="scenario-box">
+                <p class="scenario-title">Scenario 7. Pushing back on a rent increase</p>
+                <p>
+                  I ask how to push back on a rent increase. What I get is the
+                  advice anyone would give: be polite, explain the situation, ask
+                  whether there is any flexibility. It has no read on the person
+                  on the other side. What they are worried about, what a specific
+                  number does to the conversation once it has been said out loud,
+                  when saying nothing is worth more than another sentence of
+                  justification.
+                </p>
+              </div>
+
+              <p>
+                That is the part that decides how it goes, and it is not what the
+                average answer contains.
               </p>
 
             </section>
             <section id="approach">
               <p class="section-number">02</p>
-              <h2>Approach</h2>
+              <h2>Organized memory is all you need</h2>
 
               <p>
-                I use one fix for each problem. The order matters. Section 2.2
-                depends on 2.1, and section 2.3 depends on both.
-              </p>
-
-              <h3>2.1 Address space and assignment rules</h3>
-
-              <p>
-                The main rule is simple: <strong>every fact that should last has
-                one path. The fact itself decides the path, not the question
-                used to find it.</strong>
+                Most of what went wrong above went away once I restructured the
+                whole memory system, with AI doing the restructuring. The design
+                came from one specific problem, so I will start there.
               </p>
 
               <p>
-                By maintainability I mean two invariants:
-              </p>
-
-              <ul>
-                <li>
-                  <strong>Every stored fact must exist in one place.</strong>
-                  A fact cannot be &ldquo;probably saved somewhere.&rdquo; It
-                  must have one file in one location that I can check.
-                </li>
-                <li>
-                  <strong>The system must know where to look.</strong>
-                  Otherwise, I cannot verify the first rule. I can confirm that a
-                  fact exists only if I know every place where it could be.
-                </li>
-              </ul>
-
-              <h4>One tree, walked twice</h4>
-
-              <p>
-                The file that defines the address space opens with two lines,
-                which define the whole design:
-              </p>
-
-              <pre><code>Walk this tree before storing a file.
-Walk the same tree when looking for one.</code></pre>
-
-              <p>
-                Storing and finding use the same path through the tree. Suppose I
-                save the fact, &ldquo;this position is locked and cannot be
-                sold.&rdquo; The fact is about my money, so the tree sends it to
-                <code>finance/</code>. Months later, I ask whether I can sell.
-                The question is also about my money, so the tree sends me to the
-                same file. I do not need to remember the original wording. The
-                tree uses the subject of the fact, not the words in the sentence.
+                I have a skill for writing papers. Part of it is a list of rules
+                for making figures: how big the fonts have to be, which colours
+                still work when the paper is printed in black and white, what to
+                do when the legend does not fit. I built that list slowly, by
+                fixing figures that had come out badly.
               </p>
 
               <p>
-                Similarity retrieval works differently. When the system writes,
-                it embeds the fact. When it reads, it embeds the question. The
-                two texts are different:
-              </p>
-
-              <pre><code>write:  embed("locked, cannot be sold") &rarr; insert
-read:   embed("can I sell this?")       &rarr; top-k</code></pre>
-
-              <p>
-                These are two separate functions. One does not reverse the
-                other. Nothing guarantees that the question will find the place
-                where the fact was stored. A saved fact can still be impossible
-                to reach.
+                Later I added a skill for writing blog posts, which also needs
+                figures. The assistant did not use the list I already had. It
+                worked out its own figure rules from scratch and wrote them into
+                the new skill. The two lists said roughly the same things, so I
+                left them alone.
               </p>
 
               <p>
-                An empty tree lookup has only two possible causes. Either the
-                fact was never saved, or the tree changed after the fact was
-                saved. I can check the first case with <code>ls</code>. I can
-                check the second with <code>git log</code> on the directory. A
-                low similarity score does not tell me which case happened, so
-                it gives me nothing clear to fix.
-              </p>
-
-              <h4>The uniqueness assertion</h4>
-
-              <p>
-                The tree file starts with this rule block. The live system uses
-                Chinese, so I translated it here:
-              </p>
-
-              <pre><code>ASSERT: every durable datum must have exactly one canonical owner.
-
-Classification rules:
-1. Classify by the SUBJECT of the information, not by which
-   workflow happens to use it.
-2. User-specific facts and state never go into modules; modules
-   hold only reusable procedure and general knowledge.
-3. The first matching branch of the decision tree is the only
-   destination. Storing a copy in two places is forbidden.
-4. Any other location may hold only:
-   - a pointer naming the canonical path, or
-   - a derived projection, marked as rebuildable from the source.
-5. Moving information requires updating every reference and
-   deleting the old copy.</code></pre>
-
-              <p>
-                Rule 1 does most of the work. A simple system often files
-                information by use. For example, the travel workflow needs my
-                passport scan, so it saves the scan in the travel module. Later,
-                the immigration workflow needs the same scan and saves another
-                copy. Six months later, one copy may show an old passport.
-                Filing by subject avoids this problem. A passport is an identity
-                document, no matter which workflow needs it. Every workflow then
-                reaches the same copy.
+                A few months later one of my paper figures came out unreadable,
+                and I added a new rule to the list in the paper skill. The next
+                blog post had the same unreadable figure. The blog skill was
+                reading its own list, and that list had never been updated. I had
+                already solved this problem once, and I had to solve it again.
               </p>
 
               <p>
-                Rule 3 makes the tree a <em>function</em>, not a list of
-                suggestions. The first matching branch wins. The order of the
-                branches therefore changes the result.
+                Nothing was lost or forgotten here. Both lists were sitting on
+                disk, and each skill read the right one. The problem is that the
+                same rules were stored in two places, so fixing one place could
+                never fix both.
               </p>
 
-              <h4>Walking the tree, and why the hops are in that order</h4>
+              <p>
+                Fixing it properly takes two steps. First, the figure rules come
+                out of both skills and go into one file, so only one copy is
+                left. Second, both skills have to point at that file, otherwise
+                nobody opens it. Both steps are needed. If I only do the first, I
+                end up with a file that no skill mentions, so it never gets read.
+                If I only do the second, the two skills point at two separate
+                copies, and the copies still go out of sync.
+              </p>
 
               <p>
-                The live tree asks eight questions in this order:
+                Those two steps are not specific to figures. They are the two
+                rules the whole memory system runs on. As long as both hold,
+                anything new I put into the system actually gets used, and the
+                failures from the last section stop happening.
               </p>
 
               <ol>
                 <li>
-                  <strong>Does the item contain a credential?</strong> Password, token, API key,
-                  membership number, or login email. This question comes first
-                  because credentials have the strictest storage rule. They
-                  leave the normal file tree and go to a separate credential
-                  store. No later branch can save a secret by mistake.
+                  <strong>One path per piece of information.</strong> Every piece
+                  of information can be found in exactly one place. Not two
+                  places, and not &ldquo;probably somewhere&rdquo;.
                 </li>
                 <li>
-                  <strong>Is the item part of an existing project?</strong>
-                  This question comes second because a project gives a strong
-                  ownership signal. It has its own directory, handoff document,
-                  and lifecycle. The branch includes this exact rule:
-                  <q>&ldquo;It happened because of this project&rdquo; is not
-                  the same as &ldquo;it is a project file.&rdquo; Only the
-                  project&rsquo;s own artifacts and state belong here;
-                  cross-project personal state &mdash; travel, finance, health,
-                  identity &mdash; still goes to its own canonical owner.</q>
-                  Without this rule, the system would save every fact under the
-                  task that happened to produce it. That would still be filing
-                  by workflow.
-                </li>
-                <li>
-                  <strong>Is it personal information that should last?</strong>
-                  If yes, it goes into the personal record under its subject
-                  area. Most personal facts follow this branch.
-                </li>
-                <li>
-                  <strong>Does the document belong to another person?</strong>
-                  The relationship decides the location, not the file type.
-                  Another person's CV belongs with that person or the related
-                  project.
-                </li>
-                <li>
-                  <strong>Is it reusable reference material with no personal
-                  facts?</strong> If yes, save it inside a module.
-                  This question enforces rule 2. It keeps personal facts out of
-                  reusable modules.
-                </li>
-                <li>
-                  <strong>Can the procedure be reused?</strong> If yes, it is a new
-                  module instead of a note.
-                </li>
-                <li><strong>Is the item part of the system configuration?</strong></li>
-                <li>
-                  <strong>No branch matches.</strong> Put temporary material in
-                  a downloads directory. For anything else, the system stops:
-                  <q>if uncertain, you must ask. Do not decide alone. If the
-                  user is unavailable, do not store it &mdash; wait.</q>
+                  <strong>A path that leads there.</strong> When a task needs that
+                  information, the harness routes to the file that holds it, so
+                  the model actually opens it. Without this, a file can sit on
+                  disk and never be read, because no instruction and no skill
+                  ever names it.
                 </li>
               </ol>
 
-              <h4>Miss semantics</h4>
+              <p>
+                I go back through those failures one at a time below. Someone
+                still has to design the layout. Models cannot do that part yet,
+                so I decided the structure myself and had the assistant fill it
+                in. What that limits is who can build such a system today, not
+                whether it works once built. I come back to it at the end.
+              </p>
+
+              <h3>2.1 Sending one email</h3>
 
               <p>
-                The eighth branch is important because it allows the tree to
-                stop. The tree does not cover every case on purpose. If no
-                branch fits, the system does not choose the closest one. It asks
-                a person.
+                In the last section the assistant could not send an email for me.
+                It did not have the address, and the draft it wrote sounded like
+                a message to a stranger. Here is how that same request runs now.
               </p>
 
               <p>
-                Top-<em>k</em> retrieval always returns something. This tree can
-                say, &ldquo;I do not know where this belongs.&rdquo; That answer
-                prevents the system from saving facts in the wrong place. Asking
-                one question has a small cost. A fact in the wrong place is much
-                harder to find because the error stays hidden until I need the
-                fact.
-              </p>
-
-              <h4>One fact, two owners</h4>
-
-              <p>
-                Some facts are useful in two subject areas. An apartment floor
-                plan matters for both housing and furniture shopping. Rule 4
-                keeps one copy and adds pointers from the other locations. The
-                tree chooses the one storage path, and cross-links connect the
-                other branches. These are real entries from the
-                anti-duplication table:
-              </p>
-
-              <div class="schema-table-wrap">
-                <table class="schema-table">
-                  <thead>
-                    <tr>
-                      <th>Fact</th>
-                      <th>Single location</th>
-                      <th>How everything else refers to it</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>CV</td>
-                      <td><code>record/career/</code></td>
-                      <td>immigration project keeps a pointer file, not a copy</td>
-                    </tr>
-                    <tr>
-                      <td>Degree certificates</td>
-                      <td><code>record/education/</code></td>
-                      <td>same pointer file</td>
-                    </tr>
-                    <tr>
-                      <td>Furniture inventory</td>
-                      <td><code>record/living/furniture/</code></td>
-                      <td>the resale module stores listing status only, and points back</td>
-                    </tr>
-                    <tr>
-                      <td>Trip itinerary, PNR, seats</td>
-                      <td><code>record/travel/trips/&lt;date&gt;-&lt;slug&gt;/</code></td>
-                      <td>calendar entry is a projection, not a second source</td>
-                    </tr>
-                    <tr>
-                      <td>Card and account numbers</td>
-                      <td>encrypted file under <code>record/finance/</code></td>
-                      <td>everywhere else holds a pointer; security codes are never written</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <p>
-                Databases call this problem an <strong>update
-                anomaly</strong>. When a fact has two copies, an update may
-                change only one of them. The other copy becomes wrong, and the
-                system may not report the conflict. Database normalization
-                avoids this by storing the fact once and using a key to refer to
-                it. This system uses file paths as those keys.
+                Four separate things are needed, and each one is stored in
+                exactly one place. Who the person is, how I know them, and what
+                their address is: one folder per person, under
+                <code>network/</code>. Which of my four accounts to send from:
+                one decision table, inside <code>email-ops</code>. How I write to
+                a collaborator as opposed to someone I have never met: one
+                writing guide, also inside <code>email-ops</code>. The login for
+                each account: one encrypted file, reached through
+                <code>account-ops</code>.
               </p>
 
               <p>
-                Ownership and storage are different.
-                <strong>Several workflows may own a fact, but the fact must have
-                one copy.</strong> Two workflows can both keep the fact current.
-                They still update the same file.
-              </p>
-
-              <h4>What the rules prevent</h4>
-
-              <p>
-                Every rule in the assignment file names a location. The ones
-                that hold up also name the failure they exist to stop. Five
-                entries, with the failure written out:
-              </p>
-
-              <div class="schema-table-wrap">
-                <table class="schema-table">
-                  <thead>
-                    <tr>
-                      <th>Rule</th>
-                      <th>What it prevents</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>The per-session scratch directory is not storage. Once a scratch file becomes evidence, such as a receipt, a filing confirmation, or a compliance snapshot, it is copied to the owning project and a pointer is written into that project&rsquo;s status file.</td>
-                      <td>Evidence that exists only inside a session that has ended. Nothing later knows to look there.</td>
-                    </tr>
-                    <tr>
-                      <td>Identity scans live in one directory. The border-crossing record is excluded by name and fetched from the government site each time it is needed.</td>
-                      <td>Filling in a form from a copy that was correct at the last entry. A stored copy gives no sign that it has expired.</td>
-                    </tr>
-                    <tr>
-                      <td>One person, one folder. The lookup table at the top of the domain is read before a new name is written down.</td>
-                      <td>The same colleague ending up with two folders under two spellings. After that every write picks one of them, and neither is complete.</td>
-                    </tr>
-                    <tr>
-                      <td>Reusable knowledge goes in a module. What I personally did goes in the record. Technique comparisons in one place; which provider I used and what I paid in another.</td>
-                      <td>A module filling up with personal state, which is what makes it impossible to hand to anyone.</td>
-                    </tr>
-                    <tr>
-                      <td>A calendar entry for a trip is a projection of the trip folder, never a second source.</td>
-                      <td>Two answers to &ldquo;what time is the flight&rdquo; and no rule for which one wins.</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <p>
-                Four of the five say what not to store, or where not to put a
-                second copy. Deciding what stays out of the tree turned out to
-                be most of the work.
-              </p>
-
-              <h4>Where code runs</h4>
-
-              <p>
-                There is a second address space with the same problem. Not
-                where a file lives, but which machine a job runs on. A separate
-                module owns that decision, and its rules are written the same
-                way:
-              </p>
-
-              <pre><code>Training, evaluation, inference, benchmarking, and smoke tests do not
-run on the laptop. Not even one sample.
-  → stops an afternoon of an occupied laptop producing a number with no
-    job record attached to it.
-
-If the host is unclear, the default is the shared sandbox. Never local.
-  → stops the decision being made by whichever machine is in front of me.
-
-Before a remote run, local changes are committed and pushed. The remote
-syncs by git pull. Copying source files across is forbidden.
-  → stops a result produced by code that exists in no commit. Six weeks
-    later there is a number and no way back to what made it.
-
-The run happens in the canonical checkout, at the pushed commit. Not in
-a second copy of the repository.
-  → stops two checkouts drifting apart while both look current.
-
-Branches are not created or switched unless I asked for that branch by
-name. A wrong or dirty branch is reported, not quietly corrected.
-  → stops the ground moving under a comparison between two runs.
-
-Before touching a shared machine, an entry goes in the active-work log:
-owner, task, checkout path, run directory, commit, outputs, status.
-  → stops two people using the same box without knowing it.
-
-Any environment created or changed on any host is written into that
-host's environment file in the same step.
-  → stops the next run rebuilding an environment that already exists,
-    slightly differently.</code></pre>
-
-              <p>
-                The last one is the write-back rule from 2.3 appearing early.
-                The step that changes the machine is the step that records the
-                change. Without it the environment file describes the host as
-                it was at some unknown point in the past, which is worse than
-                having no file at all.
-              </p>
-
-              <h4>What this costs</h4>
-
-              <p>
-                This design still has a failure mode, but the failure is
-                different:
-              </p>
-
-              <ul>
-                <li>
-                  <strong>Retrieval may return an irrelevant fact with confidence.</strong>
-                  It may return a true but unrelated fact. The result does not
-                  show whether retrieval found the right item.
-                </li>
-                <li>
-                  <strong>A directory may return an old fact with confidence.</strong>
-                  The file may be in the correct location but contain
-                  information from three months ago.
-                </li>
-              </ul>
-
-              <p>
-                I prefer stale data because I can list and inspect it. I can show
-                every file in a domain, sort the files by modification date, and
-                find old entries. An embedding index does not give me a similar
-                list of what it currently believes about my address. But the
-                file tree does not update facts by itself. Even with perfect
-                paths, the system will return old information if nobody saves
-                the new value.
-              </p>
-
-              <h4>Procedure: assigning an address</h4>
-
-              <ol>
-                <li>
-                  Identify the fact's <em>subject</em>, not the task that
-                  produced it. If you begin with &ldquo;this came up while I
-                  was...,&rdquo; you are probably filing by workflow.
-                </li>
-                <li>Start at question one. Use the first branch that matches, then stop.</li>
-                <li>
-                  If nothing matches, ask the user. Do not invent a location,
-                  because the tree will not lead anyone back to it later.
-                </li>
-                <li>If another workflow needs the fact, add a pointer instead of a copy.</li>
-                <li>
-                  After moving a file, search for the old path. Update every
-                  reference, then delete the old copy. Treat these steps as one
-                  operation.
-                </li>
-                <li>
-                  Add the new location to the tree file. The tree is the index,
-                  so an unlisted location does not exist to the system.
-                </li>
-              </ol>
-
-              <h3>2.2 Domain modules</h3>
-
-              <p>
-                The address space fixes the fact problem in 1.1. It does not
-                choose which kind of expertise to use. For that, the system has
-                one module for each subject. Every module has the same internal
-                structure. When the system chooses a subject, it loads the full
-                procedure for that subject instead of a few similar text
-                fragments.
-              </p>
-
-              <h4>The module behind 1.2</h4>
-
-              <p>
-                There is a module for the question in 1.2: my team is being
-                moved to another organisation, is that good or bad. Its rules
-                are worth reading because they do not tell the model what to
-                say. They take away the answer it would otherwise give.
-              </p>
-
-              <pre><code>R1. Until the reorg analysis is finished, no "good news / bad news"
-    conclusion is allowed.
-
-R2. Confirmed fact, first-hand interpretation, rumour, and unknown are
-    kept in separate columns.
-
-R2b. Every rumour names its source, and that person's file is opened
-     before their credibility is judged. One person is one source. If
-     the source has a motive — competing for the same scope, a reason
-     to want to be the one telling me — the motive is written into the
-     output next to the claim.
-
-R4. Without an official decision, nothing is called a performance plan
-    or a targeted removal on fewer than two specific red flags.
-
-R5. If any of {distinct charter, receiving sponsor, assigned resources}
-    is unknown, the conclusion is "cannot judge yet". A strong
-    destination org, an unchanged reporting line, and an optimistic
-    manager do not override this.</code></pre>
-
-              <p>
-                R1 and R5 block the reassuring answer. I cannot be told the
-                move is probably fine until three named facts are known. Two
-                of them, who the receiving sponsor is and what resources the
-                new group has been given, are things somebody has to go and
-                find out. R4 blocks the opposite reflex, which is reading a
-                routine change as the start of a removal. Both of those are
-                median answers. They differ only in mood.
+                None of these are copied anywhere else. The folder for a person
+                says nothing about tone. <code>email-ops</code> does not store a
+                single email address. When a collaborator moves to a new job, I
+                change one line in one folder, and every email after that is
+                correct.
               </p>
 
               <p>
-                R2b came from a specific failure. I had brought a large pile
-                of chat screenshots to a question about an organisational
-                change. The analysis sorted every claim by how well it was
-                verified and never asked what the people making the claims
-                stood to gain. One of them had a personal reason to be the one
-                delivering urgent news to me. Nothing in the procedure asked
-                that question, so the conclusion rested on a motivated source
-                treated as neutral reporting. The fix landed in two places: the
-                rule above, and an earlier gate that opens a person&rsquo;s
-                file before any analysis that involves them.
+                That is the first rule doing its work. The second rule is what
+                makes any of these files get opened.
               </p>
 
-              <p>The check at the end of the router is two lines:</p>
-
-              <pre><code>☐ the conclusion rests on evidence, not on textbook advice
-☐ the next step is specific, and does not hand back something I could
-  have looked up myself</code></pre>
-
-              <p>
-                A general model answers the question it was asked. Asked
-                whether a reorganisation is good news, the median answer is
-                that change brings opportunity and I should talk to my
-                manager. This module cannot produce that answer. What it
-                produces instead is a short list of things I do not yet know,
-                and the order to go and find them out in.
-              </p>
-
-              <h4>Shape</h4>
-
-              <p>All 72 modules are directories with the same three parts:</p>
-
-              <ul>
-                <li>
-                  <strong><code>SKILL.md</code> contains the router.</strong>
-                  The front matter contains a description and trigger phrases.
-                  The body contains a decision tree and a short list of rules.
-                  It tells the system what to load, not how the whole subject
-                  works.
-                </li>
-                <li>
-                  <strong><code>references/</code> contains the record for that subject.</strong>
-                  This directory contains procedures, checklists, and notes from
-                  source material. The system reads a file only when the router
-                  names it.
-                </li>
-                <li>
-                  <strong><code>assets/</code> contains executable procedures.</strong>
-                  This directory contains scripts and templates when the module
-                  needs them.
-                </li>
-              </ul>
+              <figure class="system-figure">
+                <svg class="routing-map" viewBox="0 0 900 400" role="img" aria-label="Routing map for a single email request"><path class="g-edge" d="M 450 60 V 76 H 450 V 92"/><path class="g-edge" d="M 450 134 V 155 H 170 V 176"/><path class="g-edge" d="M 450 134 V 155 H 610 V 176"/><path class="g-edge" d="M 170 218 V 239 H 170 V 260"/><path class="g-edge" d="M 610 218 V 239 H 400 V 260"/><path class="g-edge" d="M 610 218 V 239 H 610 V 260"/><path class="g-edge" d="M 610 218 V 239 H 820 V 260"/><path class="g-edge" d="M 170 302 V 323 H 170 V 344"/><path class="g-edge" d="M 820 302 V 323 H 820 V 344"/><g class="g-req"><rect x="280" y="18" width="340" height="42" rx="5"/><text x="450" y="44" text-anchor="middle">&#8220;email my collaborator about the draft&#8221;</text></g><g class="g-mod"><rect x="310" y="92" width="280" height="42" rx="5"/><text x="450" y="110" text-anchor="middle">copilot-instructions.md</text><text class="g-sub" x="450" y="125" text-anchor="middle">top-level routing table</text></g><g class="g-mod"><rect x="75" y="176" width="190" height="42" rx="5"/><text x="170" y="202" text-anchor="middle">people-ops</text></g><g class="g-mod"><rect x="515" y="176" width="190" height="42" rx="5"/><text x="610" y="202" text-anchor="middle">email-ops</text></g><g class="g-file"><rect x="65" y="260" width="210" height="42" rx="5"/><text x="170" y="278" text-anchor="middle">network/README.md</text><text class="g-sub" x="170" y="293" text-anchor="middle">lookup table</text></g><g class="g-file"><rect x="305" y="260" width="190" height="42" rx="5"/><text x="400" y="278" text-anchor="middle">sender-routing.md</text><text class="g-sub" x="400" y="293" text-anchor="middle">which account</text></g><g class="g-file"><rect x="515" y="260" width="190" height="42" rx="5"/><text x="610" y="278" text-anchor="middle">writing-guide.md</text><text class="g-sub" x="610" y="293" text-anchor="middle">tone and register</text></g><g class="g-mod"><rect x="745" y="260" width="150" height="42" rx="5"/><text x="820" y="286" text-anchor="middle">account-ops</text></g><g class="g-file"><rect x="45" y="344" width="250" height="42" rx="5"/><text x="170" y="362" text-anchor="middle">network/work/&hellip;/README.md</text><text class="g-sub" x="170" y="377" text-anchor="middle">address, history</text></g><g class="g-file"><rect x="745" y="344" width="150" height="42" rx="5"/><text x="820" y="362" text-anchor="middle">credentials</text><text class="g-sub" x="820" y="377" text-anchor="middle">encrypted</text></g></svg>
+                <figcaption class="figure-title">
+                  One request, and the files it opens. Green boxes route. Blue
+                  boxes hold information, and each piece of information sits in
+                  exactly one of them. Every edge is written down somewhere: no
+                  step in this chain is found by searching.
+                </figcaption>
+              </figure>
 
               <p>
-                The shared structure is not only for neatness. It lets the
-                charter route to any module without knowing the module's
-                contents. If one module uses a different layout, the router
-                needs a special rule for it. The small resident index is then no
-                longer enough.
-              </p>
-
-              <h4>What is actually resident</h4>
-
-              <p>The system loads information in stages:</p>
-
-              <ul>
-                <li><strong>On every turn:</strong> load the charter (6,960 B) and 72 module descriptions (26,828 B), for 33,788 B total.</li>
-                <li><strong>After a module matches:</strong> load the body of its router.</li>
-                <li><strong>When a step needs more detail:</strong> load the reference files named by the router.</li>
-                <li><strong>Only when cited:</strong> load a specific book chapter.</li>
-              </ul>
-
-              <p>For one rent negotiation, the negotiation module loaded these files:</p>
-
-              <pre><code>SKILL.md                              1,760 B   router
-references/framework.md               8,858 B   four-phase tree, always read
-references/rent.md                    3,064 B   scenario supplement
-references/anti-patterns.md           2,282 B   output gate
-                                     ────────
-loaded for this request              15,964 B
-module on disk                    6,849,002 B
-share of the module in context        0.233 %</code></pre>
-
-              <p>
-                Three books use almost all of the module's 6.85 MB. The system
-                opens a book chapter only when a step cites it. The same pattern
-                appears across the full system. Routers use 189,028 bytes to
-                index 139,091,825 bytes in 3,080 files, a ratio of about
-                <strong>1 : 736</strong>. The index stays small because it does
-                not contain the full content.
-              </p>
-
-              <h4>A router in full</h4>
-
-              <p>
-                The full negotiation router is 1,760 bytes. I translated it
-                from Chinese:
-              </p>
-
-              <pre><code>---
-name: negotiation
-description: "Negotiation assistant: rent, salary, offers, contract
-  terms. Decision framework built from Chris Voss + Getting to Yes +
-  Influence. Triggers: negotiate, counteroffer, haggle, salary
-  negotiation, rent negotiation, renewal, lease negotiation, offer
-  negotiation, ..."
----
-
-# Negotiation — decision framework
-
-## Flow
-
-trigger → identify scenario
-├─ rent / renewal  → read references/rent.md
-├─ salary / offer  → read references/salary.md
-└─ anything else   → go straight to the framework
-
-ALL scenarios → read references/framework.md  (four-phase tree)
-  Phase 0: PREP     — BATNA + one sheet + market intelligence
-  Phase 1: OPEN     — tactical empathy + invite "No"
-  Phase 2: EXPLORE  — calibrated questions + interests + black swans
-  Phase 3: PROPOSE  — Ackerman + objective criteria + influence
-  Phase 4: CLOSE    — three confirmations + get it in writing
-
-after producing text → read references/anti-patterns.md, check line by line
-  └─ LOOP until no anti-pattern remains
-
-need depth on a technique? → open the source:
-  references/books/never-split-the-difference/   tactical execution
-  references/books/getting-to-yes/               principled framing
-  references/books/influence/                    psychological levers
-
-## RULES
-- The four phases run in order. PREP cannot be skipped.
-- Every technique cites its source book; open the chapter for detail.
-- The anti-pattern check is the last step, not an optional one.</code></pre>
-
-              <p>
-                The router contains no personal facts. Personal information
-                stays in the record, and a step reads it by path only when
-                needed. This is rule 2 from the assertion. It lets someone
-                inspect or share a module without exposing the personal record.
-              </p>
-
-              <h4>Where the expertise comes from</h4>
-
-              <p>
-                A module is useful only if it adds something the base model
-                would not produce by itself. I build modules from three kinds
-                of input:
-              </p>
-
-              <ul>
-                <li>
-                  <strong>Turn books into decisions.</strong> A book is parsed, split by
-                  chapter, and reduced to useful decisions. The original
-                  chapters stay on disk so I can check each claim.
-                </li>
-                <li>
-                  <strong>Search for current facts.</strong> For things no book can
-                  provide, such as this month's rent in a building or current
-                  salary ranges, the module does not guess. It says where to
-                  search and what information to collect.
-                </li>
-                <li>
-                  <strong>Turn the sources into gates.</strong> The output of the
-                  first two steps becomes a checklist, not a general summary.
-                  The system runs that checklist against its draft.
-                </li>
-              </ul>
-
-              <h4>Gates</h4>
-
-              <p>
-                The negotiation module has ten gates. Here are four of them,
-                translated from the live system:
-              </p>
-
-              <pre><code>□ 1. Multiple fallbacks
-     grep: "alternatively" / "option" / "or we could"
-     → Keep exactly one ask. Offering options tells them
-       you will accept anything.
-     📖 NSTD Ch9: one offer on the table at a time
-
-□ 2. Revealing your floor
-     grep: "maximum" / "at most" / "budget"
-     → Delete. Your floor is your BATNA. It is an internal tool.
-     📖 GTY Ch6: BATNA is not for disclosure
-
-□ 4. Naming competitor prices
-     grep: "$" followed by digits
-     → Say "competitive offers" instead. A specific number hands
-       them an anchor to beat rather than a reason to concede.
-     📖 NSTD Ch6: anchoring
-
-□ 6. Length
-     body over 150 words → cut
-     → Every extra sentence of justification reads as weakness.
-     📖 NSTD Ch2: silence is leverage</code></pre>
-
-              <p>Each gate follows two rules:</p>
-
-              <ul>
-                <li>
-                  <strong>Each gate includes exact text to search for.</strong>
-                  The system does not ask the model whether a draft feels too
-                  long or too defensive. It searches for specific text. A check
-                  that depends only on model judgment will not run in a
-                  consistent way.
-                </li>
-                <li>
-                  <strong>Each gate includes a source citation.</strong>
-                  If a gate gives a bad result, I can compare it with the source
-                  chapter and change it. I do not need to argue from memory.
-                  The citation makes the checklist easier to maintain.
-                </li>
-              </ul>
-
-              <h4>Checklists resist chunking</h4>
-
-              <p>
-                The gates live together in one file that the router names. A
-                checklist does not work well with similarity retrieval. Suppose
-                you embed ten gates and retrieve the top three for a draft. The
-                system will return the gates most similar to words already in
-                the draft. Those are often the checks the draft already passes.
-                The other seven checks disappear without a warning.
+                When I say <em>email my collaborator about the paper draft</em>,
+                the assistant does not go searching through the file tree. The
+                top-level instruction file has a routing table, and two lines in
+                it apply here. Anything involving email goes to
+                <code>email-ops</code>. Anything that mentions a person goes to
+                <code>people-ops</code>, which opens the lookup table in
+                <code>network/</code> and from there the folder for that person.
+                <code>email-ops</code> then names the two files it needs, the
+                account table and the writing guide. Each file names the next
+                one.
               </p>
 
               <p>
-                <strong>A checklist works only when the system reads every
-                item.</strong> Reading three items from a ten-item checklist
-                does not give seventy percent of the value. It silently skips
-                seven checks. The missing checks are often the ones the draft
-                needs most.
+                By the time there is a draft, the assistant has opened the
+                person&rsquo;s folder, the account table, and the writing guide,
+                in that order. It did not search for any of them. Each one was
+                named by the step before it.
               </p>
 
-              <h4>Procedure: building a module</h4>
-
-              <ol>
-                <li>
-                  Wait until the subject appears for the third time. A single
-                  question does not need a module. An unused module still adds
-                  text to the resident index.
-                </li>
-                <li>
-                  Write the router first and keep it near 2 KB. Include the
-                  scenario branches, the files to read, and the rules that must
-                  always run.
-                </li>
-                <li>
-                  Put the full decision process in a reference file, not in the
-                  router. A router that explains too much will become too large
-                  to load on every turn.
-                </li>
-                <li>
-                  Add an output gate. Run this checklist before showing the
-                  draft to the user.
-                </li>
-                <li>Give every gate a search string and a source citation.</li>
-                <li>
-                  Keep personal facts out of the module. If a step needs one,
-                  read it from the record by path.
-                </li>
-                <li>Register the module so its description enters the resident index. Section 2.3 explains this step.</li>
-              </ol>
-
-              <h3>2.3 Schema evolution</h3>
-
-              <p>
-                The system changes over time. It gains modules, splits domains,
-                adds gates, changes routes, and removes old parts. Changing the
-                structure is more risky than using it, so structural changes
-                follow stricter rules.
-              </p>
-
-              <h4>When a change is triggered</h4>
-
-              <p>Two scheduled events can start a change:</p>
-
-              <ul>
-                <li>
-                  <strong>Scheduled review.</strong> A daily briefing and a weekly
-                  review look at recent work and ask what should change.
-                </li>
-                <li>
-                  <strong>End-of-task check.</strong> A check that runs before a
-                  task ends asks whether the system should save any lesson from
-                  the task. This check catches most problems because the details
-                  are still fresh.
-                </li>
-              </ul>
-
-              <h4>What a change can be</h4>
-
-              <ol>
-                <li><strong>Create a module</strong> when a subject appears for the third time.</li>
-                <li><strong>Split a module</strong> when it covers two subjects and has two unrelated branches.</li>
-                <li><strong>Add a gate or rule</strong> when a clear failure happens once.</li>
-                <li><strong>Re-route</strong> when facts are going to the wrong owner.</li>
-                <li><strong>Retire</strong> a subject that no longer appears or should not be stored.</li>
-              </ol>
-
-              <p>
-                If a proposed change does not fit one of these five types, it is
-                not a system change. It is probably a fact, so it should go into
-                the record through the rules in 2.1. This test rejects many
-                vague requests that &ldquo;the assistant should learn this.&rdquo;
-              </p>
-
-              <h4>Who may make it</h4>
-
-              <p>
-                The registrar controls all five operations. No other module can
-                create, move, or delete system parts. This gatekeeper keeps the
-                structure consistent. Module 72 has the same shape as module 1,
-                so one routing rule can reach both. If every module used a
-                different layout, the router would need a special case for each
-                one. The resident index would no longer contain enough
-                information, and the system would start guessing again.
-              </p>
-
-              <h4>The domains grew; they were not designed</h4>
-
-              <p>
-                I did not design all nine domains at the start. I added each
-                domain when its subject first needed a permanent location. Git
-                still shows that history:
-              </p>
-
-              <pre><code>$ git log --reverse --diff-filter=A --format='%ad' --date=short \
-      --name-only -- references/personal/
-
-2026-03-02  career, education, identity, immigration
-2026-03-04  ideas
-2026-03-23  relationships
-2026-03-25  identity_documents, network, pay_stubs
-2026-04-01  finance, living
-2026-04-14  health
-2026-05-22  aesthetic-care
-2026-08-06  travel</code></pre>
-
-              <p>
-                I created fourteen domains over five months, in four groups.
-                Nine remain today. The first layout did not need to be perfect.
-                It needed a clear <em>rule for change</em>. That rule is what
-                kept five months of changes from becoming a pile of unrelated
-                files.
-              </p>
-
-              <h4>Five of the fourteen were retired, and each left a rule behind</h4>
-
-              <p>
-                The retired domains show how the change rules work:
-              </p>
-
-              <div class="schema-table-wrap">
-                <table class="schema-table">
-                  <thead>
-                    <tr>
-                      <th>Retired domain</th>
-                      <th>What happened</th>
-                      <th>What the tree says now</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td><code>immigration/</code></td>
-                      <td>outgrew the record, promoted to its own project directory</td>
-                      <td>routed at question two, with an explicit note that identity documents stay in the record</td>
-                    </tr>
-                    <tr>
-                      <td><code>ideas/</code></td>
-                      <td>moved into the career project</td>
-                      <td>anti-duplication table names the new canonical path</td>
-                    </tr>
-                    <tr>
-                      <td><code>relationships/</code></td>
-                      <td>folded into <code>network/</code></td>
-                      <td>one person, one folder, under <code>network/relationships/</code></td>
-                    </tr>
-                    <tr>
-                      <td><code>identity/</code></td>
-                      <td>renamed to <code>identity_documents/</code>; one of its files deleted outright</td>
-                      <td>scans live in the directory; the border-crossing record is fetched, never stored</td>
-                    </tr>
-                    <tr>
-                      <td><code>pay_stubs/</code></td>
-                      <td>deleted, never re-created</td>
-                      <td>&ldquo;do not store &mdash; download from payroll when needed&rdquo;</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <p>
-                The last row did not need a better storage location. The system
-                needed a rule to <em>not store the data</em>. The official copy
-                is available through one login, while a local copy can become
-                old without any warning. Border-crossing records and current
-                pay now follow the same rule: fetch them when needed and do not
-                store them. The system stored the border-crossing record once in
-                <code>identity/</code>. That copy became old, so I replaced it
-                with the current rule. <strong>The schema must also define what
-                the system should not store.</strong> A system that only adds
-                memories cannot express this rule.
-              </p>
-
-              <h4>Debt is visible</h4>
-
-              <p>
-                One unfinished split is still on disk.
-                <code>career.md</code> sits next to a <code>career/</code>
-                directory. Different readings of the tree could send a fact to
-                either location, which breaks rule 3. The same problem exists
-                with <code>identity.md</code> and
-                <code>identity_documents/</code>.
-              </p>
-
-              <p>
-                This is not a success. The problem has been open for months. But
-                file paths make the problem visible. <code>ls</code> shows both
-                locations, and a domain audit finds the conflict. An embedding
-                index can contain two documents that disagree. It may mark
-                neither one and choose a different winner for each query. There
-                is no command like <code>ls</code> that lists this conflict. I
-                may discover it only after the system gives a wrong answer.
-              </p>
-
-              <h4>The write-back rule</h4>
-
-              <p>
-                The charter includes this rule:
-              </p>
-
-              <pre><code>Never claim something was remembered on the basis of a
-store_memory call alone. Conclusions and rules go into a
-module or a reference — visible and verifiable.</code></pre>
-
-              <p>
-                This rule makes the problem in 1.3 easier to fix. I cannot
-                inspect, compare, or delete a lesson hidden in an opaque memory
-                store. A lesson in a file appears in <code>git log</code>. A
-                person can read it, and I can delete it if it is wrong. Every
-                claim that the system learned something must have a file change
-                behind it.
-              </p>
-
-              <p>
-                This article produced one example. An early draft used headings
-                that sounded like marketing. I added a rule to the repository
-                handoff: headings must be noun phrases and cannot be slogans.
-                The next draft must follow that rule. In this system, learning
-                means changing a file that controls future behaviour.
-              </p>
-
-              <h4>Procedure: changing the system</h4>
-
-              <ol>
-                <li>Describe the failure in one sentence. If you cannot name the failure, do not change the system.</li>
-                <li>Choose one of the five change types. If none fits, save the information as a fact and stop.</li>
-                <li>Find the existing module that owns the subject. Add a gate before creating a new module.</li>
-                <li>Make the change in one place only.</li>
-                <li>Search for the old path or rule. Update every reference, then delete the old copy.</li>
-                <li>Add the change to the tree file. If the index does not include it, the system cannot use it.</li>
-                <li>Write the result you expect. The next review can then check whether the change worked.</li>
-              </ol>
-
-              <div class="callout">
-                <strong>What is not measured</strong>
-                <p>
-                  I do not measure how often the system chooses a wrong route.
-                  To detect a wrong route, I must already know the correct
-                  route. Today, I usually find these mistakes while looking for
-                  something else. A stronger system would log every assignment
-                  and the branch that matched. It would review a sample each
-                  week and track facts that have not been updated after the
-                  real-world value changed. My system does neither today.
-                </p>
-              </div>
             </section>
             <section id="system">
               <p class="section-number">03</p>
@@ -1269,7 +514,7 @@ module or a reference — visible and verifiable.</code></pre>
                 <code>identity.md</code>, and <code>side-business.md</code>,
                 existed before the directory layout. They still sit next to the
                 directories. Two have the same name as a directory, which
-                creates the unfinished work described in 2.3.
+                creates an ambiguity I have not resolved yet.
               </p>
 
               <h3>3.2 Module catalog</h3>
@@ -1299,7 +544,7 @@ module or a reference — visible and verifiable.</code></pre>
                 <li><strong><code>apple-notification</code></strong>: sends urgent alerts to a phone and watch.</li>
                 <li><strong><code>people-ops</code></strong>: writes to the <code>network/</code> domain, with one folder for each person.</li>
                 <li><strong><code>workplace-communication</code></strong>: helps with difficult work conversations and replies.</li>
-                <li><strong><code>negotiation</code></strong>: handles rent, salary, offers, and contract terms; section 2.2 explains this module.</li>
+                <li><strong><code>negotiation</code></strong>: handles rent, salary, offers, and contract terms; this is the module behind Scenario 7.</li>
                 <li><strong><code>social-scout</code></strong>: collects opinions from online communities when real experiences matter.</li>
               </ul>
 
